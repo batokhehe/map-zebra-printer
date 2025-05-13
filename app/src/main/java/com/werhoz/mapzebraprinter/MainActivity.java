@@ -3,6 +3,7 @@ package com.werhoz.mapzebraprinter;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -73,6 +74,11 @@ public class MainActivity extends AppCompatActivity {
             // Set up Bluetooth connection to the printer
             connection = new BluetoothConnection(macAddress);
             connection.open();
+
+            String cpclCommand = "! U1 setvar \"media.clear\" \"\"\n";
+            connection.write(cpclCommand.getBytes());
+
+            Log.d("Zebra", "Buffer cleared.");
 
             // Create a ZebraPrinter instance
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
