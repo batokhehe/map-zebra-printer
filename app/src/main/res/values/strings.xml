@@ -3,4 +3,6 @@
     <string name="auto">Auto</string>
     <string name="manual">Manual</string>
     <string name="setting">Setting</string>
+    <string name="name">Name</string>
+    <string name="address">Address</string>
 </resources>

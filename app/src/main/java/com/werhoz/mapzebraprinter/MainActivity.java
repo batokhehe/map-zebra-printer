@@ -46,15 +46,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button btnPrint = findViewById(R.id.btn_auto);
-        String macAddress = "04:7F:0E:71:80:5E"; // Your printer's Bluetooth MAC address
-        btnPrint.setOnClickListener(view -> printToZebra(macAddress));
+        btnPrint.setOnClickListener(view -> printToZebra());
     }
 
     // Load the CPCL template from assets
     public static String loadZpl(Context context) {
         String cpclTemplate = "";
 
-        try (InputStream is = context.getAssets().open("label_template.zpl")) {
+        try (InputStream is = context.getAssets().open("price_regular.zpl")) {
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -67,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Main method to handle printing to Zebra printer
-    public void printToZebra(String macAddress) {
+    public void printToZebra() {
+        String macAddress = Hawk.get("macAddress");
         Connection connection = null;
 
         try {
@@ -86,7 +86,12 @@ public class MainActivity extends AppCompatActivity {
             // Send the CPCL data directly to the printer without setting language
 //            connection.write("! U1 do \"device.reset\"\r\n".getBytes());
             String cpcl = loadZpl(this);
-            cpcl = cpcl.replace("{TEXT1}", "susu uht");
+            cpcl = cpcl.replace("{TEXT1}", "Rp. 3.339.000")
+                    .replace("{TEXT2}", "Rp. 3.339.000")
+                    .replace("{TEXT3}", "Rp. 3.339.000")
+                    .replace("{TEXT4}", "Rp. 3.339.000")
+                    .replace("{TEXT5}", "Rp. 3.339.000")
+                    .replace("{TEXT6}", "Rp. 3.339.000");
             printer.sendCommand(cpcl);  // Sending CPCL command
 
             Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();

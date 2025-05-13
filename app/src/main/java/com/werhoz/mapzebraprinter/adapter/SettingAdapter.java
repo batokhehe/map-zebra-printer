@@ -1,5 +1,6 @@
 package com.werhoz.mapzebraprinter.adapter;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,20 +17,41 @@ import java.util.List;
 
 public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHolder> {
 
+    private OnItemClickListener onItemClickListener;
     private List<BluetoothDevice> devices = new ArrayList<>();
+
+    public SettingAdapter(List<BluetoothDevice> devices) {
+        this.devices = devices;
+    }
+
+    // Interface for click listener
+    public interface OnItemClickListener {
+        void onItemClick(BluetoothDevice device);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
+    }
 
     public void submitList(List<BluetoothDevice> list) {
         this.devices = list;
         notifyDataSetChanged();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, address;
 
         ViewHolder(View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.device_name);
             address = itemView.findViewById(R.id.device_address);
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (onItemClickListener != null && position != RecyclerView.NO_POSITION) {
+                    onItemClickListener.onItemClick(devices.get(position));
+                }
+            });
         }
     }
 
@@ -41,6 +63,7 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
         return new ViewHolder(view);
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onBindViewHolder(@NonNull SettingAdapter.ViewHolder holder, int position) {
         BluetoothDevice device = devices.get(position);
@@ -52,4 +75,5 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
     public int getItemCount() {
         return devices.size();
     }
+
 }
