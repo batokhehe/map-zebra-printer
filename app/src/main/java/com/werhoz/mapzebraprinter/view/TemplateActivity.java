@@ -1,0 +1,63 @@
+package com.werhoz.mapzebraprinter.view;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.werhoz.mapzebraprinter.R;
+import com.werhoz.mapzebraprinter.adapter.TemplateAdapter;
+import com.werhoz.mapzebraprinter.model.TemplateModel;
+
+import java.util.ArrayList;
+
+public class TemplateActivity extends AppCompatActivity {
+
+    private RecyclerView rvItems;
+    private ArrayList<TemplateModel> dataList = new ArrayList<>();
+    private TemplateAdapter adapter;
+    private String type;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_template);
+
+        Intent intent = getIntent();
+        type = intent.getStringExtra("type");
+
+        rvItems = findViewById(R.id.rv_template);
+        rvItems.setLayoutManager(new GridLayoutManager(this, 2)); // 2 columns
+
+        adapter = new TemplateAdapter(this, dataList, (model, position) -> {
+            // Handle click
+            Toast.makeText(TemplateActivity.this, "Clicked position: " + model.fileName, Toast.LENGTH_SHORT).show();
+//
+//                // Example: Open new activity and pass image resource
+//                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+//                intent.putExtra("image_id", model.imageResId);
+//                startActivity(intent);
+        });
+        rvItems.setAdapter(adapter);
+        loadImages();
+    }
+
+    private void loadImages() {
+        // Add drawable images here
+        dataList.clear();
+        if (type.equals("manual")) {
+            dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale.zpl"));
+            dataList.add(new TemplateModel(R.drawable.price_regular, "price_regular.zpl"));
+        }
+        if (type.equals("auto")) {
+            dataList.add(new TemplateModel(R.drawable.active, "active.zpl"));
+            dataList.add(new TemplateModel(R.drawable.mango, "mango.zpl"));
+        }
+        adapter.notifyDataSetChanged();
+    }
+}

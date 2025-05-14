@@ -15,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.view.SettingActivity;
+import com.werhoz.mapzebraprinter.view.TemplateActivity;
 import com.zebra.sdk.comm.BluetoothConnection;
 import com.zebra.sdk.comm.Connection;
 import com.zebra.sdk.printer.ZebraPrinter;
@@ -45,8 +46,17 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        Button btnPrint = findViewById(R.id.btn_auto);
-        btnPrint.setOnClickListener(view -> printToZebra());
+        Button btnAuto = findViewById(R.id.btn_auto);
+        btnAuto.setOnClickListener(view -> goToTemplateActivity("auto")); //printToZebra());
+
+        Button btnManual = findViewById(R.id.btn_manual);
+        btnManual.setOnClickListener(view -> goToTemplateActivity("manual")); //printToZebra());
+    }
+
+    private void goToTemplateActivity(String params) {
+        Intent intent = new Intent(this, TemplateActivity.class);
+        intent.putExtra("type", params);
+        startActivity(intent);
     }
 
     // Load the CPCL template from assets
