@@ -1,5 +1,6 @@
 package com.werhoz.mapzebraprinter.view;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -28,8 +29,8 @@ public class TemplateActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_template);
 
-        Intent intent = getIntent();
-        type = intent.getStringExtra("type");
+        Intent intentExtra = getIntent();
+        type = intentExtra.getStringExtra("type");
 
         rvItems = findViewById(R.id.rv_template);
         rvItems.setLayoutManager(new GridLayoutManager(this, 2)); // 2 columns
@@ -37,16 +38,18 @@ public class TemplateActivity extends AppCompatActivity {
         adapter = new TemplateAdapter(this, dataList, (model, position) -> {
             // Handle click
             Toast.makeText(TemplateActivity.this, "Clicked position: " + model.fileName, Toast.LENGTH_SHORT).show();
-//
-//                // Example: Open new activity and pass image resource
-//                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-//                intent.putExtra("image_id", model.imageResId);
-//                startActivity(intent);
+
+            // Example: Open new activity and pass image resource
+            Intent intent = new Intent(TemplateActivity.this, ManualActivity.class);
+            intent.putExtra("template", model.fileName);
+            intent.putExtra("image", model.imageResId);
+            startActivity(intent);
         });
         rvItems.setAdapter(adapter);
         loadImages();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void loadImages() {
         // Add drawable images here
         dataList.clear();

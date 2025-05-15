@@ -1,21 +1,19 @@
-package com.werhoz.mapzebraprinter;
+package com.werhoz.mapzebraprinter.view;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.orhanobut.hawk.Hawk;
-import com.werhoz.mapzebraprinter.view.SettingActivity;
-import com.werhoz.mapzebraprinter.view.TemplateActivity;
+import com.werhoz.mapzebraprinter.R;
 import com.zebra.sdk.comm.BluetoothConnection;
 import com.zebra.sdk.comm.Connection;
 import com.zebra.sdk.printer.ZebraPrinter;
@@ -24,46 +22,41 @@ import com.zebra.sdk.printer.ZebraPrinterFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MainActivity extends AppCompatActivity {
+public class ManualActivity extends AppCompatActivity {
+
+    private int image;
+    private String fileName;
+    private String macAddress;
+    private ImageView ivTemplate;
+    private EditText etQty;
+    private EditText etPrice;
+    private Button btnPrint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_manual);
 
-        Hawk.init(this).build();
+        Intent intentExtra = getIntent();
+        image = intentExtra.getIntExtra("image", 0);
+        fileName = intentExtra.getStringExtra("template");
+        macAddress = Hawk.get("macAddress");
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        ivTemplate = findViewById(R.id.iv_template);
+        etQty = findViewById(R.id.et_qty);
+        etPrice = findViewById(R.id.et_price);
+        btnPrint = findViewById(R.id.btn_print);
 
-        Button btnSetting = findViewById(R.id.btn_setting);
-        btnSetting.setOnClickListener(view -> {
-            Intent intent = new Intent(this, SettingActivity.class);
-            startActivity(intent);
-        });
-
-        Button btnAuto = findViewById(R.id.btn_auto);
-        btnAuto.setOnClickListener(view -> goToTemplateActivity("auto")); //printToZebra());
-
-        Button btnManual = findViewById(R.id.btn_manual);
-        btnManual.setOnClickListener(view -> goToTemplateActivity("manual")); //printToZebra());
-    }
-
-    private void goToTemplateActivity(String params) {
-        Intent intent = new Intent(this, TemplateActivity.class);
-        intent.putExtra("type", params);
-        startActivity(intent);
+        ivTemplate.setImageResource(image);
+        btnPrint.setOnClickListener(v -> printToZebra());
     }
 
     // Load the CPCL template from assets
-    public static String loadZpl(Context context) {
+    public String loadZpl(Context context) {
         String cpclTemplate = "";
 
-        try (InputStream is = context.getAssets().open("price_regular.zpl")) {
+        try (InputStream is = context.getAssets().open(fileName)) {
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -77,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
 
     // Main method to handle printing to Zebra printer
     public void printToZebra() {
-        String macAddress = Hawk.get("macAddress");
+        int qty = Integer.parseInt(etQty.getText().toString());
+        String price = etPrice.getText().toString();
         Connection connection = null;
 
         try {
@@ -94,14 +88,33 @@ public class MainActivity extends AppCompatActivity {
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
 
             // Send the CPCL data directly to the printer without setting language
-//            connection.write("! U1 do \"device.reset\"\r\n".getBytes());
             String cpcl = loadZpl(this);
-            cpcl = cpcl.replace("{TEXT1}", "Rp. 3.339.000")
-                    .replace("{TEXT2}", "Rp. 3.339.000")
-                    .replace("{TEXT3}", "Rp. 3.339.000")
-                    .replace("{TEXT4}", "Rp. 3.339.000")
-                    .replace("{TEXT5}", "Rp. 3.339.000")
-                    .replace("{TEXT6}", "Rp. 3.339.000");
+
+            StringBuilder content = new StringBuilder();
+            // box and text dimensions
+            int boxWidth = 264;
+            int boxHeight = 120;
+            int startX1 = 20;
+            int startX2 = 289;
+            int[] textOffset = {9, 32}; // x and y padding inside box
+
+            for (int i = 0; i < qty; i++) {
+                int col = i / 3; // 0 = left, 1 = right
+                int row = i % 3;
+
+                int x1 = col == 0 ? startX1 : startX2;
+                int y1 = 13 + row * (boxHeight + 12); // 12 is spacing between boxes
+                int x2 = x1 + boxWidth;
+                int y2 = y1 + boxHeight;
+
+                int textX = x1 + textOffset[0];
+                int textY = y1 + textOffset[1];
+
+                content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
+                content.append(String.format("T 5 2 %d %d %s\n", textX, textY, price));
+            }
+
+            cpcl = cpcl.replace("{CONTENT}", content.toString());
             printer.sendCommand(cpcl);  // Sending CPCL command
 
             Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
