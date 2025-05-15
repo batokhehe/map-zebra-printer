@@ -1,11 +1,9 @@
 package com.werhoz.mapzebraprinter.view;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,15 +13,10 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.R;
-import com.zebra.sdk.comm.BluetoothConnection;
-import com.zebra.sdk.comm.Connection;
-import com.zebra.sdk.printer.ZebraPrinter;
-import com.zebra.sdk.printer.ZebraPrinterFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
+
+    private TextView connectedDevice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +43,14 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnManual = findViewById(R.id.btn_manual);
         btnManual.setOnClickListener(view -> goToTemplateActivity("manual")); //printToZebra());
+
+        connectedDevice = findViewById(R.id.tv_printer);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        connectedDevice.setText(Hawk.get("deviceName", "No Connected Device."));
     }
 
     private void goToTemplateActivity(String params) {

@@ -32,9 +32,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:importantForAutofill="no"
-        android:inputType="number"
+        android:inputType="text"
         app:layout_constraintTop_toBottomOf="@id/et_qty"
-        tools:ignore="LabelFor" />
+        tools:ignore="LabelFor"
+        tools:layout_editor_absoluteX="0dp" />
 
     <Button
         android:id="@+id/btn_print"

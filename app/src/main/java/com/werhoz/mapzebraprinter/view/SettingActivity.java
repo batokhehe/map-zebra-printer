@@ -96,6 +96,7 @@ public class SettingActivity extends AppCompatActivity {
 
                 Toast.makeText(this, "Connected.", Toast.LENGTH_SHORT).show();
                 Hawk.put("macAddress", device.getAddress());
+                Hawk.put("deviceName", device.getName());
             } catch (Exception e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
