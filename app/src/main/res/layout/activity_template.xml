@@ -4,6 +4,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="84dp"
+    android:padding="20dp"
     tools:context=".view.SettingActivity">
 
     <androidx.recyclerview.widget.RecyclerView

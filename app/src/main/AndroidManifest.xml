@@ -20,6 +20,9 @@
         android:theme="@style/Theme.MAPZebraPrinter"
         tools:targetApi="31">
         <activity
+            android:name=".view.AutoActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.ManualActivity"
             android:exported="false" />
         <activity

@@ -5,6 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="84dp"
+    android:padding="20dp"
     tools:context=".view.ManualActivity">
 
     <ImageView
@@ -18,29 +20,49 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/et_qty"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_qty"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:importantForAutofill="no"
-        android:inputType="number"
-        app:layout_constraintTop_toBottomOf="@id/iv_template"
-        tools:ignore="LabelFor" />
+        android:hint="@string/input_qty"
+        app:layout_constraintTop_toBottomOf="@id/iv_template">
 
-    <EditText
-        android:id="@+id/et_price"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_qty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_price"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:importantForAutofill="no"
-        android:inputType="text"
-        app:layout_constraintTop_toBottomOf="@id/et_qty"
-        tools:ignore="LabelFor"
-        tools:layout_editor_absoluteX="0dp" />
+        android:hint="@string/input_price"
+        app:layout_constraintTop_toBottomOf="@id/til_qty">
 
-    <Button
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textNoSuggestions" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_print"
-        android:layout_width="match_parent"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@color/purple_700"
+        android:drawableStart="@drawable/baseline_print_24"
+        android:drawablePadding="8dp"
+        android:drawableTint="@color/white"
+        android:padding="8dp"
         android:text="@string/print"
-        app:layout_constraintTop_toBottomOf="@+id/et_price" />
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/til_price" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

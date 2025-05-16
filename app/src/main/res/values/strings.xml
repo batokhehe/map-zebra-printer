@@ -8,4 +8,6 @@
     <string name="template">Template</string>
     <string name="print">Print</string>
     <string name="no_connected_device">No Connected Device</string>
+    <string name="input_qty">Input Qty</string>
+    <string name="input_price">Input Price</string>
 </resources>

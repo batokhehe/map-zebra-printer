@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,6 +30,11 @@ public class TemplateActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_template);
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("Choose Template");
+        }
+
         Intent intentExtra = getIntent();
         type = intentExtra.getStringExtra("type");
 
@@ -40,7 +46,11 @@ public class TemplateActivity extends AppCompatActivity {
             Toast.makeText(TemplateActivity.this, "Clicked position: " + model.fileName, Toast.LENGTH_SHORT).show();
 
             // Example: Open new activity and pass image resource
-            Intent intent = new Intent(TemplateActivity.this, ManualActivity.class);
+            Intent intent = null;
+            if (type.equals("manual"))
+                intent = new Intent(TemplateActivity.this, ManualActivity.class);
+            else
+                intent = new Intent(TemplateActivity.this, AutoActivity.class);
             intent.putExtra("template", model.fileName);
             intent.putExtra("image", model.imageResId);
             startActivity(intent);
