@@ -5,12 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.werhoz.mapzebraprinter.R;
-import com.werhoz.mapzebraprinter.model.TemplateModel;
+import com.werhoz.mapzebraprinter.data.model.TemplateModel;
 
 import java.util.List;
 
@@ -42,6 +43,7 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.Templa
     public void onBindViewHolder(@NonNull TemplateViewHolder holder, int position) {
         TemplateModel model = imageList.get(position);
         holder.imageView.setImageResource(model.imageResId);
+        holder.name.setText(model.name);
         // Set click listener
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
@@ -57,10 +59,12 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.Templa
 
     public static class TemplateViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        TextView name;
 
         public TemplateViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.iv_template);
+            name = itemView.findViewById(R.id.tv_name);
         }
     }
 }

@@ -20,10 +20,21 @@
             android:contentDescription="@string/template"
             android:scaleType="fitXY"
             android:src="@drawable/price_regular"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/name"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@+id/iv_template"
+            app:layout_constraintStart_toStartOf="@id/iv_template"
+            app:layout_constraintTop_toBottomOf="@id/iv_template" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.werhoz.mapzebraprinter.R;
 import com.werhoz.mapzebraprinter.adapter.TemplateAdapter;
-import com.werhoz.mapzebraprinter.model.TemplateModel;
+import com.werhoz.mapzebraprinter.data.model.TemplateModel;
 
 import java.util.ArrayList;
 
@@ -64,12 +64,13 @@ public class TemplateActivity extends AppCompatActivity {
         // Add drawable images here
         dataList.clear();
         if (type.equals("manual")) {
-            dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale.zpl"));
-            dataList.add(new TemplateModel(R.drawable.price_regular, "price_regular.zpl"));
+            dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale.zpl", "Price Sale"));
+            dataList.add(new TemplateModel(R.drawable.price_regular, "price_regular.zpl", "Price Regular"));
         }
         if (type.equals("auto")) {
-            dataList.add(new TemplateModel(R.drawable.active, "active.zpl"));
-            dataList.add(new TemplateModel(R.drawable.mango, "mango.zpl"));
+            dataList.add(new TemplateModel(R.drawable.active, "active.zpl", "Active"));
+            dataList.add(new TemplateModel(R.drawable.mango, "mango.zpl", "Mango"));
+            dataList.add(new TemplateModel(R.drawable.alo, "alo.zpl", "Alo"));
         }
         adapter.notifyDataSetChanged();
     }
