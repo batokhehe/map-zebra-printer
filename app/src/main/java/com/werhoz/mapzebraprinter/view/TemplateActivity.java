@@ -53,6 +53,7 @@ public class TemplateActivity extends AppCompatActivity {
                 intent = new Intent(TemplateActivity.this, AutoActivity.class);
             intent.putExtra("template", model.fileName);
             intent.putExtra("image", model.imageResId);
+            intent.putExtra("name", model.name);
             startActivity(intent);
         });
         rvItems.setAdapter(adapter);

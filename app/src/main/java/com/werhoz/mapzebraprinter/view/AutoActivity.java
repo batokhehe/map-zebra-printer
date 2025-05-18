@@ -6,13 +6,14 @@ import static android.view.View.VISIBLE;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,17 +32,21 @@ import com.zebra.sdk.printer.ZebraPrinterFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 public class AutoActivity extends AppCompatActivity {
 
     private int image;
     private String fileName;
+    private String name;
     private String macAddress;
-    private ImageView ivTemplate;
+    private TextView etTemplate;
     private EditText etQty;
     private EditText etBarcode;
     private Button btnPrint;
     private View clContent;
+    private View progressBar;
     private TextView etVariant;
     private TextView etDescription;
     private TextView etCategory;
@@ -60,14 +65,19 @@ public class AutoActivity extends AppCompatActivity {
         Intent intentExtra = getIntent();
         image = intentExtra.getIntExtra("image", 0);
         fileName = intentExtra.getStringExtra("template");
+        name = intentExtra.getStringExtra("name");
         macAddress = Hawk.get("macAddress");
 
-        ivTemplate = findViewById(R.id.iv_template);
+        etTemplate = findViewById(R.id.et_template);
         etQty = findViewById(R.id.et_qty);
         btnPrint = findViewById(R.id.btn_print);
 
-        ivTemplate.setImageResource(image);
-        btnPrint.setOnClickListener(v -> printToZebra());
+        etTemplate.setText(name);
+        btnPrint.setOnClickListener(v -> {
+            Toast.makeText(this, "Printing, please wait...", Toast.LENGTH_SHORT).show();
+            new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
+        });
+
 
         etVariant = findViewById(R.id.et_variant);
         etDescription = findViewById(R.id.et_desc);
@@ -77,20 +87,22 @@ public class AutoActivity extends AppCompatActivity {
         etCurrentPrice = findViewById(R.id.et_current_price);
         etBarcode = findViewById(R.id.et_barcode);
         clContent = findViewById(R.id.cl_content);
+        progressBar = findViewById(R.id.progress_bar);
 
         viewModel = new ViewModelProvider(this).get(ItemViewModel.class);
 
         clContent.setVisibility(GONE);
         etBarcode.requestFocus();
         viewModel.getItemResponseLiveData().observe(this, item -> {
+            progressBar.setVisibility(GONE);
             itemResponse = item;
             if (item != null) {
                 etVariant.setText(item.getVariant());
                 etDescription.setText(item.getDescription());
                 etCategory.setText(item.getProductCategory());
                 etEan.setText(item.getEanNumber());
-                etWasPrice.setText("Rp " + item.getWasPrice());
-                etCurrentPrice.setText("Rp " + item.getCurrentPrice());
+                etWasPrice.setText("Rp " + formatNumber(item.getWasPrice()));
+                etCurrentPrice.setText("Rp " + formatNumber(item.getCurrentPrice()));
                 clContent.setVisibility(VISIBLE);
                 etQty.requestFocus();
             } else {
@@ -105,7 +117,10 @@ public class AutoActivity extends AppCompatActivity {
 
                 String barcodeValue = etBarcode.getText().toString().trim();
 
-                viewModel.fetchItem(barcodeValue);
+                progressBar.setVisibility(VISIBLE);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    viewModel.fetchItem(barcodeValue);
+                }, 1000);
 
                 return true; // consume event
             }
@@ -133,7 +148,6 @@ public class AutoActivity extends AppCompatActivity {
     public void printToZebra() {
         int qty = Integer.parseInt(etQty.getText().toString());
         Connection connection = null;
-
         try {
             // Set up Bluetooth connection to the printer
             connection = new BluetoothConnection(macAddress);
@@ -216,11 +230,11 @@ public class AutoActivity extends AppCompatActivity {
 
             // WAS : Original Price
             content.append("T 5 0 ").append(startX + 19 + offsetX).append(" ")
-                    .append(startY + offsetY + 351).append(" WAS :  ").append(itemResponse.getWasPrice()).append("\n");
+                    .append(startY + offsetY + 351).append(" WAS :  ").append(formatNumber(itemResponse.getWasPrice())).append("\n");
 
             // NOW : Current Price
             content.append("T 5 0 ").append(startX + 19 + offsetX).append(" ")
-                    .append(startY + offsetY + 381).append(" NOW :  ").append(itemResponse.getCurrentPrice()).append("\n");
+                    .append(startY + offsetY + 381).append(" NOW :  ").append(formatNumber(itemResponse.getCurrentPrice())).append("\n");
 
             // Lines
             content.append("L ").append(startX + 15 + offsetX).append(" ")
@@ -290,7 +304,7 @@ public class AutoActivity extends AppCompatActivity {
             // Add texts
             cpcl.append(String.format("T 5 0 %d %d %s\n", textX, startYRow + 36, itemResponse.getVariant()));
             cpcl.append(String.format("T 5 0 %d %d %s\n", descX, startYRow + 71, itemResponse.getDescription()));
-            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, startYRow + 276, itemResponse.getCurrentPrice()));
+            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, startYRow + 276, formatNumber(itemResponse.getCurrentPrice())));
             cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, startYRow + 130, itemResponse.getEanNumber())); // placeholder
         }
 
@@ -339,7 +353,7 @@ public class AutoActivity extends AppCompatActivity {
             cpcl.append(String.format("T 0 0 %d %d KATEGORI\n", xField, yBase + 324));
             cpcl.append(String.format("T 0 0 %d %d : %s\n", xColon, yBase + 324, itemResponse.getProductCategory()));
 
-            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", xField + 86, yBase + 379, itemResponse.getCurrentPrice()));
+            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", xField + 86, yBase + 379, formatNumber(itemResponse.getCurrentPrice())));
 
             // BARCODE text
             int barcodeY = yBase + (isLeft ? 85 : 85); // adjust if needed
@@ -348,5 +362,18 @@ public class AutoActivity extends AppCompatActivity {
         }
 
         return cpcl.toString();
+    }
+
+    public String formatNumber(String number) {
+        double value = Double.parseDouble(number);  // Ubah string ke double
+        // Atur simbol pemisah ribuan
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator('.');
+
+        // Buat format angka dengan pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###", symbols);
+        String formattedNumber = formatter.format(value);
+
+        return formattedNumber; // Output: 1.234.567
     }
 }

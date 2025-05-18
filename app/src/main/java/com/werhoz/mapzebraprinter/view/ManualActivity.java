@@ -3,10 +3,14 @@ package com.werhoz.mapzebraprinter.view;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -21,13 +25,16 @@ import com.zebra.sdk.printer.ZebraPrinterFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 public class ManualActivity extends AppCompatActivity {
 
     private int image;
     private String fileName;
+    private String name;
     private String macAddress;
-    private ImageView ivTemplate;
+    private TextView etTemplate;
     private EditText etQty;
     private EditText etPrice;
     private Button btnPrint;
@@ -40,16 +47,69 @@ public class ManualActivity extends AppCompatActivity {
 
         Intent intentExtra = getIntent();
         image = intentExtra.getIntExtra("image", 0);
+        name = intentExtra.getStringExtra("name");
         fileName = intentExtra.getStringExtra("template");
         macAddress = Hawk.get("macAddress");
 
-        ivTemplate = findViewById(R.id.iv_template);
+        etTemplate = findViewById(R.id.et_template);
         etQty = findViewById(R.id.et_qty);
         etPrice = findViewById(R.id.et_price);
         btnPrint = findViewById(R.id.btn_print);
 
-        ivTemplate.setImageResource(image);
-        btnPrint.setOnClickListener(v -> printToZebra());
+        etTemplate.setText(name);
+        etQty.requestFocus();
+
+        btnPrint.setOnClickListener(v -> {
+            if (!etPrice.getText().toString().isEmpty() || !etQty.getText().toString().isEmpty()) {
+                Toast.makeText(this, "Printing, please wait...", Toast.LENGTH_LONG).show();
+                new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
+            } else {
+                Toast.makeText(this, "Please Input Qty and Price", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        etPrice.addTextChangedListener(new TextWatcher() {
+            private String current = "";
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!s.toString().equals(current)) {
+                    etPrice.removeTextChangedListener(this);
+
+                    // Hapus semua titik agar bisa parsing ulang
+                    String cleanString = s.toString().replace(".", "");
+
+                    try {
+                        // Ubah ke long
+                        long parsed = Long.parseLong(cleanString);
+
+                        // Format dengan tanda titik
+                        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+                        symbols.setGroupingSeparator('.');
+                        DecimalFormat formatter = new DecimalFormat("#,###", symbols);
+                        String formatted = formatter.format(parsed);
+
+                        current = formatted;
+                        etPrice.setText(formatted);
+                        etPrice.setSelection(formatted.length());
+                    } catch (NumberFormatException e) {
+                        // Handle jika input kosong atau bukan angka
+                        current = "";
+                        etPrice.setText("");
+                    }
+
+                    etPrice.addTextChangedListener(this);
+                }
+            }
+        });
     }
 
     // Load the CPCL template from assets
@@ -73,7 +133,6 @@ public class ManualActivity extends AppCompatActivity {
         int qty = Integer.parseInt(etQty.getText().toString());
         String price = etPrice.getText().toString();
         Connection connection = null;
-
         try {
             // Set up Bluetooth connection to the printer
             connection = new BluetoothConnection(macAddress);

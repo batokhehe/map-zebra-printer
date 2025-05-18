@@ -13,16 +13,33 @@
         android:layout_height="wrap_content"
         android:padding="20dp">
 
-        <ImageView
-            android:id="@+id/iv_template"
-            android:layout_width="150dp"
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/template"
-            android:scaleType="fitXY"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_template"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Template"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_template"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:imeOptions="actionDone"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_barcode"
@@ -30,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Barcode"
-            app:layout_constraintTop_toBottomOf="@id/iv_template">
+            app:layout_constraintTop_toBottomOf="@id/til_template">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_barcode"
@@ -159,7 +176,7 @@
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@color/purple_700"
+                android:background="@color/primary_color"
                 android:drawableStart="@drawable/baseline_print_24"
                 android:drawablePadding="8dp"
                 android:drawableTint="@color/white"
