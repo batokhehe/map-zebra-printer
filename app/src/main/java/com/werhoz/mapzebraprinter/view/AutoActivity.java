@@ -55,6 +55,7 @@ public class AutoActivity extends AppCompatActivity {
     private TextView etCurrentPrice;
     private ItemViewModel viewModel;
     private ItemResponse itemResponse;
+    private int MAX_CHARS_PER_LINE = 21;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -219,15 +220,18 @@ public class AutoActivity extends AppCompatActivity {
                     .append(startY + offsetY + boxHeight).append(" 2\n");
 
             // Variant/Single Article
-            content.append("T 5 0 ").append(startX + 15 + offsetX).append(" ")
+            content.append("T 7 0 ").append(startX + 15 + offsetX).append(" ")
                     .append(startY + offsetY + 6).append(" ").append(itemResponse.getVariant()).append("\n");
 
             // Article Description
-            content.append("T 5 0 ").append(startX + 33 + offsetX).append(" ")
-                    .append(startY + offsetY + 55).append(" ").append(itemResponse.getDescription()).append("\n");
+//            content.append("T 7 0 ").append(startX + 33 + offsetX).append(" ")
+//                    .append(startY + offsetY + 55).append(" ").append(wrapText(itemResponse.getDescription())).append("\n");
+
+            content.append(wrapText(itemResponse.getDescription(), 55, 15, startX, startY, offsetX, offsetY)).append("\n");
+
 
             // Product Category
-            content.append("T 5 0 ").append(startX + 39 + offsetX).append(" ")
+            content.append("T 7 0 ").append(startX + 39 + offsetX).append(" ")
                     .append(startY + offsetY + 156).append(" ").append(itemResponse.getProductCategory()).append("\n");
 
             // WAS : Original Price
@@ -468,5 +472,24 @@ public class AutoActivity extends AppCompatActivity {
         String formattedNumber = formatter.format(value);
 
         return formattedNumber; // Output: 1.234.567
+    }
+
+    public String wrapText(String text, int startYPos, int startXPos, int startX, int startY, int offsetX, int offsetY) {
+        StringBuilder wrapped = new StringBuilder();
+        int y = startY + offsetY + startYPos; // starting Y position for the first line
+        int index = 0;
+
+        while (index < text.length()) {
+            int end = Math.min(index + MAX_CHARS_PER_LINE, text.length());
+            String line = text.substring(index, end);
+            wrapped.append("T 7 0 ")
+                    .append(startX + startXPos + offsetX).append(" ")
+                    .append(y).append(" ")
+                    .append(line).append("\n");
+            y += 30;
+            index += MAX_CHARS_PER_LINE;
+        }
+
+        return wrapped.toString();
     }
 }
