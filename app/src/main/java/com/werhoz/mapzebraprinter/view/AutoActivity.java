@@ -189,6 +189,8 @@ public class AutoActivity extends AppCompatActivity {
     public String generateContent(int qty) {
         if (fileName.contains("active")) return generateActive(qty);
         if (fileName.contains("alo")) return generateAlo(qty);
+        if (fileName.contains("sale")) return generatePriceSale(qty);
+        if (fileName.contains("regular")) return generatePriceRegular(qty);
         return generateMango(qty);
     }
 
@@ -362,6 +364,97 @@ public class AutoActivity extends AppCompatActivity {
         }
 
         return cpcl.toString();
+    }
+
+    public String generatePriceSale(int qty) {
+        StringBuilder content = new StringBuilder();
+
+        // Configs
+        int boxWidth = 264;
+        int boxHeight = 120;
+        int spacingY = 12;
+
+        int startX1 = 20;
+        int startX2 = 294;
+
+        int startY = 13;
+
+        // Text price padding
+        int priceTextOffsetX = 70;
+        int priceTextOffsetY1 = 32; // For top price
+        int priceTextOffsetY2 = 167; // For bottom price
+
+        // Vertical SALE label
+        int saleTextXLeft = 22;
+        int saleTextXRight = 296;
+        int[] saleTextY = {104, 235, 369};
+
+        // Vertical line
+        int lineXLeft = 51;
+        int lineXRight = 325;
+        int[] lineYStart = {14, 147, 277};
+        int[] lineYEnd = {132, 265, 395};
+
+        for (int i = 0; i < qty; i++) {
+            int col = i % 2; // 0 = left, 1 = right
+            int row = i / 2;
+
+            int x1 = (col == 0) ? startX1 : startX2;
+            int y1 = startY + row * (boxHeight + spacingY);
+            int x2 = x1 + boxWidth;
+            int y2 = y1 + boxHeight;
+
+            // Draw box
+            content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
+
+            // Draw horizontal price text (top & bottom within box)
+            int priceX = x1 + priceTextOffsetX;
+            int topY = y1 + priceTextOffsetY1;
+//            int bottomY = y1 + priceTextOffsetY2;
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, topY, formatNumber(itemResponse.getCurrentPrice())));
+//            content.append(String.format("T 5 1 %d %d %s\n", priceX, bottomY, price));
+
+            // Draw vertical "SALE" text
+            int saleX = (col == 0) ? saleTextXLeft : saleTextXRight;
+            int saleY = saleTextY[row];
+            content.append(String.format("T90 5 0 %d %d SALE\n", saleX, saleY));
+
+            // Draw vertical line
+            int lineX = (col == 0) ? lineXLeft : lineXRight;
+            int lineY1 = lineYStart[row];
+            int lineY2 = lineYEnd[row];
+            content.append(String.format("L %d %d %d %d 1\n", lineX, lineY1, lineX, lineY2));
+        }
+
+        return content.toString();
+    }
+
+    public String generatePriceRegular(int qty) {
+        StringBuilder content = new StringBuilder();
+
+        // box and text dimensions
+        int boxWidth = 264;
+        int boxHeight = 120;
+        int startX1 = 20;
+        int startX2 = 289;
+        int[] textOffset = {9, 32}; // x and y padding inside box
+
+        for (int i = 0; i < qty; i++) {
+            int col = i % 2; // 0 = left, 1 = right
+            int row = i / 2;
+
+            int x1 = col == 0 ? startX1 : startX2;
+            int y1 = 13 + row * (boxHeight + 12); // 12 is spacing between boxes
+            int x2 = x1 + boxWidth;
+            int y2 = y1 + boxHeight;
+
+            int textX = x1 + textOffset[0];
+            int textY = y1 + textOffset[1];
+
+            content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
+            content.append(String.format("T 5 2 %d %d %s\n", textX, textY, formatNumber(itemResponse.getCurrentPrice())));
+        }
+        return content.toString();
     }
 
     public String formatNumber(String number) {
