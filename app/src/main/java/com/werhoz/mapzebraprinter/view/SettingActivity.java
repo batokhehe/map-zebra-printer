@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -57,6 +58,11 @@ public class SettingActivity extends AppCompatActivity {
 
         rvItems = findViewById(R.id.rv_devices);
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("MAP Zebra Printer - Setting");
+        }
+
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
@@ -82,7 +88,7 @@ public class SettingActivity extends AppCompatActivity {
 
         requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
 
-        adapter = new SettingAdapter(dataList);
+        adapter = new SettingAdapter(dataList, Hawk.get("macAddress", "null"));
         rvItems.setAdapter(adapter);
 
         adapter.setOnItemClickListener(device -> {
@@ -120,7 +126,8 @@ public class SettingActivity extends AppCompatActivity {
             String name = device.getName() != null ? device.getName() : "Unknown Device";
             String address = device.getAddress();
             System.out.println("Paired Device: " + name + " - " + address);
-            dataList.add(device);
+            if (!dataList.contains(device))
+                dataList.add(device);
         }
         adapter.notifyDataSetChanged();
 

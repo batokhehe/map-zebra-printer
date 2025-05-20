@@ -32,7 +32,7 @@ public class TemplateActivity extends AppCompatActivity {
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setTitle("Choose Template");
+            actionBar.setTitle("MAP Zebra Printer - Choose Template");
         }
 
         Intent intentExtra = getIntent();
@@ -43,7 +43,7 @@ public class TemplateActivity extends AppCompatActivity {
 
         adapter = new TemplateAdapter(this, dataList, (model, position) -> {
             // Handle click
-            Toast.makeText(TemplateActivity.this, "Clicked position: " + model.fileName, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(TemplateActivity.this, "Clicked position: " + model.fileName, Toast.LENGTH_SHORT).show();
 
             // Example: Open new activity and pass image resource
             Intent intent = null;

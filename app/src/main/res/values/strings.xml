@@ -10,4 +10,6 @@
     <string name="no_connected_device">No Connected Device</string>
     <string name="input_qty">Input Qty</string>
     <string name="input_price">Input Price</string>
+    <string name="powered_by_zebra">Powered by Zebra</string>
+    <string name="back">Back</string>
 </resources>

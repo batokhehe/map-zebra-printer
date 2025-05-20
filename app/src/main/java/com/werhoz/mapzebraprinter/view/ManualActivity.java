@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.orhanobut.hawk.Hawk;
@@ -38,6 +39,7 @@ public class ManualActivity extends AppCompatActivity {
     private EditText etQty;
     private EditText etPrice;
     private Button btnPrint;
+    private Button btnBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,17 +57,28 @@ public class ManualActivity extends AppCompatActivity {
         etQty = findViewById(R.id.et_qty);
         etPrice = findViewById(R.id.et_price);
         btnPrint = findViewById(R.id.btn_print);
+        btnBack = findViewById(R.id.btn_back);
 
         etTemplate.setText(name);
         etQty.requestFocus();
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("MAP Zebra Printer - Print");
+        }
+
         btnPrint.setOnClickListener(v -> {
             if (!etPrice.getText().toString().isEmpty() || !etQty.getText().toString().isEmpty()) {
+                btnPrint.setEnabled(false);
                 Toast.makeText(this, "Printing, please wait...", Toast.LENGTH_LONG).show();
                 new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
             } else {
                 Toast.makeText(this, "Please Input Qty and Price", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        btnBack.setOnClickListener(v -> {
+            finish();
         });
 
         etPrice.addTextChangedListener(new TextWatcher() {
@@ -159,6 +172,8 @@ public class ManualActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         } finally {
+            btnPrint.setEnabled(true);
+            resetForm();
             try {
                 if (connection != null && connection.isConnected()) {
                     connection.close(); // Close the connection after printing
@@ -168,6 +183,11 @@ public class ManualActivity extends AppCompatActivity {
                 Toast.makeText(this, "Error closing connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private void resetForm() {
+        etQty.setText("");
+        etPrice.setText("");
     }
 
 

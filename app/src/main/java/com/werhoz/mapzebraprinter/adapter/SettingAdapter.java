@@ -1,5 +1,7 @@
 package com.werhoz.mapzebraprinter.adapter;
 
+import static android.view.View.VISIBLE;
+
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.view.LayoutInflater;
@@ -19,9 +21,11 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
 
     private OnItemClickListener onItemClickListener;
     private List<BluetoothDevice> devices = new ArrayList<>();
+    private String selectedMacAddress;
 
-    public SettingAdapter(List<BluetoothDevice> devices) {
+    public SettingAdapter(List<BluetoothDevice> devices, String selectedMacAddress) {
         this.devices = devices;
+        this.selectedMacAddress = selectedMacAddress;
     }
 
     // Interface for click listener
@@ -40,11 +44,14 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
 
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, address;
+        View parent, selected;
 
         ViewHolder(View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.device_name);
             address = itemView.findViewById(R.id.device_address);
+            parent = itemView.findViewById(R.id.parent);
+            selected = itemView.findViewById(R.id.iv_selected);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -69,6 +76,7 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
         BluetoothDevice device = devices.get(position);
         holder.name.setText(device.getName() != null ? device.getName() : "Unknown Device");
         holder.address.setText(device.getAddress());
+        if (selectedMacAddress.equals(device.getAddress())) holder.selected.setVisibility(VISIBLE);
     }
 
     @Override

@@ -50,7 +50,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        connectedDevice.setText(Hawk.get("deviceName", "No Connected Device."));
+        String text = Hawk.get("deviceName", "");
+        if (text.isEmpty())
+            text = "No Connected Device.";
+        else text = "Connected Devices: " + text;
+        connectedDevice.setText(text);
     }
 
     private void goToTemplateActivity(String params) {

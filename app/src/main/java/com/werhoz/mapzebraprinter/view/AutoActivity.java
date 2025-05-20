@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -45,6 +46,7 @@ public class AutoActivity extends AppCompatActivity {
     private EditText etQty;
     private EditText etBarcode;
     private Button btnPrint;
+    private Button btnBack;
     private View clContent;
     private View progressBar;
     private TextView etVariant;
@@ -72,11 +74,17 @@ public class AutoActivity extends AppCompatActivity {
         etTemplate = findViewById(R.id.et_template);
         etQty = findViewById(R.id.et_qty);
         btnPrint = findViewById(R.id.btn_print);
+        btnBack = findViewById(R.id.btn_back);
 
         etTemplate.setText(name);
         btnPrint.setOnClickListener(v -> {
+            btnPrint.setEnabled(false);
             Toast.makeText(this, "Printing, please wait...", Toast.LENGTH_SHORT).show();
             new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
+        });
+
+        btnBack.setOnClickListener(v -> {
+            finish();
         });
 
 
@@ -89,6 +97,11 @@ public class AutoActivity extends AppCompatActivity {
         etBarcode = findViewById(R.id.et_barcode);
         clContent = findViewById(R.id.cl_content);
         progressBar = findViewById(R.id.progress_bar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("MAP Zebra Printer - Print");
+        }
 
         viewModel = new ViewModelProvider(this).get(ItemViewModel.class);
 
@@ -175,6 +188,8 @@ public class AutoActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         } finally {
+            btnPrint.setEnabled(true);
+            resetForm();
             try {
                 if (connection != null && connection.isConnected()) {
                     connection.close(); // Close the connection after printing
@@ -184,6 +199,12 @@ public class AutoActivity extends AppCompatActivity {
                 Toast.makeText(this, "Error closing connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private void resetForm() {
+        etQty.setText("");
+        etBarcode.setText("");
+        clContent.setVisibility(GONE);
     }
 
 
@@ -299,7 +320,7 @@ public class AutoActivity extends AppCompatActivity {
             int startYRow = startY + row * labelHeight;
             int boxEndY = startYRow + boxHeight;
 
-            int textX = startX + (isLeft ? 18 : 33); // adjusted based on original
+            int textX = startX + (isLeft ? 4 : 6); // adjusted based on original
             int descX = textX;
             int priceX = textX + 44;
             int barcodeX = textX + 5;
@@ -308,8 +329,19 @@ public class AutoActivity extends AppCompatActivity {
             cpcl.append(String.format("BOX %d %d %d %d 2\n", startX, startYRow, boxEndX, boxEndY));
 
             // Add texts
-            cpcl.append(String.format("T 5 0 %d %d %s\n", textX, startYRow + 36, itemResponse.getVariant()));
-            cpcl.append(String.format("T 5 0 %d %d %s\n", descX, startYRow + 71, itemResponse.getDescription()));
+            cpcl.append(String.format("T 7 0 %d %d %s\n", textX, startYRow + 36, itemResponse.getVariant()));
+
+            int index = 0;
+            String text = itemResponse.getDescription();
+            int y = startYRow + 71;
+            while (index < text.length()) {
+                int end = Math.min(index + MAX_CHARS_PER_LINE, text.length());
+                String line = text.substring(index, end);
+                cpcl.append(String.format("T 7 0 %d %d %s\n", descX, y, line)).append("\n");
+                y += 30;
+                index += MAX_CHARS_PER_LINE;
+            }
+
             cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, startYRow + 276, formatNumber(itemResponse.getCurrentPrice())));
             cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, startYRow + 130, itemResponse.getEanNumber())); // placeholder
         }
