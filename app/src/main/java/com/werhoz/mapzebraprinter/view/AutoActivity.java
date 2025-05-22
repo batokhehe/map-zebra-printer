@@ -410,8 +410,8 @@ public class AutoActivity extends AppCompatActivity {
         int boxHeight = 120;
         int spacingY = 12;
 
-        int startX1 = 20;
-        int startX2 = 294;
+        int startX1 = 15;
+        int startX2 = 300;
 
         int startY = 13;
 
@@ -421,13 +421,14 @@ public class AutoActivity extends AppCompatActivity {
         int priceTextOffsetY2 = 167; // For bottom price
 
         // Vertical SALE label
-        int saleTextXLeft = 22;
-        int saleTextXRight = 296;
+        int saleTextXLeft = 24;
+        int saleTextXRight = 309;
         int[] saleTextY = {104, 235, 369};
+        int fontWidthEstimate = itemResponse.getCurrentPrice().length() * 20;
 
         // Vertical line
         int lineXLeft = 51;
-        int lineXRight = 325;
+        int lineXRight = 335;
         int[] lineYStart = {14, 147, 277};
         int[] lineYEnd = {132, 265, 395};
 
@@ -444,10 +445,10 @@ public class AutoActivity extends AppCompatActivity {
             content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
 
             // Draw horizontal price text (top & bottom within box)
-            int priceX = x1 + priceTextOffsetX;
+            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
             int topY = y1 + priceTextOffsetY1;
 //            int bottomY = y1 + priceTextOffsetY2;
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, topY, formatNumber(itemResponse.getCurrentPrice())));
+            content.append(String.format("T 5 2 %d %d %s\n", priceX, topY, itemResponse.getCurrentPrice()));
 //            content.append(String.format("T 5 1 %d %d %s\n", priceX, bottomY, price));
 
             // Draw vertical "SALE" text
@@ -471,8 +472,9 @@ public class AutoActivity extends AppCompatActivity {
         // box and text dimensions
         int boxWidth = 264;
         int boxHeight = 120;
-        int startX1 = 20;
-        int startX2 = 289;
+        int startX1 = 15;
+        int startX2 = 300;
+        int fontWidthEstimate = itemResponse.getCurrentPrice().length() * 20;
         int[] textOffset = {9, 32}; // x and y padding inside box
 
         for (int i = 0; i < qty; i++) {
@@ -484,11 +486,11 @@ public class AutoActivity extends AppCompatActivity {
             int x2 = x1 + boxWidth;
             int y2 = y1 + boxHeight;
 
-            int textX = x1 + textOffset[0];
+            int textX = x1 + ((boxWidth - fontWidthEstimate) / 2);
             int textY = y1 + textOffset[1];
 
             content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
-            content.append(String.format("T 5 2 %d %d %s\n", textX, textY, formatNumber(itemResponse.getCurrentPrice())));
+            content.append(String.format("T 5 2 %d %d %s\n", textX, textY, itemResponse.getCurrentPrice()));
         }
         return content.toString();
     }
