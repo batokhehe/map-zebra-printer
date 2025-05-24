@@ -204,6 +204,7 @@ public class AutoActivity extends AppCompatActivity {
     private void resetForm() {
         etQty.setText("");
         etBarcode.setText("");
+        etBarcode.requestFocus();
         clContent.setVisibility(GONE);
     }
 
@@ -217,12 +218,12 @@ public class AutoActivity extends AppCompatActivity {
     }
 
     public String generateActive(int qty) {
-        int startX = 19;
+        int startX = 10;
         int startY = 21;
         int boxWidth = 264;
         int boxHeight = 440;
-        int columnSpacing = 275; // roughly the horizontal shift between columns
-        int rowSpacing = 457;    // vertical shift per row
+        int columnSpacing = 290; // roughly the horizontal shift between columns
+        int rowSpacing = 460;    // vertical shift per row
 
         StringBuilder content = new StringBuilder();
 
@@ -241,7 +242,8 @@ public class AutoActivity extends AppCompatActivity {
                     .append(startY + offsetY + boxHeight).append(" 2\n");
 
             // Variant/Single Article
-            content.append("T 7 0 ").append(startX + 15 + offsetX).append(" ")
+            int variantX = startX + ((boxWidth - (itemResponse.getVariant().length() * 12)) / 2);
+            content.append("T 7 0 ").append(variantX + offsetX).append(" ")
                     .append(startY + offsetY + 6).append(" ").append(itemResponse.getVariant()).append("\n");
 
             // Article Description
@@ -252,7 +254,8 @@ public class AutoActivity extends AppCompatActivity {
 
 
             // Product Category
-            content.append("T 7 0 ").append(startX + 39 + offsetX).append(" ")
+            int categoryX = startX + ((boxWidth - (itemResponse.getProductCategory().length() * 12)) / 2);
+            content.append("T 7 0 ").append(categoryX + offsetX).append(" ")
                     .append(startY + offsetY + 156).append(" ").append(itemResponse.getProductCategory()).append("\n");
 
             // WAS : Original Price
@@ -291,8 +294,10 @@ public class AutoActivity extends AppCompatActivity {
 
             // Barcode (now inside every iteration)
             content.append("BARCODE 128 1 1 100 ")
-                    .append(startX + 20 + offsetX).append(" ")
-                    .append(startY + offsetY + 226).append(" ").append(itemResponse.getEanNumber()).append("\n");
+                    .append(startX + 35 + offsetX).append(" ")
+                    .append(startY + offsetY + 200).append(" ").append(itemResponse.getEanNumber()).append("\n");
+            int xText = col == 0 ? 75 : 360;
+            content.append(String.format("T 5 0 %d %d %s\n", xText, startY + offsetY + 310, itemResponse.getEanNumber()));
         }
 
         return content.toString();
@@ -315,25 +320,23 @@ public class AutoActivity extends AppCompatActivity {
             boolean isLeft = (i % 2 == 0);
             int row = i / 2;
 
-            int startX = isLeft ? 16 : 295;
+            int startX = isLeft ? 10 : 300;
             int boxEndX = startX + boxWidth;
             int startYRow = startY + row * labelHeight;
             int boxEndY = startYRow + boxHeight;
 
-            int textX = startX + (isLeft ? 4 : 6); // adjusted based on original
-            int descX = textX;
-            int priceX = textX + 44;
-            int barcodeX = textX + 5;
+            int descX = startX + 7;
 
             // Add box
             cpcl.append(String.format("BOX %d %d %d %d 2\n", startX, startYRow, boxEndX, boxEndY));
 
             // Add texts
-            cpcl.append(String.format("T 7 0 %d %d %s\n", textX, startYRow + 36, itemResponse.getVariant()));
+            int variantX = startX + ((boxWidth - (itemResponse.getVariant().length() * 12)) / 2);
+            cpcl.append(String.format("T 7 0 %d %d %s\n", variantX, startYRow + 36, itemResponse.getVariant()));
 
             int index = 0;
             String text = itemResponse.getDescription();
-            int y = startYRow + 71;
+            int y = startYRow + 75;
             while (index < text.length()) {
                 int end = Math.min(index + MAX_CHARS_PER_LINE, text.length());
                 String line = text.substring(index, end);
@@ -342,8 +345,13 @@ public class AutoActivity extends AppCompatActivity {
                 index += MAX_CHARS_PER_LINE;
             }
 
-            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, startYRow + 276, formatNumber(itemResponse.getCurrentPrice())));
+            String price = formatNumber(itemResponse.getCurrentPrice());
+            int priceX = startX + ((boxWidth - (price.length() * 20)) / 2);
+            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, startYRow + 300, price));
+            int barcodeX = isLeft ? 47 : 335;
             cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, startYRow + 130, itemResponse.getEanNumber())); // placeholder
+            int xText = isLeft ? 75 : 360;
+            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, startYRow + 240, itemResponse.getEanNumber()));
         }
 
         return cpcl.toString();
@@ -354,7 +362,7 @@ public class AutoActivity extends AppCompatActivity {
 
         int labelWidth = 264;
         int labelHeight = 440;
-        int rowGap = 47;
+        int rowGap = 50;
 
         for (int i = 0; i < qty; i++) {
 
@@ -362,10 +370,10 @@ public class AutoActivity extends AppCompatActivity {
             int row = (i / 2) % 2;
             int page = i / 4;
 
-            int xStart = isLeft ? 16 : 296;
+            int xStart = isLeft ? 10 : 300;
             int xText = isLeft ? 74 : 354;
-            int xField = isLeft ? 21 : 301;
-            int xColon = isLeft ? 119 : 400;
+            int xField = isLeft ? 15 : 305;
+            int xColon = isLeft ? 105 : 395;
             int xBoxEnd = xStart + labelWidth;
 
             int yBase = (page * 1200) + (row * (labelHeight + rowGap)) + 28;
@@ -378,23 +386,25 @@ public class AutoActivity extends AppCompatActivity {
             cpcl.append(String.format("BOX %d %d %d %d 2\n", xStart, yBase, xBoxEnd, yBoxEnd));
 
             // Print fields
-            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, yBase + 226, itemResponse.getEanNumber()));
+            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, yBase + 205, itemResponse.getEanNumber()));
             cpcl.append(String.format("T 0 0 %d %d No. ARTIKEL\n", xField, yBase + 264));
-            cpcl.append(String.format("T 0 0 %d %d : %s\n", xColon, yBase + 264, itemResponse.getVariant()));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 264, itemResponse.getVariant()));
 
             cpcl.append(String.format("T 0 0 %d %d UKURAN\n", xField, yBase + 285));
-            cpcl.append(String.format("T 0 0 %d %d : %s\n", xColon, yBase + 285, itemResponse.getSize()));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 285, itemResponse.getSize()));
 
             cpcl.append(String.format("T 0 0 %d %d WARNA\n", xField, yBase + 304));
-            cpcl.append(String.format("T 0 0 %d %d : %s\n", xColon, yBase + 304, itemResponse.getColor()));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 304, itemResponse.getColor()));
 
             cpcl.append(String.format("T 0 0 %d %d KATEGORI\n", xField, yBase + 324));
-            cpcl.append(String.format("T 0 0 %d %d : %s\n", xColon, yBase + 324, itemResponse.getProductCategory()));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 324, itemResponse.getProductCategory()));
 
-            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", xField + 86, yBase + 379, formatNumber(itemResponse.getCurrentPrice())));
+            String price = formatNumber(itemResponse.getCurrentPrice());
+            int priceX = xField + ((labelWidth - (price.length() * 20)) / 2);
+            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, yBase + 379, price));
 
             // BARCODE text
-            int barcodeY = yBase + (isLeft ? 85 : 85); // adjust if needed
+            int barcodeY = yBase + 85; // adjust if needed
             int barcodeX = isLeft ? 51 : 335;
             cpcl.append(String.format("BARCODE 128 1 1 100  %d %d %s\n", barcodeX, barcodeY, itemResponse.getEanNumber()));
         }
@@ -424,7 +434,8 @@ public class AutoActivity extends AppCompatActivity {
         int saleTextXLeft = 24;
         int saleTextXRight = 309;
         int[] saleTextY = {104, 235, 369};
-        int fontWidthEstimate = itemResponse.getCurrentPrice().length() * 20;
+        String price = formatNumber(itemResponse.getCurrentPrice());
+        int fontWidthEstimate = price.length() * 20;
 
         // Vertical line
         int lineXLeft = 51;
@@ -448,7 +459,7 @@ public class AutoActivity extends AppCompatActivity {
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
             int topY = y1 + priceTextOffsetY1;
 //            int bottomY = y1 + priceTextOffsetY2;
-            content.append(String.format("T 5 2 %d %d %s\n", priceX, topY, itemResponse.getCurrentPrice()));
+            content.append(String.format("T 5 2 %d %d %s\n", priceX, topY, price));
 //            content.append(String.format("T 5 1 %d %d %s\n", priceX, bottomY, price));
 
             // Draw vertical "SALE" text
@@ -474,7 +485,8 @@ public class AutoActivity extends AppCompatActivity {
         int boxHeight = 120;
         int startX1 = 15;
         int startX2 = 300;
-        int fontWidthEstimate = itemResponse.getCurrentPrice().length() * 20;
+        String price = formatNumber(itemResponse.getCurrentPrice());
+        int fontWidthEstimate = price.length() * 20;
         int[] textOffset = {9, 32}; // x and y padding inside box
 
         for (int i = 0; i < qty; i++) {
@@ -490,7 +502,7 @@ public class AutoActivity extends AppCompatActivity {
             int textY = y1 + textOffset[1];
 
             content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
-            content.append(String.format("T 5 2 %d %d %s\n", textX, textY, itemResponse.getCurrentPrice()));
+            content.append(String.format("T 5 2 %d %d %s\n", textX, textY, price));
         }
         return content.toString();
     }
