@@ -2,7 +2,9 @@ package com.werhoz.mapzebraprinter.view;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -10,13 +12,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.R;
+import com.werhoz.mapzebraprinter.viewmodel.DataViewModel;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView connectedDevice;
+    private Button btnDownload;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +50,23 @@ public class MainActivity extends AppCompatActivity {
         btnManual.setOnClickListener(view -> goToTemplateActivity("manual")); //printToZebra());
 
         connectedDevice = findViewById(R.id.tv_printer);
+
+        DataViewModel viewModel = new ViewModelProvider(this).get(DataViewModel.class);
+        TextView statusText = findViewById(R.id.statusText);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+
+        viewModel.getSyncStatus().observe(this, message -> {
+            statusText.setText(message);
+            progressBar.setVisibility(View.VISIBLE);
+
+            if (message.startsWith("✅") || message.startsWith("❌")) {
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+
+
+        btnDownload = findViewById(R.id.btn_download);
+        btnDownload.setOnClickListener(v -> viewModel.startSync());
     }
 
     @Override

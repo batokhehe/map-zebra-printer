@@ -12,4 +12,6 @@
     <string name="input_price">Input Price</string>
     <string name="powered_by_zebra">Powered by Zebra</string>
     <string name="back">Back</string>
+    <string name="download">Download</string>
+    <string name="last_sync">Last Download</string>
 </resources>
