@@ -180,6 +180,10 @@ public class AutoActivity extends AppCompatActivity {
             String content = generateContent(qty);
 
             cpcl = cpcl.replace("{CONTENT}", content);
+            if (fileName.contains("sale") || fileName.contains("regular"))
+                cpcl = cpcl.replace("{height}", String.valueOf(170 * (int) Math.ceil(qty / 2.0)));
+            else
+                cpcl = cpcl.replace("{height}", String.valueOf(570 * (int) Math.ceil(qty / 2.0)));
             printer.sendCommand(cpcl);  // Sending CPCL command
 
             Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
@@ -465,7 +469,7 @@ public class AutoActivity extends AppCompatActivity {
             // Draw vertical "SALE" text
             int saleX = (col == 0) ? saleTextXLeft : saleTextXRight;
             int saleY = saleTextY[row];
-            content.append(String.format("T90 5 0 %d %d SALE\n", saleX, saleY));
+            content.append(String.format("T90 7 0 %d %d SALE\n", saleX, saleY));
 
             // Draw vertical line
             int lineX = (col == 0) ? lineXLeft : lineXRight;

@@ -164,6 +164,7 @@ public class ManualActivity extends AppCompatActivity {
             String content = generateContent(qty, price);
 
             cpcl = cpcl.replace("{CONTENT}", content);
+            cpcl = cpcl.replace("{height}", String.valueOf(170 * (int) Math.ceil(qty / 2.0)));
             printer.sendCommand(cpcl);  // Sending CPCL command
 
             Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
@@ -242,13 +243,13 @@ public class ManualActivity extends AppCompatActivity {
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
             int topY = y1 + priceTextOffsetY1;
 //            int bottomY = y1 + priceTextOffsetY2;
-            content.append(String.format("T 5 2 %d %d %s\n", priceX, topY, price));
+            content.append(String.format("T 4 0 %d %d %s\n", priceX, topY, price));
 //            content.append(String.format("T 5 1 %d %d %s\n", priceX, bottomY, price));
 
             // Draw vertical "SALE" text
             int saleX = (col == 0) ? saleTextXLeft : saleTextXRight;
             int saleY = saleTextY[row];
-            content.append(String.format("T90 5 0 %d %d SALE\n", saleX, saleY));
+            content.append(String.format("T90 7 0 %d %d SALE\n", saleX, saleY));
 
             // Draw vertical line
             int lineX = (col == 0) ? lineXLeft : lineXRight;
@@ -284,7 +285,7 @@ public class ManualActivity extends AppCompatActivity {
             int textY = y1 + textOffset[1];
 
             content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
-            content.append(String.format("T 5 2 %d %d %s\n", textX, textY, price));
+            content.append(String.format("T 4 0 %d %d %s\n", textX, textY, price));
         }
         return content.toString();
     }
