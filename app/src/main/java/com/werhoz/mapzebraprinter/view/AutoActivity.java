@@ -185,7 +185,11 @@ public class AutoActivity extends AppCompatActivity {
             connection = new BluetoothConnection(macAddress);
             connection.open();
 
-            String cpclCommand = "! U1 setvar \"media.clear\" \"\"\n";
+            String cpclCommand = "! U1 setvar \"media.type\" \"gap\"\n" +   // set media type
+                    "! U1 setvar \"media.clear\" \"\"\n" +     // clear buffer
+                    "! U1 setvar \"media.calibrate\" \"\"\n" +     // clear buffer
+                    "! U1 do \"feed\"\n";                      // feed one label
+
             connection.write(cpclCommand.getBytes());
 
             Log.d("Zebra", "Buffer cleared.");
@@ -199,9 +203,11 @@ public class AutoActivity extends AppCompatActivity {
 
             cpcl = cpcl.replace("{CONTENT}", content);
             if (fileName.contains("sale") || fileName.contains("regular"))
-                cpcl = cpcl.replace("{height}", String.valueOf(170 * (int) Math.ceil(qty / 2.0)));
+                cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
             else
-                cpcl = cpcl.replace("{height}", String.valueOf(570 * (int) Math.ceil(qty / 2.0)));
+                cpcl = cpcl.replace("{height}", String.valueOf(480 * (int) Math.ceil(qty / 2.0)));
+//            cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
+
             printer.sendCommand(cpcl);  // Sending CPCL command
 
             Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
@@ -240,195 +246,173 @@ public class AutoActivity extends AppCompatActivity {
     }
 
     public String generateActive(int qty) {
-        int startX = 10;
-        int startY = 21;
+        int startX = 7;
+        int startY = 14;
         int boxWidth = 264;
         int boxHeight = 440;
-        int columnSpacing = 290; // roughly the horizontal shift between columns
-        int rowSpacing = 460;    // vertical shift per row
+        int columnSpacing = 32; // jarak antar kolom
+        int rowSpacing = 30;    // jarak antar baris
 
         StringBuilder content = new StringBuilder();
 
         for (int i = 0; i < qty; i++) {
-            int col = i % 2;
-            int row = i / 2;
+            int col = i % 2;        // kolom kiri/kanan
+            int row = i / 2;        // baris ke-
+            int offsetX = col * (columnSpacing + boxWidth);
+            int offsetY = row * (boxHeight + rowSpacing);
 
-            int offsetX = col * columnSpacing;
-            int offsetY = row * rowSpacing;
+            int x1 = startX + offsetX;
+            int y1 = startY + offsetY;
+            int x2 = x1 + boxWidth;
+            int y2 = y1 + boxHeight;
 
-            // BOX
-            content.append("BOX ")
-                    .append(startX + offsetX).append(" ")
-                    .append(startY + offsetY).append(" ")
-                    .append(startX + offsetX + boxWidth).append(" ")
-                    .append(startY + offsetY + boxHeight).append(" 2\n");
+            // Garis dalam box
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 15, y1 + 46, x1 + 248, y1 + 46));
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 33, y1 + 146, x1 + 236, y1 + 146));
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 15, y1 + 190, x1 + 248, y1 + 190));
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 19, y1 + 340, x1 + 245, y1 + 340));
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 15, y1 + 435, x1 + 245, y1 + 435));
 
             // Variant/Single Article
-            int variantX = startX + ((boxWidth - (itemResponse.itemNumber.length() * 12)) / 2);
-            content.append("T 7 0 ").append(variantX + offsetX).append(" ")
-                    .append(startY + offsetY + 6).append(" ").append(itemResponse.itemNumber).append("\n");
+            int variantX = x1 + ((boxWidth - (itemResponse.itemNumber.length() * 12)) / 2);
+            content.append(String.format("T 7 0 %d %d %s\n", variantX, y1 + 6, itemResponse.itemNumber));
 
-            // Article Description
-//            content.append("T 7 0 ").append(startX + 33 + offsetX).append(" ")
-//                    .append(startY + offsetY + 55).append(" ").append(wrapText(itemResponse.Description)).append("\n");
+            // Description (wrap text)
+            content.append(wrapText(itemResponse.description, 55, 15, startX, y1, offsetX, 15)).append("\n");
 
-            content.append(wrapText(itemResponse.description, 55, 15, startX, startY, offsetX, offsetY)).append("\n");
+            // Category
+            int categoryX = x1 + ((boxWidth - (itemResponse.productCategory.length() * 12)) / 2);
+            content.append(String.format("T 7 0 %d %d %s\n", categoryX, y1 + 156, itemResponse.productCategory));
 
+            // WAS price
+            content.append(String.format("T 5 0 %d %d WAS :  IDR %s\n", x1 + 19, y1 + 351, formatNumber(itemResponse.wasPrice)));
 
-            // Product Category
-            int categoryX = startX + ((boxWidth - (itemResponse.productCategory.length() * 12)) / 2);
-            content.append("T 7 0 ").append(categoryX + offsetX).append(" ")
-                    .append(startY + offsetY + 156).append(" ").append(itemResponse.productCategory).append("\n");
+            // NOW price
+            content.append(String.format("T 5 0 %d %d NOW :  IDR %s\n", x1 + 19, y1 + 381, formatNumber(itemResponse.currentPrice)));
 
-            // WAS : Original Price
-            content.append("T 5 0 ").append(startX + 19 + offsetX).append(" ")
-                    .append(startY + offsetY + 351).append(" WAS :  ").append(formatNumber(itemResponse.wasPrice)).append("\n");
+            // Barcode
+            content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n",
+                    x1 + 35, y1 + 200, itemResponse.eANNumber));
 
-            // NOW : Current Price
-            content.append("T 5 0 ").append(startX + 19 + offsetX).append(" ")
-                    .append(startY + offsetY + 381).append(" NOW :  ").append(formatNumber(itemResponse.currentPrice)).append("\n");
-
-            // Lines
-            content.append("L ").append(startX + 15 + offsetX).append(" ")
-                    .append(startY + offsetY + 46).append(" ")
-                    .append(startX + 248 + offsetX).append(" ")
-                    .append(startY + offsetY + 46).append(" 1\n");
-
-            content.append("L ").append(startX + 33 + offsetX).append(" ")
-                    .append(startY + offsetY + 146).append(" ")
-                    .append(startX + 236 + offsetX).append(" ")
-                    .append(startY + offsetY + 146).append(" 1\n");
-
-            content.append("L ").append(startX + 15 + offsetX).append(" ")
-                    .append(startY + offsetY + 190).append(" ")
-                    .append(startX + 248 + offsetX).append(" ")
-                    .append(startY + offsetY + 190).append(" 1\n");
-
-            content.append("L ").append(startX + 19 + offsetX).append(" ")
-                    .append(startY + offsetY + 340).append(" ")
-                    .append(startX + 245 + offsetX).append(" ")
-                    .append(startY + offsetY + 340).append(" 1\n");
-
-            content.append("L ").append(startX + 15 + offsetX).append(" ")
-                    .append(startY + offsetY + 435).append(" ")
-                    .append(startX + 245 + offsetX).append(" ")
-                    .append(startY + offsetY + 435).append(" 1\n");
-
-            // Barcode (now inside every iteration)
-            content.append("BARCODE 128 1 1 100 ")
-                    .append(startX + 35 + offsetX).append(" ")
-                    .append(startY + offsetY + 200).append(" ").append(itemResponse.eANNumber).append("\n");
+            // Barcode Text
             int xText = col == 0 ? 75 : 360;
-            content.append(String.format("T 5 0 %d %d %s\n", xText, startY + offsetY + 310, itemResponse.eANNumber));
+            content.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 310, itemResponse.eANNumber));
         }
 
         return content.toString();
     }
 
+
     public String generateMango(int qty) {
-        StringBuilder cpcl = new StringBuilder();
-
-        // Page config
-        int boxHeight = 440;
+        int startX = 7;
+        int startY = 14;
         int boxWidth = 264;
-        int gapY = 44;
+        int boxHeight = 440;
+        int columnSpacing = 32; // jarak antar kolom
+        int rowSpacing = 30;    // jarak antar baris
 
-        int startY = 28;
-        int labelHeight = boxHeight + gapY;
+        StringBuilder content = new StringBuilder();
 
         for (int i = 0; i < qty; i++) {
+            int col = i % 2;        // kolom kiri/kanan
+            int row = i / 2;        // baris ke-
+            int offsetX = col * (columnSpacing + boxWidth);
+            int offsetY = row * (boxHeight + rowSpacing);
 
-            // Calculate X,Y based on left/right column and row
-            boolean isLeft = (i % 2 == 0);
-            int row = i / 2;
+            int x1 = startX + offsetX;
+            int y1 = startY + offsetY;
+            int x2 = x1 + boxWidth;
+            int y2 = y1 + boxHeight;
 
-            int startX = isLeft ? 10 : 300;
-            int boxEndX = startX + boxWidth;
-            int startYRow = startY + row * labelHeight;
-            int boxEndY = startYRow + boxHeight;
+            // Variant/Article (item number)
+            int variantX = x1 + ((boxWidth - (itemResponse.itemNumber.length() * 12)) / 2);
+            content.append(String.format("T 7 0 %d %d %s\n", variantX, y1 + 36, itemResponse.itemNumber));
 
-            int descX = startX + 7;
-
-            // Add box
-            cpcl.append(String.format("BOX %d %d %d %d 2\n", startX, startYRow, boxEndX, boxEndY));
-
-            // Add texts
-            int variantX = startX + ((boxWidth - (itemResponse.itemNumber.length() * 12)) / 2);
-            cpcl.append(String.format("T 7 0 %d %d %s\n", variantX, startYRow + 36, itemResponse.itemNumber));
-
+            // Description (wrap text)
+            int descX = x1 + 7;
             int index = 0;
             String text = itemResponse.description;
-            int y = startYRow + 75;
+            int yText = y1 + 75;
             while (index < text.length()) {
                 int end = Math.min(index + MAX_CHARS_PER_LINE, text.length());
                 String line = text.substring(index, end);
-                cpcl.append(String.format("T 7 0 %d %d %s\n", descX, y, line)).append("\n");
-                y += 30;
+                content.append(String.format("T 7 0 %d %d %s\n", descX, yText, line));
+                yText += 30;
                 index += MAX_CHARS_PER_LINE;
             }
 
+            // Price
             String price = formatNumber(itemResponse.currentPrice);
-            int priceX = startX + ((boxWidth - (price.length() * 20)) / 2);
-            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, startYRow + 300, price));
-            int barcodeX = isLeft ? 47 : 335;
-            cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, startYRow + 130, itemResponse.eANNumber)); // placeholder
-            int xText = isLeft ? 75 : 360;
-            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, startYRow + 240, itemResponse.eANNumber));
+            int priceX = x1 + ((boxWidth - (price.length() * 20)) / 2);
+            content.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, y1 + 300, price));
+
+            // Barcode
+            int barcodeX = x1 + 40;
+            content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n",
+                    barcodeX, y1 + 130, itemResponse.eANNumber));
+
+            // Barcode Text
+            int xText = col == 0 ? 75 : 360;
+            content.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 240, itemResponse.eANNumber));
         }
 
-        return cpcl.toString();
+        return content.toString();
     }
 
     public String generateAlo(int qty) {
-        StringBuilder cpcl = new StringBuilder();
-
+        int startX = 7;
+        int startY = 14;
         int labelWidth = 264;
         int labelHeight = 440;
-        int rowGap = 50;
+        int columnSpacing = 32; // jarak antar kolom
+        int rowSpacing = 30;    // jarak antar baris
+
+        StringBuilder cpcl = new StringBuilder();
 
         for (int i = 0; i < qty; i++) {
+            int col = i % 2;        // kiri/kanan
+            int row = (i / 2) % 2;  // baris ke-0/1 dalam 1 halaman
 
-            boolean isLeft = i % 2 == 0;
-            int row = (i / 2) % 2;
-            int page = i / 4;
+            int offsetX = col * (labelWidth + columnSpacing);
+            int offsetY = row * (labelHeight + rowSpacing);
 
-            int xStart = isLeft ? 10 : 300;
-            int xText = isLeft ? 74 : 354;
-            int xField = isLeft ? 15 : 305;
-            int xColon = isLeft ? 105 : 395;
-            int xBoxEnd = xStart + labelWidth;
+            int x1 = startX + offsetX;
+            int y1 = startY + offsetY;
+            int x2 = x1 + labelWidth;
+            int y2 = y1 + labelHeight;
 
-            int yBase = (page * 1200) + (row * (labelHeight + rowGap)) + 28;
-            int yBoxEnd = yBase + labelHeight;
+            // Titik acuan teks
+            int xText = (col == 0) ? 70 : 354;
+            int xField = (col == 0) ? 10 : 305;
+            int xColon = (col == 0) ? 100 : 395;
 
             // Print Title
-            cpcl.append(String.format("T 5 2 %d %d alo\n", xStart + 105, yBase + 25));
-
-            // Draw box
-            cpcl.append(String.format("BOX %d %d %d %d 2\n", xStart, yBase, xBoxEnd, yBoxEnd));
+            cpcl.append(String.format("T 5 2 %d %d alo\n", x1 + 105, y1 + 25));
 
             // Print fields
-            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, yBase + 205, itemResponse.eANNumber));
-            cpcl.append(String.format("T 0 0 %d %d No. ARTIKEL\n", xField, yBase + 264));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 264, itemResponse.itemNumber));
+            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 205, itemResponse.eANNumber));
+            cpcl.append(String.format("T 0 0 %d %d No. ARTIKEL\n", xField, y1 + 264));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, y1 + 264, itemResponse.itemNumber));
 
-            cpcl.append(String.format("T 0 0 %d %d UKURAN\n", xField, yBase + 285));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 285, itemResponse.size));
+            cpcl.append(String.format("T 0 0 %d %d UKURAN\n", xField, y1 + 285));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, y1 + 285, itemResponse.size));
 
-            cpcl.append(String.format("T 0 0 %d %d WARNA\n", xField, yBase + 304));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 304, itemResponse.color));
+            cpcl.append(String.format("T 0 0 %d %d WARNA\n", xField, y1 + 304));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, y1 + 304, itemResponse.color));
 
-            cpcl.append(String.format("T 0 0 %d %d KATEGORI\n", xField, yBase + 324));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 324, itemResponse.productCategory));
+            cpcl.append(String.format("T 0 0 %d %d KATEGORI\n", xField, y1 + 324));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, y1 + 324, itemResponse.productCategory));
 
+            // Harga
             String price = formatNumber(itemResponse.currentPrice);
             int priceX = xField + ((labelWidth - (price.length() * 20)) / 2);
-            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, yBase + 379, price));
+            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, y1 + 379, price));
 
-            // BARCODE text
-            int barcodeY = yBase + 85; // adjust if needed
-            int barcodeX = isLeft ? 51 : 335;
-            cpcl.append(String.format("BARCODE 128 1 1 100  %d %d %s\n", barcodeX, barcodeY, itemResponse.eANNumber));
+            // BARCODE
+            int barcodeX = (col == 0) ? 51 : 335;
+            int barcodeY = y1 + 85;
+            cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n",
+                    barcodeX, barcodeY, itemResponse.eANNumber));
         }
 
         return cpcl.toString();
@@ -437,63 +421,33 @@ public class AutoActivity extends AppCompatActivity {
     public String generatePriceSale(int qty) {
         StringBuilder content = new StringBuilder();
 
-        // Configs
         int boxWidth = 264;
         int boxHeight = 120;
-        int spacingY = 12;
+        int gapY = 24;
+        int[] startX = {9, 305}; // kiri & kanan
+        String price = "Rp. " + formatNumber(itemResponse.currentPrice);
 
-        int startX1 = 15;
-        int startX2 = 300;
-
-        int startY = 13;
-
-        // Text price padding
-        int priceTextOffsetX = 70;
-        int priceTextOffsetY1 = 32; // For top price
-        int priceTextOffsetY2 = 167; // For bottom price
-
-        // Vertical SALE label
-        int saleTextXLeft = 24;
-        int saleTextXRight = 309;
-        int[] saleTextY = {104, 235, 369};
-        String price = formatNumber(itemResponse.currentPrice);
         int fontWidthEstimate = price.length() * 20;
 
-        // Vertical line
-        int lineXLeft = 51;
-        int lineXRight = 335;
-        int[] lineYStart = {14, 147, 277};
-        int[] lineYEnd = {132, 265, 395};
-
         for (int i = 0; i < qty; i++) {
-            int col = i % 2; // 0 = left, 1 = right
-            int row = i / 2;
-
-            int x1 = (col == 0) ? startX1 : startX2;
-            int y1 = startY + row * (boxHeight + spacingY);
+            int col = i % 2;       // kolom
+            int row = i / 2;       // baris
+            int x1 = startX[col];
             int x2 = x1 + boxWidth;
-            int y2 = y1 + boxHeight;
+            int y = 14 + row * (boxHeight + gapY);   // ✅ fix perhitungan y
 
-            // Draw box
-            content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
+            // Text price offset
+            int priceTextOffsetY = y + 25;
 
-            // Draw horizontal price text (top & bottom within box)
+            // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            int topY = y1 + priceTextOffsetY1;
-//            int bottomY = y1 + priceTextOffsetY2;
-            content.append(String.format("T 5 2 %d %d %s\n", priceX, topY, price));
-//            content.append(String.format("T 5 1 %d %d %s\n", priceX, bottomY, price));
+            content.append(String.format("T 5 2 %d %d %s\n", priceX, priceTextOffsetY, price));
 
-            // Draw vertical "SALE" text
-            int saleX = (col == 0) ? saleTextXLeft : saleTextXRight;
-            int saleY = saleTextY[row];
-            content.append(String.format("T90 7 0 %d %d SALE\n", saleX, saleY));
+            // Vertical "SALE"
+            content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, y + (boxHeight - 30)));
 
-            // Draw vertical line
-            int lineX = (col == 0) ? lineXLeft : lineXRight;
-            int lineY1 = lineYStart[row];
-            int lineY2 = lineYEnd[row];
-            content.append(String.format("L %d %d %d %d 1\n", lineX, lineY1, lineX, lineY2));
+            // Vertical line
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
         }
 
         return content.toString();
@@ -502,29 +456,28 @@ public class AutoActivity extends AppCompatActivity {
     public String generatePriceRegular(int qty) {
         StringBuilder content = new StringBuilder();
 
-        // box and text dimensions
         int boxWidth = 264;
         int boxHeight = 120;
-        int startX1 = 15;
-        int startX2 = 300;
-        String price = formatNumber(itemResponse.currentPrice);
+        int gapY = 24;
+        int[] startX = {9, 305}; // kiri & kanan
+        String price = "Rp. " + formatNumber(itemResponse.currentPrice);
+
         int fontWidthEstimate = price.length() * 20;
-        int[] textOffset = {9, 32}; // x and y padding inside box
 
         for (int i = 0; i < qty; i++) {
-            int col = i % 2; // 0 = left, 1 = right
-            int row = i / 2;
-
-            int x1 = col == 0 ? startX1 : startX2;
-            int y1 = 13 + row * (boxHeight + 12); // 12 is spacing between boxes
+            int col = i % 2;       // kolom
+            int row = i / 2;       // baris
+            int x1 = startX[col];
             int x2 = x1 + boxWidth;
-            int y2 = y1 + boxHeight;
+            int y = 14 + row * (boxHeight + gapY);   // ✅ perhitungan Y atas
+            int y2 = y + boxHeight;                  // ✅ Y bawah
 
-            int textX = x1 + ((boxWidth - fontWidthEstimate) / 2);
-            int textY = y1 + textOffset[1];
+            // Text price offset
+            int priceTextOffsetY = y + 40;
 
-            content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
-            content.append(String.format("T 5 2 %d %d %s\n", textX, textY, price));
+            // PRICE text
+            int priceX = x1 + ((boxWidth - fontWidthEstimate) / 2);
+            content.append(String.format("T 5 2 %d %d %s\n", priceX, priceTextOffsetY, price));
         }
         return content.toString();
     }

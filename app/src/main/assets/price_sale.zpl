@@ -1,6 +1,4 @@
-! 0 200 200 150 1
-PW 575
-SPEED 2
-BAR-SENSE
-T 5 0 50 30 Hello World
+! 0 200 200 {height} 1
+PW 640
+{CONTENT}
 PRINT

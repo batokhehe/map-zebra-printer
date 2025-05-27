@@ -108,6 +108,8 @@ public class DataRepository {
                 ResultModel result = new ResultModel();
                 result.itemNumber = productRSFEntity.itemNumber;
                 result.description = productRSFEntity.description;
+                result.size = productRSFEntity.dimensionX;
+                result.color = productRSFEntity.dimensionYOptionID;
                 result.productCategory = systemTableEntity.description;
                 result.eANNumber = aliasNumberEntity.aliasCode;
                 result.wasPrice = String.valueOf(wasPrice);

@@ -151,7 +151,10 @@ public class ManualActivity extends AppCompatActivity {
             connection = new BluetoothConnection(macAddress);
             connection.open();
 
-            String cpclCommand = "! U1 setvar \"media.clear\" \"\"\n";
+            String cpclCommand = "! U1 setvar \"media.type\" \"gap\"\n" +   // set media type
+                    "! U1 setvar \"media.clear\" \"\"\n" +     // clear buffer
+                    "! U1 setvar \"media.calibrate\" \"\"\n" +     // clear buffer
+                    "! U1 do \"feed\"\n";                      // feed one label
 
             connection.write(cpclCommand.getBytes());
 
@@ -165,7 +168,7 @@ public class ManualActivity extends AppCompatActivity {
             String content = generateContent(qty, price);
 
             cpcl = cpcl.replace("{CONTENT}", content);
-            cpcl = cpcl.replace("{height}", String.valueOf(170 * (int) Math.ceil(qty / 2.0)));
+//            cpcl = cpcl.replace("{height}", String.valueOf(170 * (int) Math.ceil(qty / 2.0)));
             cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
             printer.sendCommand(cpcl);  // Sending CPCL command
 
@@ -202,35 +205,33 @@ public class ManualActivity extends AppCompatActivity {
     public String generatePriceSale(int qty, String price) {
         StringBuilder content = new StringBuilder();
 
-        // Configs
         int boxWidth = 264;
         int boxHeight = 120;
-        int[] startX = {8, 305}; // posisi kolom kiri & kanan
-        int y = 0;
+        int gapY = 24;
+        int[] startX = {9, 305}; // kiri & kanan
+        price = "Rp. " + price;
 
-        // Text price
-        int priceTextOffsetY = 30;
         int fontWidthEstimate = price.length() * 20;
 
-        for (int i = 0; i < 2; i++) {
-            int col = i % 2;       // kolom kiri (0) / kanan (1)
-
+        for (int i = 0; i < qty; i++) {
+            int col = i % 2;       // kolom
+            int row = i / 2;       // baris
             int x1 = startX[col];
             int x2 = x1 + boxWidth;
+            int y = 14 + row * (boxHeight + gapY);   // ✅ fix perhitungan y
 
-            // BOX
-            content.append(String.format("BOX %d %d %d %d 1\n", x1, y, x2, boxHeight));
+            // Text price offset
+            int priceTextOffsetY = y + 25;
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            int topY = priceTextOffsetY;
-            content.append(String.format("T 4 0 %d %d %s\n", priceX, topY, price));
+            content.append(String.format("T 5 2 %d %d %s\n", priceX, priceTextOffsetY, price));
 
             // Vertical "SALE"
-            content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, 90));
+            content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, y + (boxHeight - 30)));
 
             // Vertical line
-            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, boxHeight));
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
         }
 
         return content.toString();
@@ -239,28 +240,28 @@ public class ManualActivity extends AppCompatActivity {
     public String generatePriceRegular(int qty, String price) {
         StringBuilder content = new StringBuilder();
 
-        // box and text dimensions
         int boxWidth = 264;
         int boxHeight = 120;
-        int startX1 = 15;
-        int startX2 = 300;
+        int gapY = 24;
+        int[] startX = {9, 305}; // kiri & kanan
+        price = "Rp. " + price;
+
         int fontWidthEstimate = price.length() * 20;
-        int[] textOffset = {9, 32}; // x and y padding inside box
 
         for (int i = 0; i < qty; i++) {
-            int col = i % 2; // 0 = left, 1 = right
-            int row = i / 2;
-
-            int x1 = col == 0 ? startX1 : startX2;
-            int y1 = 13 + row * (boxHeight + 12); // 12 is spacing between boxes
+            int col = i % 2;       // kolom
+            int row = i / 2;       // baris
+            int x1 = startX[col];
             int x2 = x1 + boxWidth;
-            int y2 = y1 + boxHeight;
+            int y = 14 + row * (boxHeight + gapY);   // ✅ perhitungan Y atas
+            int y2 = y + boxHeight;                  // ✅ Y bawah
 
-            int textX = x1 + ((boxWidth - fontWidthEstimate) / 2);
-            int textY = y1 + textOffset[1];
+            // Text price offset
+            int priceTextOffsetY = y + 40;
 
-            content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
-            content.append(String.format("T 4 0 %d %d %s\n", textX, textY, price));
+            // PRICE text
+            int priceX = x1 + ((boxWidth - fontWidthEstimate) / 2);
+            content.append(String.format("T 5 2 %d %d %s\n", priceX, priceTextOffsetY, price));
         }
         return content.toString();
     }
