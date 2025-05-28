@@ -24,8 +24,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.R;
-import com.werhoz.mapzebraprinter.data.model.ItemResponse;
-import com.werhoz.mapzebraprinter.viewmodel.ItemViewModel;
+import com.werhoz.mapzebraprinter.data.model.ResultModel;
+import com.werhoz.mapzebraprinter.viewmodel.DataViewModel;
 import com.zebra.sdk.comm.BluetoothConnection;
 import com.zebra.sdk.comm.Connection;
 import com.zebra.sdk.printer.ZebraPrinter;
@@ -55,8 +55,8 @@ public class AutoActivity extends AppCompatActivity {
     private TextView etEan;
     private TextView etWasPrice;
     private TextView etCurrentPrice;
-    private ItemViewModel viewModel;
-    private ItemResponse itemResponse;
+    private DataViewModel viewModel;
+    private ResultModel itemResponse;
     private int MAX_CHARS_PER_LINE = 21;
 
     @Override
@@ -103,20 +103,38 @@ public class AutoActivity extends AppCompatActivity {
             actionBar.setTitle("MAP Zebra Printer - Print");
         }
 
-        viewModel = new ViewModelProvider(this).get(ItemViewModel.class);
+        viewModel = new ViewModelProvider(this).get(DataViewModel.class);
 
         clContent.setVisibility(GONE);
         etBarcode.requestFocus();
+//        viewModel.getItemResponseLiveData().observe(this, item -> {
+//            progressBar.setVisibility(GONE);
+//            itemResponse = item;
+//            if (item != null) {
+//                etVariant.setText(item.ItemNumber);
+//                etDescription.setText(item.Description);
+//                etCategory.setText(item.ProductCategory);
+//                etEan.setText(item.EANNumber);
+//                etWasPrice.setText("Rp " + formatNumber(item.WasPrice));
+//                etCurrentPrice.setText("Rp " + formatNumber(item.CurrentPrice));
+//                clContent.setVisibility(VISIBLE);
+//                etQty.requestFocus();
+//            } else {
+//                clContent.setVisibility(GONE);
+//                Toast.makeText(this, "Failed to load item", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
         viewModel.getItemResponseLiveData().observe(this, item -> {
             progressBar.setVisibility(GONE);
             itemResponse = item;
             if (item != null) {
-                etVariant.setText(item.getVariant());
-                etDescription.setText(item.getDescription());
-                etCategory.setText(item.getProductCategory());
-                etEan.setText(item.getEanNumber());
-                etWasPrice.setText("Rp " + formatNumber(item.getWasPrice()));
-                etCurrentPrice.setText("Rp " + formatNumber(item.getCurrentPrice()));
+                etVariant.setText(item.itemNumber);
+                etDescription.setText(item.description);
+                etCategory.setText(item.productCategory);
+                etEan.setText(item.eANNumber);
+                etWasPrice.setText("Rp " + formatNumber(item.wasPrice));
+                etCurrentPrice.setText("Rp " + formatNumber(item.currentPrice));
                 clContent.setVisibility(VISIBLE);
                 etQty.requestFocus();
             } else {
@@ -133,7 +151,7 @@ public class AutoActivity extends AppCompatActivity {
 
                 progressBar.setVisibility(VISIBLE);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    viewModel.fetchItem(barcodeValue);
+                    viewModel.getProduct(barcodeValue);
                 }, 1000);
 
                 return true; // consume event
@@ -246,29 +264,29 @@ public class AutoActivity extends AppCompatActivity {
                     .append(startY + offsetY + boxHeight).append(" 2\n");
 
             // Variant/Single Article
-            int variantX = startX + ((boxWidth - (itemResponse.getVariant().length() * 12)) / 2);
+            int variantX = startX + ((boxWidth - (itemResponse.itemNumber.length() * 12)) / 2);
             content.append("T 7 0 ").append(variantX + offsetX).append(" ")
-                    .append(startY + offsetY + 6).append(" ").append(itemResponse.getVariant()).append("\n");
+                    .append(startY + offsetY + 6).append(" ").append(itemResponse.itemNumber).append("\n");
 
             // Article Description
 //            content.append("T 7 0 ").append(startX + 33 + offsetX).append(" ")
-//                    .append(startY + offsetY + 55).append(" ").append(wrapText(itemResponse.getDescription())).append("\n");
+//                    .append(startY + offsetY + 55).append(" ").append(wrapText(itemResponse.Description)).append("\n");
 
-            content.append(wrapText(itemResponse.getDescription(), 55, 15, startX, startY, offsetX, offsetY)).append("\n");
+            content.append(wrapText(itemResponse.description, 55, 15, startX, startY, offsetX, offsetY)).append("\n");
 
 
             // Product Category
-            int categoryX = startX + ((boxWidth - (itemResponse.getProductCategory().length() * 12)) / 2);
+            int categoryX = startX + ((boxWidth - (itemResponse.productCategory.length() * 12)) / 2);
             content.append("T 7 0 ").append(categoryX + offsetX).append(" ")
-                    .append(startY + offsetY + 156).append(" ").append(itemResponse.getProductCategory()).append("\n");
+                    .append(startY + offsetY + 156).append(" ").append(itemResponse.productCategory).append("\n");
 
             // WAS : Original Price
             content.append("T 5 0 ").append(startX + 19 + offsetX).append(" ")
-                    .append(startY + offsetY + 351).append(" WAS :  ").append(formatNumber(itemResponse.getWasPrice())).append("\n");
+                    .append(startY + offsetY + 351).append(" WAS :  ").append(formatNumber(itemResponse.wasPrice)).append("\n");
 
             // NOW : Current Price
             content.append("T 5 0 ").append(startX + 19 + offsetX).append(" ")
-                    .append(startY + offsetY + 381).append(" NOW :  ").append(formatNumber(itemResponse.getCurrentPrice())).append("\n");
+                    .append(startY + offsetY + 381).append(" NOW :  ").append(formatNumber(itemResponse.currentPrice)).append("\n");
 
             // Lines
             content.append("L ").append(startX + 15 + offsetX).append(" ")
@@ -299,9 +317,9 @@ public class AutoActivity extends AppCompatActivity {
             // Barcode (now inside every iteration)
             content.append("BARCODE 128 1 1 100 ")
                     .append(startX + 35 + offsetX).append(" ")
-                    .append(startY + offsetY + 200).append(" ").append(itemResponse.getEanNumber()).append("\n");
+                    .append(startY + offsetY + 200).append(" ").append(itemResponse.eANNumber).append("\n");
             int xText = col == 0 ? 75 : 360;
-            content.append(String.format("T 5 0 %d %d %s\n", xText, startY + offsetY + 310, itemResponse.getEanNumber()));
+            content.append(String.format("T 5 0 %d %d %s\n", xText, startY + offsetY + 310, itemResponse.eANNumber));
         }
 
         return content.toString();
@@ -335,11 +353,11 @@ public class AutoActivity extends AppCompatActivity {
             cpcl.append(String.format("BOX %d %d %d %d 2\n", startX, startYRow, boxEndX, boxEndY));
 
             // Add texts
-            int variantX = startX + ((boxWidth - (itemResponse.getVariant().length() * 12)) / 2);
-            cpcl.append(String.format("T 7 0 %d %d %s\n", variantX, startYRow + 36, itemResponse.getVariant()));
+            int variantX = startX + ((boxWidth - (itemResponse.itemNumber.length() * 12)) / 2);
+            cpcl.append(String.format("T 7 0 %d %d %s\n", variantX, startYRow + 36, itemResponse.itemNumber));
 
             int index = 0;
-            String text = itemResponse.getDescription();
+            String text = itemResponse.description;
             int y = startYRow + 75;
             while (index < text.length()) {
                 int end = Math.min(index + MAX_CHARS_PER_LINE, text.length());
@@ -349,13 +367,13 @@ public class AutoActivity extends AppCompatActivity {
                 index += MAX_CHARS_PER_LINE;
             }
 
-            String price = formatNumber(itemResponse.getCurrentPrice());
+            String price = formatNumber(itemResponse.currentPrice);
             int priceX = startX + ((boxWidth - (price.length() * 20)) / 2);
             cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, startYRow + 300, price));
             int barcodeX = isLeft ? 47 : 335;
-            cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, startYRow + 130, itemResponse.getEanNumber())); // placeholder
+            cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, startYRow + 130, itemResponse.eANNumber)); // placeholder
             int xText = isLeft ? 75 : 360;
-            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, startYRow + 240, itemResponse.getEanNumber()));
+            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, startYRow + 240, itemResponse.eANNumber));
         }
 
         return cpcl.toString();
@@ -390,27 +408,27 @@ public class AutoActivity extends AppCompatActivity {
             cpcl.append(String.format("BOX %d %d %d %d 2\n", xStart, yBase, xBoxEnd, yBoxEnd));
 
             // Print fields
-            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, yBase + 205, itemResponse.getEanNumber()));
+            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, yBase + 205, itemResponse.eANNumber));
             cpcl.append(String.format("T 0 0 %d %d No. ARTIKEL\n", xField, yBase + 264));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 264, itemResponse.getVariant()));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 264, itemResponse.itemNumber));
 
             cpcl.append(String.format("T 0 0 %d %d UKURAN\n", xField, yBase + 285));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 285, itemResponse.getSize()));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 285, itemResponse.size));
 
             cpcl.append(String.format("T 0 0 %d %d WARNA\n", xField, yBase + 304));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 304, itemResponse.getColor()));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 304, itemResponse.color));
 
             cpcl.append(String.format("T 0 0 %d %d KATEGORI\n", xField, yBase + 324));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 324, itemResponse.getProductCategory()));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, yBase + 324, itemResponse.productCategory));
 
-            String price = formatNumber(itemResponse.getCurrentPrice());
+            String price = formatNumber(itemResponse.currentPrice);
             int priceX = xField + ((labelWidth - (price.length() * 20)) / 2);
             cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, yBase + 379, price));
 
             // BARCODE text
             int barcodeY = yBase + 85; // adjust if needed
             int barcodeX = isLeft ? 51 : 335;
-            cpcl.append(String.format("BARCODE 128 1 1 100  %d %d %s\n", barcodeX, barcodeY, itemResponse.getEanNumber()));
+            cpcl.append(String.format("BARCODE 128 1 1 100  %d %d %s\n", barcodeX, barcodeY, itemResponse.eANNumber));
         }
 
         return cpcl.toString();
@@ -438,7 +456,7 @@ public class AutoActivity extends AppCompatActivity {
         int saleTextXLeft = 24;
         int saleTextXRight = 309;
         int[] saleTextY = {104, 235, 369};
-        String price = formatNumber(itemResponse.getCurrentPrice());
+        String price = formatNumber(itemResponse.currentPrice);
         int fontWidthEstimate = price.length() * 20;
 
         // Vertical line
@@ -489,7 +507,7 @@ public class AutoActivity extends AppCompatActivity {
         int boxHeight = 120;
         int startX1 = 15;
         int startX2 = 300;
-        String price = formatNumber(itemResponse.getCurrentPrice());
+        String price = formatNumber(itemResponse.currentPrice);
         int fontWidthEstimate = price.length() * 20;
         int[] textOffset = {9, 32}; // x and y padding inside box
 
