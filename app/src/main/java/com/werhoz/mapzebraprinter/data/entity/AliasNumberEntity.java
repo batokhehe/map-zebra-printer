@@ -9,7 +9,7 @@ public class AliasNumberEntity {
     public int id;
 
     public String itemNumber;
-    public String aliasNumber;
+    public String aliasCode;
     public String season;
     public String company;
 }

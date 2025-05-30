@@ -22,7 +22,7 @@ public interface ProductRSFDao {
     List<ProductRSFEntity> getAll();
 
     @Query("SELECT * FROM ProductRSF WHERE itemNumber = :id")
-    ProductRSFEntity getById(int id);
+    ProductRSFEntity getById(String id);
 
     @Query("DELETE FROM ProductRSF")
     void deleteAll();

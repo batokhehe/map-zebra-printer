@@ -1,10 +1,10 @@
 package com.werhoz.mapzebraprinter.view;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -16,12 +16,17 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.R;
+import com.werhoz.mapzebraprinter.utils.DateTimeUtil;
 import com.werhoz.mapzebraprinter.viewmodel.DataViewModel;
+
+import taimoor.sultani.sweetalert2.Sweetalert;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView connectedDevice;
     private Button btnDownload;
+    private Sweetalert pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Hawk.init(this).build();
+        updateLastSync();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -52,21 +58,33 @@ public class MainActivity extends AppCompatActivity {
         connectedDevice = findViewById(R.id.tv_printer);
 
         DataViewModel viewModel = new ViewModelProvider(this).get(DataViewModel.class);
-        TextView statusText = findViewById(R.id.statusText);
-        ProgressBar progressBar = findViewById(R.id.progressBar);
 
         viewModel.getSyncStatus().observe(this, message -> {
-            statusText.setText(message);
-            progressBar.setVisibility(View.VISIBLE);
+            pDialog.setTitleText(message);
+            pDialog.show();
 
             if (message.startsWith("✅") || message.startsWith("❌")) {
-                progressBar.setVisibility(View.GONE);
+                pDialog.dismissWithAnimation();
             }
+            if (message.startsWith("✅")) {
+                Hawk.put("last_sync", DateTimeUtil.getCurrentDateTime());
+            }
+            updateLastSync();
         });
 
 
         btnDownload = findViewById(R.id.btn_download);
-        btnDownload.setOnClickListener(v -> viewModel.startSync());
+        btnDownload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pDialog = new Sweetalert(MainActivity.this, Sweetalert.PROGRESS_TYPE);
+                pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+                pDialog.setTitleText("Starting...");
+                pDialog.setCancelable(false);
+
+                viewModel.startSync();
+            }
+        });
     }
 
     @Override
@@ -83,5 +101,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, TemplateActivity.class);
         intent.putExtra("type", params);
         startActivity(intent);
+    }
+
+    private void updateLastSync() {
+        TextView tvLastSync = findViewById(R.id.tv_last_download);
+        tvLastSync.setText(String.format("Last Sync: %s", Hawk.get("last_sync", "-")));
     }
 }

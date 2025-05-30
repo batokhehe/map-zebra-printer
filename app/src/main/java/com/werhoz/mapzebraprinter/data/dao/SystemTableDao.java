@@ -24,6 +24,9 @@ public interface SystemTableDao {
     @Query("SELECT * FROM SystemTable WHERE keyValue = :id")
     SystemTableEntity getById(int id);
 
+    @Query("SELECT * FROM SystemTable WHERE keyValue = :id1 OR keyValue = :id2 OR keyValue = :id3")
+    SystemTableEntity getKeyValue(String id1, String id2, String id3);
+
     @Query("DELETE FROM SystemTable")
     void deleteAll();
 }

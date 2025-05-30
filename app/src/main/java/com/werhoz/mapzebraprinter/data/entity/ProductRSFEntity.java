@@ -17,6 +17,7 @@ public class ProductRSFEntity {
     public String dimensionX;
     public String dimensionYOptionID;
     public String itemGroup;
+    public String itemType;
     public String freeField4;
     public String company;
 }

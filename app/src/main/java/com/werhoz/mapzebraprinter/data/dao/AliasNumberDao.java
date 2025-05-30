@@ -21,8 +21,8 @@ public interface AliasNumberDao {
     @Query("SELECT * FROM AliasNumber")
     List<AliasNumberEntity> getAll();
 
-    @Query("SELECT * FROM AliasNumber WHERE itemNumber = :id")
-    AliasNumberEntity getById(int id);
+    @Query("SELECT * FROM AliasNumber WHERE aliasCode = :id")
+    AliasNumberEntity getById(String id);
 
     @Query("DELETE FROM AliasNumber")
     void deleteAll();
