@@ -50,8 +50,10 @@ public class SettingActivity extends AppCompatActivity {
                 String name = device != null ? device.getName() : "Unknown Device";
                 String address = device != null ? device.getAddress() : "Unknown Address";
                 System.out.println("Discovered Device: " + name + " - " + address);
-                dataList.add(device);
-                adapter.notifyDataSetChanged();
+                if (!dataList.contains(device)) {
+                    dataList.add(device);
+                    adapter.notifyDataSetChanged();
+                }
             }
         }
     };
