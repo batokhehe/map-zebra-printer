@@ -1,15 +1,18 @@
 package com.werhoz.mapzebraprinter.network;
 
+import com.orhanobut.hawk.Hawk;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
-//    private static final String BASE_URL = "http://192.168.0.101:7255/api/Items/";
+    //    private static final String BASE_URL = "http://192.168.0.101:7255/api/Items/";
 //    private static final String BASE_URL = "http://192.168.1.16:7255/api/";
 //    private static final String BASE_URL = "https://dummyjson.com/";
-    private static final String BASE_URL = "http://10.3.25.166:7255/api/Items/";
+//    private static final String BASE_URL = "http://10.3.25.166:7255/api/Items/";
+    private static final String BASE_URL = Hawk.get("ip_address", "http://10.3.25.166:7255") + "/api/Items/";
     private static Retrofit retrofit;
 
     public static Retrofit getRetrofitInstance() {

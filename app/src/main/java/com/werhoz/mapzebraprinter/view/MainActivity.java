@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,10 +51,20 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button btnAuto = findViewById(R.id.btn_auto);
-        btnAuto.setOnClickListener(view -> goToTemplateActivity("auto")); //printToZebra());
+        btnAuto.setOnClickListener(view -> {
+            if (!isBluetoothSet() || !isLastSyncSet()) {
+                return;
+            }
+            goToTemplateActivity("auto");
+        }); //printToZebra());
 
         Button btnManual = findViewById(R.id.btn_manual);
-        btnManual.setOnClickListener(view -> goToTemplateActivity("manual")); //printToZebra());
+        btnManual.setOnClickListener(view -> {
+            if (!isBluetoothSet()) {
+                return;
+            }
+            goToTemplateActivity("manual"); //printToZebra());
+        });
 
         connectedDevice = findViewById(R.id.tv_printer);
 
@@ -74,16 +85,16 @@ public class MainActivity extends AppCompatActivity {
 
 
         btnDownload = findViewById(R.id.btn_download);
-        btnDownload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pDialog = new Sweetalert(MainActivity.this, Sweetalert.PROGRESS_TYPE);
-                pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
-                pDialog.setTitleText("Starting...");
-                pDialog.setCancelable(false);
-
-                viewModel.startSync();
+        btnDownload.setOnClickListener(v -> {
+            if (!isIpSet()) {
+                return;
             }
+            pDialog = new Sweetalert(MainActivity.this, Sweetalert.PROGRESS_TYPE);
+            pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+            pDialog.setTitleText("Starting...");
+            pDialog.setCancelable(false);
+
+            viewModel.startSync();
         });
     }
 
@@ -106,5 +117,32 @@ public class MainActivity extends AppCompatActivity {
     private void updateLastSync() {
         TextView tvLastSync = findViewById(R.id.tv_last_download);
         tvLastSync.setText(String.format("Last Sync: %s", Hawk.get("last_sync", "-")));
+    }
+
+    private boolean isIpSet() {
+        String value = Hawk.get("ip_address", "");
+        boolean result = value.isEmpty();
+        if (result) {
+            Toast.makeText(this, "Please set IP Address on Setting menu.", Toast.LENGTH_SHORT).show();
+        }
+        return !result;
+    }
+
+    private boolean isBluetoothSet() {
+        String value = Hawk.get("macAddress", "");
+        boolean result = value.isEmpty();
+        if (result) {
+            Toast.makeText(this, "Please set Bluetooth on Setting menu.", Toast.LENGTH_SHORT).show();
+        }
+        return !result;
+    }
+
+    private boolean isLastSyncSet() {
+        String value = Hawk.get("last_sync", "");
+        boolean result = value.isEmpty();
+        if (result) {
+            Toast.makeText(this, "Please download data first.", Toast.LENGTH_SHORT).show();
+        }
+        return !result;
     }
 }

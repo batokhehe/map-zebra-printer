@@ -9,6 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -32,6 +35,9 @@ public class SettingActivity extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
 
     private RecyclerView rvItems;
+    private Button btnSave;
+    private EditText etIp;
+
     private SettingAdapter adapter;
     private List<BluetoothDevice> dataList = new ArrayList<>();
 
@@ -57,6 +63,9 @@ public class SettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setting); // Ensure this layout exists
 
         rvItems = findViewById(R.id.rv_devices);
+        btnSave = findViewById(R.id.btn_save);
+        etIp = findViewById(R.id.et_ip_address);
+        etIp.setText(Hawk.get("ip_address", "http://10.3.25.166:7255"));
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -118,6 +127,32 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String value = etIp.getText().toString();
+                Hawk.put("ip_address", value);
+                Toast.makeText(SettingActivity.this, "Data saved, please wait restarting application..", Toast.LENGTH_SHORT).show();
+                restartApps();
+            }
+        });
+
+    }
+
+    private void restartApps() {
+        Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+
+        if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+            startActivity(intent);
+
+            // Kill the current process
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(0);
+        }
     }
 
     @SuppressLint({"MissingPermission", "NotifyDataSetChanged"})
