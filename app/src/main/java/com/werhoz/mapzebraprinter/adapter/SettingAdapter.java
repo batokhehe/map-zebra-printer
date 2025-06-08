@@ -28,6 +28,10 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
         this.selectedMacAddress = selectedMacAddress;
     }
 
+    public void setSelectedMacAddress(java.lang.String selectedMacAddress) {
+        this.selectedMacAddress = selectedMacAddress;
+    }
+
     // Interface for click listener
     public interface OnItemClickListener {
         void onItemClick(BluetoothDevice device);

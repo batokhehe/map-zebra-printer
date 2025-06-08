@@ -3,6 +3,8 @@ package com.werhoz.mapzebraprinter.view;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.R;
+import com.werhoz.mapzebraprinter.network.ApiClient;
 import com.werhoz.mapzebraprinter.utils.DateTimeUtil;
 import com.werhoz.mapzebraprinter.viewmodel.DataViewModel;
 
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Hawk.init(this).build();
+        ApiClient.init(getApplicationContext());
         updateLastSync();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -75,7 +79,12 @@ public class MainActivity extends AppCompatActivity {
             pDialog.show();
 
             if (message.startsWith("✅") || message.startsWith("❌")) {
-                pDialog.dismissWithAnimation();
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        pDialog.dismissWithAnimation();
+                    }
+                }, 2000); // 2000 ms = 2 detik
             }
             if (message.startsWith("✅")) {
                 Hawk.put("last_sync", DateTimeUtil.getCurrentDateTime());

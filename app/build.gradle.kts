@@ -53,4 +53,8 @@ dependencies {
     annotationProcessor(libs.room.compiler)
     implementation(libs.room.ktx)
     implementation(libs.android.sweetalert2)
+
+    //chuck
+    debugImplementation(libs.library)
+    releaseImplementation(libs.library.no.op)
 }
