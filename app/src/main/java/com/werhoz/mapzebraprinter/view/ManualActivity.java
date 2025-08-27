@@ -203,59 +203,56 @@ public class ManualActivity extends AppCompatActivity {
         // Configs
         int boxWidth = 264;
         int boxHeight = 120;
-        int spacingY = 12;
+        int spacingY = 4;
 
-        int startX1 = 15;
-        int startX2 = 300;
+        int[] startX = {7, 304}; // posisi kolom kiri & kanan
+        int startY = 13; // posisi awal Y
 
-        int startY = 13;
+        // Offsets global (bisa diubah kalau mau geser)
+        int shiftX = 0;   // negatif = kiri, positif = kanan
+        int shiftY = 0;   // negatif = atas, positif = bawah
 
-        // Text price padding
-        int priceTextOffsetX = 70;
-        int priceTextOffsetY1 = 32; // For top price
-        int priceTextOffsetY2 = 167; // For bottom price
-
-        // Vertical SALE label
-        int saleTextXLeft = 24;
-        int saleTextXRight = 309;
-        int[] saleTextY = {104, 235, 369};
+        // Text price
+        int priceTextOffsetY = 32;
         int fontWidthEstimate = price.length() * 20;
 
+        // SALE label
+        int[] saleX = {17, 314};
+        int[] saleY = {104, 235, 369};
+
         // Vertical line
-        int lineXLeft = 51;
-        int lineXRight = 335;
+        int[] lineX = {43, 340};
         int[] lineYStart = {14, 147, 277};
         int[] lineYEnd = {132, 265, 395};
 
         for (int i = 0; i < qty; i++) {
-            int col = i % 2; // 0 = left, 1 = right
+            int col = i % 2;       // kolom kiri (0) / kanan (1)
             int row = i / 2;
 
-            int x1 = (col == 0) ? startX1 : startX2;
-            int y1 = startY + row * (boxHeight + spacingY);
+            int x1 = startX[col] + shiftX;
+            int y1 = startY + row * (boxHeight + spacingY) + shiftY;
             int x2 = x1 + boxWidth;
             int y2 = y1 + boxHeight;
 
-            // Draw box
+            // BOX
             content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
 
-            // Draw horizontal price text (top & bottom within box)
+            // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            int topY = y1 + priceTextOffsetY1;
-//            int bottomY = y1 + priceTextOffsetY2;
+            int topY = y1 + priceTextOffsetY;
             content.append(String.format("T 4 0 %d %d %s\n", priceX, topY, price));
-//            content.append(String.format("T 5 1 %d %d %s\n", priceX, bottomY, price));
 
-            // Draw vertical "SALE" text
-            int saleX = (col == 0) ? saleTextXLeft : saleTextXRight;
-            int saleY = saleTextY[row];
-            content.append(String.format("T90 7 0 %d %d SALE\n", saleX, saleY));
+            // Vertical "SALE"
+            content.append(String.format("T90 7 0 %d %d SALE\n",
+                    saleX[col] + shiftX,
+                    saleY[row] + shiftY));
 
-            // Draw vertical line
-            int lineX = (col == 0) ? lineXLeft : lineXRight;
-            int lineY1 = lineYStart[row];
-            int lineY2 = lineYEnd[row];
-            content.append(String.format("L %d %d %d %d 1\n", lineX, lineY1, lineX, lineY2));
+            // Vertical line
+            content.append(String.format("L %d %d %d %d 1\n",
+                    lineX[col] + shiftX,
+                    lineYStart[row] + shiftY,
+                    lineX[col] + shiftX,
+                    lineYEnd[row] + shiftY));
         }
 
         return content.toString();
