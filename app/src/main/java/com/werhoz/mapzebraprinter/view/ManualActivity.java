@@ -152,6 +152,7 @@ public class ManualActivity extends AppCompatActivity {
             connection.open();
 
             String cpclCommand = "! U1 setvar \"media.clear\" \"\"\n";
+
             connection.write(cpclCommand.getBytes());
 
             Log.d("Zebra", "Buffer cleared.");
@@ -165,6 +166,7 @@ public class ManualActivity extends AppCompatActivity {
 
             cpcl = cpcl.replace("{CONTENT}", content);
             cpcl = cpcl.replace("{height}", String.valueOf(170 * (int) Math.ceil(qty / 2.0)));
+            cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
             printer.sendCommand(cpcl);  // Sending CPCL command
 
             Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
@@ -203,56 +205,32 @@ public class ManualActivity extends AppCompatActivity {
         // Configs
         int boxWidth = 264;
         int boxHeight = 120;
-        int spacingY = 4;
-
-        int[] startX = {7, 304}; // posisi kolom kiri & kanan
-        int startY = 13; // posisi awal Y
-
-        // Offsets global (bisa diubah kalau mau geser)
-        int shiftX = 0;   // negatif = kiri, positif = kanan
-        int shiftY = 0;   // negatif = atas, positif = bawah
+        int[] startX = {8, 305}; // posisi kolom kiri & kanan
+        int y = 0;
 
         // Text price
-        int priceTextOffsetY = 32;
+        int priceTextOffsetY = 30;
         int fontWidthEstimate = price.length() * 20;
 
-        // SALE label
-        int[] saleX = {17, 314};
-        int[] saleY = {104, 235, 369};
-
-        // Vertical line
-        int[] lineX = {43, 340};
-        int[] lineYStart = {14, 147, 277};
-        int[] lineYEnd = {132, 265, 395};
-
-        for (int i = 0; i < qty; i++) {
+        for (int i = 0; i < 2; i++) {
             int col = i % 2;       // kolom kiri (0) / kanan (1)
-            int row = i / 2;
 
-            int x1 = startX[col] + shiftX;
-            int y1 = startY + row * (boxHeight + spacingY) + shiftY;
+            int x1 = startX[col];
             int x2 = x1 + boxWidth;
-            int y2 = y1 + boxHeight;
 
             // BOX
-            content.append(String.format("BOX %d %d %d %d 2\n", x1, y1, x2, y2));
+            content.append(String.format("BOX %d %d %d %d 1\n", x1, y, x2, boxHeight));
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            int topY = y1 + priceTextOffsetY;
+            int topY = priceTextOffsetY;
             content.append(String.format("T 4 0 %d %d %s\n", priceX, topY, price));
 
             // Vertical "SALE"
-            content.append(String.format("T90 7 0 %d %d SALE\n",
-                    saleX[col] + shiftX,
-                    saleY[row] + shiftY));
+            content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, 90));
 
             // Vertical line
-            content.append(String.format("L %d %d %d %d 1\n",
-                    lineX[col] + shiftX,
-                    lineYStart[row] + shiftY,
-                    lineX[col] + shiftX,
-                    lineYEnd[row] + shiftY));
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, boxHeight));
         }
 
         return content.toString();
