@@ -168,8 +168,8 @@ public class ManualActivity extends AppCompatActivity {
             String content = generateContent(qty, price);
 
             cpcl = cpcl.replace("{CONTENT}", content);
-//            cpcl = cpcl.replace("{height}", String.valueOf(170 * (int) Math.ceil(qty / 2.0)));
-            cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
+            cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
+//            cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
             printer.sendCommand(cpcl);  // Sending CPCL command
 
             Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
