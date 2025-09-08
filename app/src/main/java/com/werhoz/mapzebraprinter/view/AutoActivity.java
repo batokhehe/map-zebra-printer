@@ -3,8 +3,11 @@ package com.werhoz.mapzebraprinter.view;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,6 +17,8 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,11 +64,15 @@ public class AutoActivity extends AppCompatActivity {
     private ResultModel itemResponse;
     private int MAX_CHARS_PER_LINE = 21;
 
+    private ScrollView mainLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_auto);
+
+        mainLayout = findViewById(R.id.main);
 
         Intent intentExtra = getIntent();
         image = intentExtra.getIntExtra("image", 0);
@@ -129,6 +138,7 @@ public class AutoActivity extends AppCompatActivity {
             progressBar.setVisibility(GONE);
             itemResponse = item;
             if (item != null) {
+                showResult(true);
                 etVariant.setText(item.itemNumber);
                 etDescription.setText(item.description);
                 etCategory.setText(item.productCategory);
@@ -138,6 +148,7 @@ public class AutoActivity extends AppCompatActivity {
                 clContent.setVisibility(VISIBLE);
                 etQty.requestFocus();
             } else {
+                showResult(false);
                 clContent.setVisibility(GONE);
                 Toast.makeText(this, "Failed to load item", Toast.LENGTH_SHORT).show();
             }
@@ -512,5 +523,25 @@ public class AutoActivity extends AppCompatActivity {
         }
 
         return wrapped.toString();
+    }
+
+    private void animateBackground(int toColor) {
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), Color.WHITE, toColor, Color.WHITE);
+        colorAnimation.setDuration(1000);
+        colorAnimation.addUpdateListener(animator ->
+                mainLayout.setBackgroundColor((int) animator.getAnimatedValue())
+        );
+        colorAnimation.start();
+    }
+
+
+    private void showResult(boolean success) {
+        if (success) {
+            animateBackground(Color.parseColor("#00FF00"));
+//            soundPool.play(soundSuccess, 1, 1, 0, 0, 1);
+        } else {
+            animateBackground(Color.parseColor("#FF0000"));
+//            soundPool.play(soundFailed, 1, 1, 0, 0, 1);
+        }
     }
 }
