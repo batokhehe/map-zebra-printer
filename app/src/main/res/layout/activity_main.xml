@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
+    android:padding="60dp"
     tools:context=".view.MainActivity">
 
     <View
@@ -119,11 +119,22 @@
         android:id="@+id/tv_last_download"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:gravity="center"
         android:text="@string/last_sync"
         android:textColor="@color/black"
         android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/tv_counter_download" />
+
+    <TextView
+        android:id="@+id/tv_counter_download"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:text="0 Data"
+        android:textColor="@color/black"
+        android:textSize="12sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/btn_setting" />
 
     <androidx.appcompat.widget.AppCompatButton

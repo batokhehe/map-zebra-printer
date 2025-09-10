@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView connectedDevice;
     private Button btnDownload;
     private Sweetalert pDialog;
+    private int counter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
             }
             if (message.startsWith("✅")) {
                 Hawk.put("last_sync", DateTimeUtil.getCurrentDateTime());
+                String[] parts = message.split(":");
+                String sizePart = parts[1].trim(); // "1234 data."
+                String sizeOnly = sizePart.split(" ")[0]; // "1234"
+                counter = Integer.parseInt(sizeOnly); // 1234
             }
             updateLastSync();
         });
@@ -102,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
             pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
             pDialog.setTitleText("Starting...");
             pDialog.setCancelable(false);
+            counter = 0;
 
             viewModel.startSync();
         });
@@ -126,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
     private void updateLastSync() {
         TextView tvLastSync = findViewById(R.id.tv_last_download);
         tvLastSync.setText(String.format("Last Sync: %s", Hawk.get("last_sync", "-")));
+
+        TextView tvCounter = findViewById(R.id.tv_counter_download);
+        tvCounter.setText(String.format("%s Data", counter));
     }
 
     private boolean isIpSet() {

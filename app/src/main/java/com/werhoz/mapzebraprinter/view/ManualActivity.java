@@ -209,9 +209,8 @@ public class ManualActivity extends AppCompatActivity {
         int boxHeight = 120;
         int gapY = 24;
         int[] startX = {9, 305}; // kiri & kanan
-        price = "Rp. " + price;
 
-        int fontWidthEstimate = price.length() * 20;
+        int fontWidthEstimate = price.length() * 12;
 
         for (int i = 0; i < qty; i++) {
             int col = i % 2;       // kolom
@@ -225,7 +224,7 @@ public class ManualActivity extends AppCompatActivity {
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 2 %d %d %s\n", priceX, priceTextOffsetY, price));
+            content.append(String.format("T 5 0 %d %d %s\n", priceX, priceTextOffsetY, price));
 
             // Vertical "SALE"
             content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, y + (boxHeight - 30)));
@@ -244,9 +243,8 @@ public class ManualActivity extends AppCompatActivity {
         int boxHeight = 120;
         int gapY = 24;
         int[] startX = {9, 305}; // kiri & kanan
-        price = "Rp. " + price;
 
-        int fontWidthEstimate = price.length() * 20;
+        int fontWidthEstimate = price.length() * 12;
 
         for (int i = 0; i < qty; i++) {
             int col = i % 2;       // kolom
@@ -260,8 +258,8 @@ public class ManualActivity extends AppCompatActivity {
             int priceTextOffsetY = y + 40;
 
             // PRICE text
-            int priceX = x1 + ((boxWidth - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 2 %d %d %s\n", priceX, priceTextOffsetY, price));
+            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
+            content.append(String.format("T 5 0 %d %d %s\n", priceX, priceTextOffsetY, price));
         }
         return content.toString();
     }

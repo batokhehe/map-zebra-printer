@@ -1,21 +1,32 @@
 package com.werhoz.mapzebraprinter.data.dao;
 
-import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
-import com.werhoz.mapzebraprinter.data.model.ResultModel;
+import com.werhoz.mapzebraprinter.data.entity.ProductEntity;
+
+import java.util.List;
 
 @Dao
 public interface ProductDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(ProductEntity entity);
 
-    @Query("SELECT p.itemNumber, p.description, p.dimensionX, p.dimensionYOptionID, " +
-            "a.aliasCode AS EAN, p.freeField4, s.description AS SystemDesc " +
-            "FROM ProductRSF p " +
-            "JOIN AliasNumber a ON p.itemNumber = a.itemNumber " +
-            "LEFT JOIN SystemTable s ON p.itemGroup = s.keyValue " +
-            "WHERE a.aliasCode = :barcode " +
-            "LIMIT 1")
-    LiveData<ResultModel> getFirstProduct(String barcode);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAll(List<ProductEntity> entities);
+
+    @Query("SELECT * FROM Product")
+    List<ProductEntity> getAll();
+
+    @Query("SELECT * FROM Product WHERE ItemNumber = :id")
+    ProductEntity getById(String id);
+
+    @Query("SELECT * FROM Product WHERE AliasNumber = :alias")
+    ProductEntity getByAlias(String alias);
+
+    @Query("DELETE FROM Product")
+    void deleteAll();
 }
 
