@@ -108,37 +108,48 @@ public class SettingActivity extends AppCompatActivity {
         rvItems.setAdapter(adapter);
 
         adapter.setOnItemClickListener(device -> {
-            // Handle item click here
-            Connection connection = null;
-            try {
-                pDialog = new Sweetalert(SettingActivity.this, Sweetalert.PROGRESS_TYPE);
-                pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
-                pDialog.setTitleText("Connecting Bluetooth...");
-                pDialog.setCancelable(false);
-                pDialog.show();
-                // Set up Bluetooth connection to the printer
-                connection = new BluetoothConnection(device.getAddress());
-                connection.open();
+            pDialog = new Sweetalert(SettingActivity.this, Sweetalert.PROGRESS_TYPE);
+            pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+            pDialog.setTitleText("Connecting Bluetooth...");
+            pDialog.setCancelable(false);
+            pDialog.show();
 
-                Toast.makeText(this, "Connected.", Toast.LENGTH_SHORT).show();
-                Hawk.put("macAddress", device.getAddress());
-                Hawk.put("deviceName", device.getName());
-                adapter.setSelectedMacAddress(device.getAddress());
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            } finally {
+            new Thread(() -> {
+                Connection connection = null;
                 try {
-                    if (connection != null && connection.isConnected()) {
-                        connection.close(); // Close the connection after printing
-                    }
+                    // Set up Bluetooth connection to the printer
+                    connection = new BluetoothConnection(device.getAddress());
+                    connection.open();
+
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Connected.", Toast.LENGTH_SHORT).show();
+                        Hawk.put("macAddress", device.getAddress());
+                        Hawk.put("deviceName", device.getName());
+                        adapter.setSelectedMacAddress(device.getAddress());
+                    });
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(this, "Error closing connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    runOnUiThread(() ->
+                            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                    );
+                } finally {
+                    try {
+                        if (connection != null && connection.isConnected()) {
+                            connection.close();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        runOnUiThread(() ->
+                                Toast.makeText(this, "Error closing connection: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                        );
+                    }
+
+                    runOnUiThread(() -> {
+                        adapter.notifyDataSetChanged();
+                        if (pDialog != null) pDialog.dismissWithAnimation();
+                    });
                 }
-                adapter.notifyDataSetChanged();
-                if (pDialog != null) pDialog.dismissWithAnimation();
-            }
+            }).start();
         });
 
         btnSave.setOnClickListener(new View.OnClickListener() {

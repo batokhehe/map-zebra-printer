@@ -355,15 +355,15 @@ public class AutoActivity extends AppCompatActivity {
             // Price
             String price = formatNumber(itemResponse.currentPrice);
             int priceX = x1 + ((boxWidth - (price.length() * 20)) / 2);
-            content.append(String.format("T 5 0 %d %d %s %s\n", priceX, y1 + 300, itemResponse.currency, price));
+            content.append(String.format("T 5 0 %d %d %s %s\n", priceX, y1 + 310, itemResponse.currency, price));
 
             // Barcode
             int barcodeX = x1 + ((boxWidth - 150) / 2);
-            content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, y1 + 130, itemResponse.eANNumber));
+            content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, y1 + 150, itemResponse.eANNumber));
 
             // Barcode Text
             int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 10)) / 2);
-            content.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 240, itemResponse.eANNumber));
+            content.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 260, itemResponse.eANNumber));
         }
 
         return content.toString();
