@@ -14,7 +14,7 @@ public interface ApiService {
     Call<ItemResponse> getItemByCode(@Path("code") String code);
 
 //    @GET("Product")
-    @GET("fcb6fb7f-2534-410e-bb5f-d370def499e8")
+    @GET("Product")
     Call<List<ProductEntity>> getProduct();
 }
 
