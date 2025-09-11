@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +31,8 @@ import com.zebra.sdk.comm.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
+import taimoor.sultani.sweetalert2.Sweetalert;
+
 public class SettingActivity extends AppCompatActivity {
 
     private BluetoothAdapter bluetoothAdapter;
@@ -40,6 +43,8 @@ public class SettingActivity extends AppCompatActivity {
 
     private SettingAdapter adapter;
     private List<BluetoothDevice> dataList = new ArrayList<>();
+    private Sweetalert pDialog;
+
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @SuppressLint("MissingPermission")
@@ -104,9 +109,11 @@ public class SettingActivity extends AppCompatActivity {
 
         adapter.setOnItemClickListener(device -> {
             // Handle item click here
+            pDialog = new Sweetalert(SettingActivity.this, Sweetalert.PROGRESS_TYPE);
+            pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+            pDialog.setTitleText("Connecting Bluetooth...");
+            pDialog.setCancelable(false);
             Connection connection = null;
-            Toast.makeText(this, "Connecting Bluetooth", Toast.LENGTH_LONG).show();
-
             try {
                 // Set up Bluetooth connection to the printer
                 connection = new BluetoothConnection(device.getAddress());
@@ -129,6 +136,7 @@ public class SettingActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error closing connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
                 adapter.notifyDataSetChanged();
+                pDialog.dismissWithAnimation();
             }
         });
 

@@ -48,22 +48,22 @@ public class DataRepository {
                 ProductEntity entity = db.productDao().getByAlias(barcode);
 
                 ResultModel result = new ResultModel();
-                result.itemNumber = entity.ItemNumber;
-                result.description = entity.Description;
-                result.size = entity.Size;
-                result.color = entity.Color;
-                result.productCategory = entity.Description;
-                result.eANNumber = entity.AliasNumber;
-                result.wasPrice = entity.SalesPrice;
-                result.currentPrice = entity.SalesPrice;
+                result.itemNumber = entity.itemNumber;
+                result.description = entity.description;
+                result.size = entity.size;
+                result.color = entity.color;
+                result.productCategory = entity.description;
+                result.eANNumber = entity.aliasNumber;
+                result.wasPrice = entity.salesPrice;
+                result.currentPrice = entity.salesPrice;
 
-                result.name = entity.Name;
-                result.aliasNumber = entity.AliasNumber;
-                result.styleNo = entity.StyleNo;
-                result.configurationCode = entity.ConfigurationCode;
-                result.qrCode = entity.QRCode;
-                result.currency = entity.Currency;
-                result.itemGroup = entity.ItemGroup;
+                result.name = entity.name;
+                result.aliasNumber = entity.aliasNumber;
+                result.styleNo = entity.styleNo;
+                result.configurationCode = entity.configurationCode;
+                result.qrCode = entity.qrCode;
+                result.currency = entity.currency;
+                result.itemGroup = entity.itemGroup;
 
                 itemResponseLiveData.postValue(result);
             } catch (Exception e) {

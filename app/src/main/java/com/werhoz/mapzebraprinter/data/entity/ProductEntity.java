@@ -8,16 +8,16 @@ public class ProductEntity {
     @PrimaryKey(autoGenerate = true)
     public int id;
 
-    public String ItemNumber;
-    public String Description;
-    public String Name;
-    public String AliasNumber;
-    public String StyleNo;
-    public String ConfigurationCode;
-    public String QRCode;
-    public String Currency;
-    public String ItemGroup;
-    public String SalesPrice;
-    public String Size;
-    public String Color;
+    public String itemNumber;
+    public String description;
+    public String name;
+    public String aliasNumber;
+    public String styleNo;
+    public String configurationCode;
+    public String qrCode;
+    public String currency;
+    public String itemGroup;
+    public String salesPrice;
+    public String size;
+    public String color;
 }

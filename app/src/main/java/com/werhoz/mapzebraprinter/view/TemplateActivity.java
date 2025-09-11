@@ -39,7 +39,7 @@ public class TemplateActivity extends AppCompatActivity {
         type = intentExtra.getStringExtra("type");
 
         rvItems = findViewById(R.id.rv_template);
-        rvItems.setLayoutManager(new GridLayoutManager(this, 2)); // 2 columns
+        rvItems.setLayoutManager(new GridLayoutManager(this, 3)); // 2 columns
 
         adapter = new TemplateAdapter(this, dataList, (model, position) -> {
             // Handle click
@@ -66,7 +66,7 @@ public class TemplateActivity extends AppCompatActivity {
         dataList.clear();
 //        dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale.zpl", "Price Sale"));
 //        dataList.add(new TemplateModel(R.drawable.price_sale, "label_template.zpl", "Price Sale"));
-        dataList.add(new TemplateModel(R.drawable.price_regular, "price_regular.zpl", "Price Regular"));
+        dataList.add(new TemplateModel(R.drawable.price_regular, "price_regular.zpl", "Price"));
         if (type.equals("auto")) {
             dataList.add(new TemplateModel(R.drawable.active, "active.zpl", "Active"));
             dataList.add(new TemplateModel(R.drawable.mango, "mango.zpl", "Mango"));

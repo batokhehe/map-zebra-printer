@@ -20,10 +20,10 @@ public interface ProductDao {
     @Query("SELECT * FROM Product")
     List<ProductEntity> getAll();
 
-    @Query("SELECT * FROM Product WHERE ItemNumber = :id")
+    @Query("SELECT * FROM Product WHERE itemNumber = :id")
     ProductEntity getById(String id);
 
-    @Query("SELECT * FROM Product WHERE AliasNumber = :alias")
+    @Query("SELECT * FROM Product WHERE aliasNumber = :alias")
     ProductEntity getByAlias(String alias);
 
     @Query("DELETE FROM Product")
