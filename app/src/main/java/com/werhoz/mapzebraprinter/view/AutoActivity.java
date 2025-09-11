@@ -143,8 +143,8 @@ public class AutoActivity extends AppCompatActivity {
                 etDescription.setText(item.description);
                 etCategory.setText(item.productCategory);
                 etEan.setText(item.eANNumber);
-                etWasPrice.setText("Rp " + formatNumber(item.wasPrice));
-                etCurrentPrice.setText("Rp " + formatNumber(item.currentPrice));
+                etWasPrice.setText(item.currency + " " + formatNumber(item.wasPrice));
+                etCurrentPrice.setText(item.currency + " " + formatNumber(item.currentPrice));
                 clContent.setVisibility(VISIBLE);
                 etQty.requestFocus();
             } else {
@@ -296,14 +296,14 @@ public class AutoActivity extends AppCompatActivity {
             content.append(String.format("T 7 0 %d %d %s\n", categoryX, y1 + 156, itemResponse.productCategory));
 
             // WAS price
-            content.append(String.format("T 5 0 %d %d WAS :  IDR %s\n", x1 + 19, y1 + 351, formatNumber(itemResponse.wasPrice)));
+            content.append(String.format("T 0 2 %d %d WAS :  %s %s\n", x1 + 19, y1 + 351, itemResponse.currency, formatNumber(itemResponse.wasPrice)));
 
             // NOW price
-            content.append(String.format("T 5 0 %d %d NOW :  IDR %s\n", x1 + 19, y1 + 381, formatNumber(itemResponse.currentPrice)));
+            content.append(String.format("T 0 2 %d %d NOW :  %s %s\n", x1 + 19, y1 + 381, itemResponse.currency, formatNumber(itemResponse.currentPrice)));
 
             // Barcode
-            content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n",
-                    x1 + 35, y1 + 200, itemResponse.eANNumber));
+            int barcodeX = x1 + ((boxWidth - 200) / 2);
+            content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, y1 + 200, itemResponse.eANNumber));
 
             // Barcode Text
             int xText = col == 0 ? 75 : 360;
@@ -355,7 +355,7 @@ public class AutoActivity extends AppCompatActivity {
             // Price
             String price = formatNumber(itemResponse.currentPrice);
             int priceX = x1 + ((boxWidth - (price.length() * 20)) / 2);
-            content.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, y1 + 300, price));
+            content.append(String.format("T 5 0 %d %d %s %s\n", priceX, y1 + 300, itemResponse.currency, price));
 
             // Barcode
             int barcodeX = x1 + 40;
@@ -417,7 +417,7 @@ public class AutoActivity extends AppCompatActivity {
             // Harga
             String price = formatNumber(itemResponse.currentPrice);
             int priceX = xField + ((labelWidth - (price.length() * 20)) / 2);
-            cpcl.append(String.format("T 5 0 %d %d Rp. %s\n", priceX, y1 + 379, price));
+            cpcl.append(String.format("T 5 0 %d %d %s %s\n", priceX, y1 + 379, itemResponse.currency, price));
 
             // BARCODE
             int barcodeX = (col == 0) ? 51 : 335;
