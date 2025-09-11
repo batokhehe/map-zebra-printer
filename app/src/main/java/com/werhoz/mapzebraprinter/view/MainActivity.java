@@ -55,17 +55,17 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnAuto = findViewById(R.id.btn_auto);
         btnAuto.setOnClickListener(view -> {
-//            if (!isBluetoothSet() || !isLastSyncSet()) {
-//                return;
-//            }
+            if (!isBluetoothSet() || !isLastSyncSet()) {
+                return;
+            }
             goToTemplateActivity("auto");
         }); //printToZebra());
 
         Button btnManual = findViewById(R.id.btn_manual);
         btnManual.setOnClickListener(view -> {
-//            if (!isBluetoothSet()) {
-//                return;
-//            }
+            if (!isBluetoothSet()) {
+                return;
+            }
             goToTemplateActivity("manual"); //printToZebra());
         });
 
