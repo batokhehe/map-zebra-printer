@@ -302,7 +302,7 @@ public class AutoActivity extends AppCompatActivity {
             content.append(String.format("T 0 2 %d %d NOW :  %s %s\n", x1 + 19, y1 + 381, itemResponse.currency, formatNumber(itemResponse.currentPrice)));
 
             // Barcode
-            int barcodeX = x1 + ((boxWidth - 100) / 2);
+            int barcodeX = x1 + ((boxWidth - 150) / 2);
             content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, y1 + 200, itemResponse.eANNumber));
 
             // Barcode Text

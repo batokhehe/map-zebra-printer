@@ -52,9 +52,9 @@ public class DataRepository {
                 result.description = entity.description;
                 result.size = entity.size;
                 result.color = entity.color;
-                result.productCategory = entity.description;
+                result.productCategory = entity.itemGroup;
                 result.eANNumber = entity.aliasNumber;
-                result.wasPrice = entity.salesPrice;
+                result.wasPrice = entity.wasPrice;
                 result.currentPrice = entity.salesPrice;
 
                 result.name = entity.name;

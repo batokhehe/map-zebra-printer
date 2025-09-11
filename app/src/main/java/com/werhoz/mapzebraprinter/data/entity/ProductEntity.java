@@ -18,6 +18,7 @@ public class ProductEntity {
     public String currency;
     public String itemGroup;
     public String salesPrice;
+    public String wasPrice;
     public String size;
     public String color;
 }
