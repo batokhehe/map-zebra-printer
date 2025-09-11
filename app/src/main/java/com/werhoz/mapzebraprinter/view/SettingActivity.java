@@ -109,12 +109,13 @@ public class SettingActivity extends AppCompatActivity {
 
         adapter.setOnItemClickListener(device -> {
             // Handle item click here
-            pDialog = new Sweetalert(SettingActivity.this, Sweetalert.PROGRESS_TYPE);
-            pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
-            pDialog.setTitleText("Connecting Bluetooth...");
-            pDialog.setCancelable(false);
             Connection connection = null;
             try {
+                pDialog = new Sweetalert(SettingActivity.this, Sweetalert.PROGRESS_TYPE);
+                pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+                pDialog.setTitleText("Connecting Bluetooth...");
+                pDialog.setCancelable(false);
+                pDialog.show();
                 // Set up Bluetooth connection to the printer
                 connection = new BluetoothConnection(device.getAddress());
                 connection.open();
@@ -136,7 +137,7 @@ public class SettingActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error closing connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
                 adapter.notifyDataSetChanged();
-                pDialog.dismissWithAnimation();
+                if (pDialog != null) pDialog.dismissWithAnimation();
             }
         });
 

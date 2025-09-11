@@ -258,7 +258,7 @@ public class AutoActivity extends AppCompatActivity {
 
     public String generateActive(int qty) {
         int startX = 7;
-        int startY = 14;
+        int startY = 10;
         int boxWidth = 264;
         int boxHeight = 440;
         int columnSpacing = 32; // jarak antar kolom
@@ -358,12 +358,11 @@ public class AutoActivity extends AppCompatActivity {
             content.append(String.format("T 5 0 %d %d %s %s\n", priceX, y1 + 300, itemResponse.currency, price));
 
             // Barcode
-            int barcodeX = x1 + 40;
-            content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n",
-                    barcodeX, y1 + 130, itemResponse.eANNumber));
+            int barcodeX = x1 + ((boxWidth - 150) / 2);
+            content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, y1 + 130, itemResponse.eANNumber));
 
             // Barcode Text
-            int xText = col == 0 ? 75 : 360;
+            int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 10)) / 2);
             content.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 240, itemResponse.eANNumber));
         }
 
@@ -373,8 +372,8 @@ public class AutoActivity extends AppCompatActivity {
     public String generateAlo(int qty) {
         int startX = 7;
         int startY = 14;
-        int labelWidth = 264;
-        int labelHeight = 440;
+        int boxWidth = 264;
+        int boxHeight = 440;
         int columnSpacing = 32; // jarak antar kolom
         int rowSpacing = 30;    // jarak antar baris
 
@@ -384,16 +383,15 @@ public class AutoActivity extends AppCompatActivity {
             int col = i % 2;        // kiri/kanan
             int row = (i / 2) % 2;  // baris ke-0/1 dalam 1 halaman
 
-            int offsetX = col * (labelWidth + columnSpacing);
-            int offsetY = row * (labelHeight + rowSpacing);
+            int offsetX = col * (boxWidth + columnSpacing);
+            int offsetY = row * (boxHeight + rowSpacing);
 
             int x1 = startX + offsetX;
             int y1 = startY + offsetY;
-            int x2 = x1 + labelWidth;
-            int y2 = y1 + labelHeight;
+            int x2 = x1 + boxWidth;
+            int y2 = y1 + boxHeight;
 
             // Titik acuan teks
-            int xText = (col == 0) ? 70 : 354;
             int xField = (col == 0) ? 10 : 305;
             int xColon = (col == 0) ? 100 : 395;
 
@@ -401,6 +399,7 @@ public class AutoActivity extends AppCompatActivity {
             cpcl.append(String.format("T 5 2 %d %d alo\n", x1 + 105, y1 + 25));
 
             // Print fields
+            int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 10)) / 2);
             cpcl.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 205, itemResponse.eANNumber));
             cpcl.append(String.format("T 0 0 %d %d No. ARTIKEL\n", xField, y1 + 264));
             cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, y1 + 264, itemResponse.itemNumber));
@@ -416,14 +415,13 @@ public class AutoActivity extends AppCompatActivity {
 
             // Harga
             String price = formatNumber(itemResponse.currentPrice);
-            int priceX = xField + ((labelWidth - (price.length() * 20)) / 2);
+            int priceX = xField + ((boxWidth - (price.length() * 20)) / 2);
             cpcl.append(String.format("T 5 0 %d %d %s %s\n", priceX, y1 + 379, itemResponse.currency, price));
 
             // BARCODE
-            int barcodeX = (col == 0) ? 51 : 335;
+            int barcodeX = x1 + ((boxWidth - 150) / 2);
             int barcodeY = y1 + 85;
-            cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n",
-                    barcodeX, barcodeY, itemResponse.eANNumber));
+            cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, barcodeY, itemResponse.eANNumber));
         }
 
         return cpcl.toString();

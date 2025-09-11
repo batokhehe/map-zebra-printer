@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView connectedDevice;
     private Button btnDownload;
     private Sweetalert pDialog;
-    private int counter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
                 Hawk.put("last_sync", DateTimeUtil.getCurrentDateTime());
                 String[] parts = message.split(":");
                 String sizePart = parts[1].trim(); // "1234 data."
-                String sizeOnly = sizePart.split(" ")[0]; // "1234"
-                counter = Integer.parseInt(sizeOnly); // 1234
+                String counter = sizePart.split(" ")[0]; // "1234"
+                Hawk.put("counter", counter);
             }
             updateLastSync();
         });
@@ -106,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
             pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
             pDialog.setTitleText("Starting...");
             pDialog.setCancelable(false);
-            counter = 0;
 
             viewModel.startSync();
         });
@@ -133,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         tvLastSync.setText(String.format("Last Sync: %s", Hawk.get("last_sync", "-")));
 
         TextView tvCounter = findViewById(R.id.tv_counter_download);
-        tvCounter.setText(String.format("%s Data", counter));
+        tvCounter.setText(String.format("%s Data", Hawk.get("counter", "0")));
     }
 
     private boolean isIpSet() {
