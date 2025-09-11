@@ -482,7 +482,7 @@ public class AutoActivity extends AppCompatActivity {
             int y2 = y + boxHeight;                  // ✅ Y bawah
 
             // Text price offset
-            int priceTextOffsetY = y + 40;
+            int priceTextOffsetY = y + 20;
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
