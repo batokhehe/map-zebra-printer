@@ -5,14 +5,13 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="60dp"
+    android:padding="70dp"
     tools:context=".view.MainActivity">
 
     <View
         android:id="@+id/anchor"
         android:layout_width="1dp"
         android:layout_height="1dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -21,12 +20,12 @@
         android:id="@+id/cv_auto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_marginTop="40dp"
         android:elevation="8dp"
         app:cardCornerRadius="8dp"
-        app:layout_constraintBottom_toBottomOf="@id/anchor"
         app:layout_constraintEnd_toStartOf="@id/anchor"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
@@ -63,12 +62,12 @@
         android:id="@+id/cv_manual"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_marginTop="40dp"
         android:elevation="8dp"
         app:cardCornerRadius="8dp"
-        app:layout_constraintBottom_toBottomOf="@id/anchor"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/anchor">
+        app:layout_constraintStart_toEndOf="@id/anchor"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
@@ -105,15 +104,16 @@
         android:id="@+id/btn_download"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
         android:background="@color/primary_color"
         android:drawableStart="@drawable/baseline_cloud_download_24"
         android:drawablePadding="8dp"
         android:padding="16dp"
         android:text="@string/download"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/tv_last_download"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cv_auto" />
 
     <TextView
         android:id="@+id/tv_last_download"
@@ -123,7 +123,7 @@
         android:text="@string/last_sync"
         android:textColor="@color/black"
         android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/tv_counter_download" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_download" />
 
     <TextView
         android:id="@+id/tv_counter_download"
@@ -135,7 +135,7 @@
         android:textColor="@color/black"
         android:textSize="12sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/btn_setting" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_last_download" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_setting"
@@ -148,9 +148,9 @@
         android:padding="16dp"
         android:text="@string/setting"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/tv_printer"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_counter_download" />
 
     <TextView
         android:id="@+id/tv_printer"
@@ -161,7 +161,7 @@
         android:text="@string/no_connected_device"
         android:textColor="@color/black"
         android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@+id/tv_powered" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_setting" />
 
     <TextView
         android:id="@+id/tv_powered"
@@ -171,6 +171,6 @@
         android:text="@string/powered_by_zebra"
         android:textColor="@color/black"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_printer" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

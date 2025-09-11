@@ -64,7 +64,7 @@ public class TemplateActivity extends AppCompatActivity {
     private void loadImages() {
         // Add drawable images here
         dataList.clear();
-        dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale.zpl", "Price Sale"));
+//        dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale.zpl", "Price Sale"));
 //        dataList.add(new TemplateModel(R.drawable.price_sale, "label_template.zpl", "Price Sale"));
         dataList.add(new TemplateModel(R.drawable.price_regular, "price_regular.zpl", "Price Regular"));
         if (type.equals("auto")) {
