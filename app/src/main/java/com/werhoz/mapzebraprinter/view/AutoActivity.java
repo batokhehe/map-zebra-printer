@@ -316,7 +316,7 @@ public class AutoActivity extends AppCompatActivity {
 
     public String generateMango(int qty) {
         int startX = 7;
-        int startY = 14;
+        int startY = 10;
         int boxWidth = 264;
         int boxHeight = 440;
         int columnSpacing = 32; // jarak antar kolom
@@ -371,7 +371,7 @@ public class AutoActivity extends AppCompatActivity {
 
     public String generateAlo(int qty) {
         int startX = 7;
-        int startY = 14;
+        int startY = 10;
         int boxWidth = 264;
         int boxHeight = 440;
         int columnSpacing = 32; // jarak antar kolom
