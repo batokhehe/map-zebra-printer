@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +28,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.R;
 import com.werhoz.mapzebraprinter.data.model.ResultModel;
@@ -68,6 +68,10 @@ public class AutoActivity extends AppCompatActivity {
 
     private ScrollView mainLayout;
 
+    private EditText etHeader;
+    private TextInputLayout tilHeader;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,11 +91,16 @@ public class AutoActivity extends AppCompatActivity {
         btnPrint = findViewById(R.id.btn_print);
         btnBack = findViewById(R.id.btn_back);
 
+        tilHeader = findViewById(R.id.til_header);
+        etHeader = findViewById(R.id.et_header);
+        tilHeader.setVisibility(!fileName.contains("regular") ? GONE : VISIBLE);
+
         etTemplate.setText(name);
         btnPrint.setOnClickListener(v -> {
             btnPrint.setEnabled(false);
             Toast.makeText(this, "Printing, please wait...", Toast.LENGTH_SHORT).show();
-            new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
+            printToZebra();
+//            new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
         });
 
         btnBack.setOnClickListener(v -> {
@@ -198,12 +207,12 @@ public class AutoActivity extends AppCompatActivity {
             connection = new BluetoothConnection(macAddress);
             connection.open();
 
-            String cpclCommand = "! U1 setvar \"media.type\" \"gap\"\n" +   // set media type
-                    "! U1 setvar \"media.clear\" \"\"\n" +     // clear buffer
-                    "! U1 setvar \"media.calibrate\" \"\"\n" +     // clear buffer
-                    "! U1 do \"feed\"\n";                      // feed one label
+//            String cpclCommand = "! U1 setvar \"media.type\" \"gap\"\n" +   // set media type
+//                    "! U1 setvar \"media.clear\" \"\"\n" +     // clear buffer
+//                    "! U1 setvar \"media.calibrate\" \"\"\n" +     // clear buffer
+//                    "! U1 do \"feed\"\n";                      // feed one label
 
-            connection.write(cpclCommand.getBytes());
+//            connection.write(cpclCommand.getBytes());
 
             Log.d("Zebra", "Buffer cleared.");
 
@@ -253,8 +262,8 @@ public class AutoActivity extends AppCompatActivity {
     public String generateContent(int qty) throws IOException {
         if (fileName.contains("active")) return generateActive(qty);
         if (fileName.contains("alo")) return generateAlo(qty);
-        if (fileName.contains("sale")) return generatePriceSale(qty);
-        if (fileName.contains("regular")) return generatePriceRegular(qty);
+        if (fileName.contains("sale")) return generatePrice(qty);
+        if (fileName.contains("regular")) return generatePriceHeader(qty);
         return generateMango(qty);
     }
 
@@ -446,7 +455,7 @@ public class AutoActivity extends AppCompatActivity {
         return cpcl.toString();
     }
 
-    public String generatePriceSale(int qty) {
+    public String generatePrice(int qty) {
         StringBuilder content = new StringBuilder();
 
         int boxWidth = 264;
@@ -472,16 +481,16 @@ public class AutoActivity extends AppCompatActivity {
             content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
 
             // Vertical "SALE"
-            content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, y + (boxHeight - 30)));
-
-            // Vertical line
-            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
+//            content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, y + (boxHeight - 30)));
+//
+//            // Vertical line
+//            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
         }
 
         return content.toString();
     }
 
-    public String generatePriceRegular(int qty) {
+    public String generatePriceHeader(int qty) {
         StringBuilder content = new StringBuilder();
 
         int boxWidth = 264;
@@ -491,6 +500,8 @@ public class AutoActivity extends AppCompatActivity {
         String price = itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
 
         int fontWidthEstimate = price.length() * 12;
+
+        String header = etHeader.getText().toString();
 
         for (int i = 0; i < qty; i++) {
             int col = i % 2;       // kolom
@@ -504,8 +515,9 @@ public class AutoActivity extends AppCompatActivity {
             int priceTextOffsetY = y + 20;
 
             // PRICE text
-            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
+            int priceX = x1 + ((boxWidth - fontWidthEstimate) / 2);
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, header));
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 40, price));
         }
         return content.toString();
     }
