@@ -71,7 +71,8 @@ public class ManualActivity extends AppCompatActivity {
             if (!etPrice.getText().toString().isEmpty() || !etQty.getText().toString().isEmpty()) {
                 btnPrint.setEnabled(false);
                 Toast.makeText(this, "Printing, please wait...", Toast.LENGTH_LONG).show();
-                new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
+                printToZebra();
+//                new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
             } else {
                 Toast.makeText(this, "Please Input Qty and Price", Toast.LENGTH_SHORT).show();
             }
@@ -154,8 +155,6 @@ public class ManualActivity extends AppCompatActivity {
 //            String cpclCommand =  "! U1 setvar \"media.clear\" \"\"\n";    // clear buffer
 
 //            connection.write(cpclCommand.getBytes());
-
-            Log.d("Zebra", "Buffer cleared.");
 
             // Create a ZebraPrinter instance
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
