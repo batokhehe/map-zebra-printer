@@ -278,6 +278,9 @@ public class AutoActivity extends AppCompatActivity {
 
         String header = etHeader.getText().toString();
 
+        double wasPrice = parseDouble(itemResponse.wasPrice);
+        double nowPrice = parseDouble(itemResponse.currentPrice);
+
         for (int i = 0; i < qty; i++) {
             int col = i % 2;        // kolom kiri/kanan
             int row = i / 2;        // baris ke-
@@ -309,8 +312,11 @@ public class AutoActivity extends AppCompatActivity {
             content.append(String.format("T 7 0 %d %d %s\n", categoryX, y1 + 156, itemResponse.productCategory));
 
             // WAS price
-            content.append(String.format("T 0 2 %d %d WAS :  %s %s\n", x1 + 19, y1 + 351, itemResponse.currency, formatNumber(itemResponse.wasPrice)));
-
+            if (wasPrice != nowPrice) {
+                String priceWas = itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
+                content.append(String.format("T 0 2 %d %d WAS :  %s\n", x1 + 19, y1 + 351, priceWas));
+                content.append(String.format("LINE %d %d %d %d 1\n", x1 + 18, y1 + 361, x1 + 18 + (priceWas.length() * 16), y1 + 361));
+            }
             // NOW price
             content.append(String.format("T 0 2 %d %d NOW :  %s %s\n", x1 + 19, y1 + 381, itemResponse.currency, formatNumber(itemResponse.currentPrice)));
 
@@ -542,6 +548,10 @@ public class AutoActivity extends AppCompatActivity {
         String formattedNumber = formatter.format(value);
 
         return formattedNumber; // Output: 1.234.567
+    }
+
+    public Double parseDouble(String number) {
+        return Double.parseDouble(number.replace(",", "."));
     }
 
     public String wrapText(String text, int startYPos, int startXPos, int startX, int startY, int offsetX, int offsetY) {
