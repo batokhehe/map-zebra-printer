@@ -216,7 +216,7 @@ public class AutoActivity extends AppCompatActivity {
 
 //            connection.write(cpclCommand.getBytes());
 
-            Log.d("Zebra", "Buffer cleared.");
+//            Log.d("Zebra", "Buffer cleared.");
 
             // Create a ZebraPrinter instance
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
