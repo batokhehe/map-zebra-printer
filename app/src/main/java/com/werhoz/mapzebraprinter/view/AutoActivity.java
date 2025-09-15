@@ -7,8 +7,6 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -370,17 +368,17 @@ public class AutoActivity extends AppCompatActivity {
             // Price
             String priceWas = "WAS: " + itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
             int priceXWAs = x1 + ((boxWidth - (priceWas.length() * 20)) / 2);
-            content.append(String.format("T 5 0 %d %d %s\n", priceXWAs, y1 + 310, priceWas));
+            content.append(String.format("T 0 2 %d %d %s\n", priceXWAs, y1 + 310, priceWas));
             String priceNow = "NOW: " + itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
             int priceXNow = x1 + ((boxWidth - (priceNow.length() * 20)) / 2);
-            content.append(String.format("T 5 0 %d %d %s\n", priceXNow, y1 + 330, priceNow));
+            content.append(String.format("T 0 2 %d %d %s\n", priceXNow, y1 + 330, priceNow));
 
             // Barcode
-            int barcodeX = x1 + ((boxWidth - 150) / 2);
+            int barcodeX = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 18)) / 2);
             content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, y1 + 150, itemResponse.eANNumber));
 
             // Barcode Text
-            int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 10)) / 2);
+            int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 12)) / 2);
             content.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 260, itemResponse.eANNumber));
         }
 
@@ -396,14 +394,14 @@ public class AutoActivity extends AppCompatActivity {
         int rowSpacing = 30;    // jarak antar baris
 
         // Load file PNG dari assets
-        InputStream is = getAssets().open("logo_alo.png");
-        Bitmap bitmap = BitmapFactory.decodeStream(is);
-
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-
-        int widthBytes = (width + 7) / 8;
-        int dataLength = widthBytes * height;
+//        InputStream is = getAssets().open("logo_alo.png");
+//        Bitmap bitmap = BitmapFactory.decodeStream(is);
+//
+//        int width = bitmap.getWidth();
+//        int height = bitmap.getHeight();
+//
+//        int widthBytes = (width + 7) / 8;
+//        int dataLength = widthBytes * height;
 
 
         StringBuilder cpcl = new StringBuilder();
@@ -426,9 +424,16 @@ public class AutoActivity extends AppCompatActivity {
 
             // Print Title
 //            cpcl.append(String.format("T 5 2 %d %d alo\n", x1 + 105, y1 + 25));
-            cpcl.append("BITMAP ").append(x1 + 105).append(" ").append(y1 + 25).append(" ")
-                    .append(widthBytes).append(" ").append(height).append(" ")
-                    .append(dataLength).append("\n");
+
+            String logo = "PCX 110 28 \n" +
+                    "\u0005\u0001\u0001    K = K K    ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ \u0001\n" +
+                    " \u0012 x                                                         ÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÄÿÁúÅÿÄÿÁð\u007FÄÿÄÿÁø?ÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø?ÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø?ÄÿÁÿÁü\u0001ÁÕÁð\u007FÁü\u0001ÂÿÁÿÁè ÁàÁø\u007FÁø ÂÿÁÿÁÀ \u0001Áð\u007FÁÀ \u001FÁÿÁÿ€Â Áø\u007F€ \u000FÁÿÁÿ @\u0001Áð\u007F @ ÁÿÁþ\u0003Áü Áø\u007FƒÁþ\u0003ÁÿÁü Áÿ\u0001p~ Áÿ\u0001ÁÿÁü\u000FÁÿ€Áø>\u000FÁÿƒÁÿÁü\u001FÁÿ\u0081Áð|\u000FÁÿÁÁÁÿÁø?ÁÿÁÀÁø|\u001FÁÿÁàÁÿÁð?ÁÿÁÁÁð|\u001FÁÿÁÀÁÿÁø?ÁÿÁàÁøx?ÁÿÁàÁÿÁð\u007FÁÿÁÁÁðx\u001FÁÿÁàÁÿÁø\u007FÁÿÁàÁøx?ÁÿÁàÁÿÁð\u007FÁÿÁÁpx\u001FÁÿÁà\u007FÁø?ÁÿÁàÁø8?ÁÿÁàÁÿÁø\u001FÁÿÁÁÁð|\u001FÁÿÁÀÁÿÁø?ÁÿÁÀÁø|\u001FÁÿÁàÁÿÁô\u001FÁÿ\u0001Áð|\u0017ÁÿÁÁÁÿÁü\u000FÁÿ€Áø~\u000FÁÿƒÁÿÁü Áÿ\u0001Áð| Áÿ\u0001ÁÿÁþ\u0003Áþ Áø\u007FƒÁþ\u0003ÁÿÁÿ P\u0001p\u007F \u0010 ÁÿÁÿ€Â Áø?€ \u000FÁÿÁÿÁÀ \u0001Áð\u007FÁÀ \u001FÁÿÁÿÁà ÁàÁø\u007FÁø ?ÁÿÁÿÁð\u0001Âõ\u007FÁô\u0001\u007FÁÿÂÿ¿Äÿ¯Âÿ\n";
+
+//            cpcl.append("BITMAP ").append(x1 + 105).append(" ").append(y1 + 25).append(" ")
+//                    .append(widthBytes).append(" ").append(height).append(" ")
+//                    .append(dataLength).append("\n");
+
+            cpcl.append(logo).append("\n");
 
             // Print fields
             int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 10)) / 2);
