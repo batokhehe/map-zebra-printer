@@ -157,7 +157,9 @@ public class AutoActivity extends AppCompatActivity {
                 etWasPrice.setText(item.currency + " " + formatNumber(item.wasPrice));
                 etCurrentPrice.setText(item.currency + " " + formatNumber(item.currentPrice));
                 clContent.setVisibility(VISIBLE);
-                etQty.requestFocus();
+                if (!fileName.contains("regular"))
+                    etQty.requestFocus();
+                else etHeader.requestFocus();
             } else {
                 showResult(false);
                 clContent.setVisibility(GONE);
@@ -523,7 +525,7 @@ public class AutoActivity extends AppCompatActivity {
     }
 
     public String formatNumber(String number) {
-        double value = Double.parseDouble(number);  // Ubah string ke double
+        double value = Double.parseDouble(number.replace(",", "."));  // Ubah string ke double
         // Atur simbol pemisah ribuan
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setGroupingSeparator('.');

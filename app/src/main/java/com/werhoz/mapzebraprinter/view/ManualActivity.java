@@ -65,9 +65,10 @@ public class ManualActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btn_back);
 
         etTemplate.setText(name);
-        etQty.requestFocus();
-
         tilHeader.setVisibility(!fileName.contains("regular") ? GONE : VISIBLE);
+        if (!fileName.contains("regular"))
+            etQty.requestFocus();
+        else etHeader.requestFocus();
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
