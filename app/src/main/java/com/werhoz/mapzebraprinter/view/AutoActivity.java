@@ -92,7 +92,7 @@ public class AutoActivity extends AppCompatActivity {
 
         tilHeader = findViewById(R.id.til_header);
         etHeader = findViewById(R.id.et_header);
-        tilHeader.setVisibility(!fileName.contains("regular") || !fileName.contains("active") ? GONE : VISIBLE);
+        tilHeader.setVisibility(!fileName.contains("regular") && !fileName.contains("active") ? GONE : VISIBLE);
 
         etTemplate.setText(name);
         btnPrint.setOnClickListener(v -> {
