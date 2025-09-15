@@ -17,7 +17,7 @@ public class ProductEntity {
     public String qrCode;
     public String currency;
     public String itemGroup;
-    public String salesPrice;
+    public String nowPrice;
     public String wasPrice;
     public String size;
     public String color;

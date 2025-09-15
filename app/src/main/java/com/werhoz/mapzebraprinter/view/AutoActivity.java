@@ -7,6 +7,8 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -248,7 +250,7 @@ public class AutoActivity extends AppCompatActivity {
     }
 
 
-    public String generateContent(int qty) {
+    public String generateContent(int qty) throws IOException {
         if (fileName.contains("active")) return generateActive(qty);
         if (fileName.contains("alo")) return generateAlo(qty);
         if (fileName.contains("sale")) return generatePriceSale(qty);
@@ -353,9 +355,12 @@ public class AutoActivity extends AppCompatActivity {
             }
 
             // Price
-            String price = formatNumber(itemResponse.currentPrice);
-            int priceX = x1 + ((boxWidth - (price.length() * 20)) / 2);
-            content.append(String.format("T 5 0 %d %d %s %s\n", priceX, y1 + 310, itemResponse.currency, price));
+            String priceWas = "WAS: " + itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
+            int priceXWAs = x1 + ((boxWidth - (priceWas.length() * 20)) / 2);
+            content.append(String.format("T 5 0 %d %d %s %s\n", priceXWAs, y1 + 310, priceWas));
+            String priceNow = "NOW: " + itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
+            int priceXNow = x1 + ((boxWidth - (priceNow.length() * 20)) / 2);
+            content.append(String.format("T 5 0 %d %d %s %s\n", priceXNow, y1 + 330, priceNow));
 
             // Barcode
             int barcodeX = x1 + ((boxWidth - 150) / 2);
@@ -369,13 +374,24 @@ public class AutoActivity extends AppCompatActivity {
         return content.toString();
     }
 
-    public String generateAlo(int qty) {
+    public String generateAlo(int qty) throws IOException {
         int startX = 7;
         int startY = 8;
         int boxWidth = 264;
         int boxHeight = 440;
         int columnSpacing = 32; // jarak antar kolom
         int rowSpacing = 30;    // jarak antar baris
+
+        // Load file PNG dari assets
+        InputStream is = getAssets().open("logo_alo.png");
+        Bitmap bitmap = BitmapFactory.decodeStream(is);
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        int widthBytes = (width + 7) / 8;
+        int dataLength = widthBytes * height;
+
 
         StringBuilder cpcl = new StringBuilder();
 
@@ -396,7 +412,10 @@ public class AutoActivity extends AppCompatActivity {
             int xColon = (col == 0) ? 100 : 395;
 
             // Print Title
-            cpcl.append(String.format("T 5 2 %d %d alo\n", x1 + 105, y1 + 25));
+//            cpcl.append(String.format("T 5 2 %d %d alo\n", x1 + 105, y1 + 25));
+            cpcl.append("BITMAP ").append(x1 + 105).append(" ").append(y1 + 25).append(" ")
+                    .append(widthBytes).append(" ").append(height).append(" ")
+                    .append(dataLength).append("\n");
 
             // Print fields
             int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 10)) / 2);
@@ -450,7 +469,7 @@ public class AutoActivity extends AppCompatActivity {
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 0 %d %d %s\n", priceX, priceTextOffsetY, price));
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
 
             // Vertical "SALE"
             content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, y + (boxHeight - 30)));
@@ -486,7 +505,7 @@ public class AutoActivity extends AppCompatActivity {
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 0 %d %d %s\n", priceX, priceTextOffsetY, price));
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
         }
         return content.toString();
     }

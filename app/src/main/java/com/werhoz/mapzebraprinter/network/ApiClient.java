@@ -5,6 +5,8 @@ import android.content.Context;
 import com.chuckerteam.chucker.api.ChuckerInterceptor;
 import com.orhanobut.hawk.Hawk;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -31,6 +33,9 @@ public class ApiClient {
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
                     .addInterceptor(loggingInterceptor)
                     .addInterceptor(new ChuckerInterceptor(appContext))
+                    .connectTimeout(300, TimeUnit.SECONDS) // default 10s
+                    .readTimeout(300, TimeUnit.SECONDS)    // default 10s
+                    .writeTimeout(300, TimeUnit.SECONDS)   // default 10s
                     .build();
 
             retrofit = new Retrofit.Builder()

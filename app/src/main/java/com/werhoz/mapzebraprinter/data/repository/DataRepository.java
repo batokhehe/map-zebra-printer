@@ -4,11 +4,14 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.werhoz.mapzebraprinter.data.AppDatabase;
 import com.werhoz.mapzebraprinter.data.entity.ProductEntity;
+import com.werhoz.mapzebraprinter.data.model.BaseResponse;
 import com.werhoz.mapzebraprinter.data.model.ResultModel;
 import com.werhoz.mapzebraprinter.network.ApiService;
 
 import java.util.List;
 import java.util.concurrent.Executors;
+
+import retrofit2.Response;
 
 public class DataRepository {
     private final ApiService apiService;
@@ -30,12 +33,34 @@ public class DataRepository {
                 db.productDao().deleteAll();
                 callback.onProgress("Cleaning Success.");
 
-                callback.onProgress("Syncing product...");
-                List<ProductEntity> products = apiService.getProduct().execute().body();
-                db.productDao().insertAll(products);
-                List<ProductEntity> listProduct = db.productDao().getAll();
-                callback.onProgress("Product saved.");
-                callback.onProgress("✅ All tables synced successfully! : " + listProduct.size() + " data.");
+                int pageNumber = 1;
+                int pageSize = 100;
+                boolean isLastPage = false;
+
+                while (!isLastPage) {
+                    callback.onProgress("Syncing product page " + pageNumber + "...");
+
+                    Response<BaseResponse<ProductEntity>> response =
+                            apiService.getProduct(pageNumber, pageSize).execute();
+
+                    if (response.isSuccessful() && response.body() != null) {
+                        BaseResponse<ProductEntity> body = response.body();
+
+                        List<ProductEntity> products = body.getData();
+                        if (products != null && !products.isEmpty()) {
+                            db.productDao().insertAll(products);
+                            callback.onProgress("Saved " + products.size() + " products.");
+                        }
+
+                        isLastPage = body.isLastPage() || pageNumber == 2;   // pakai flag dari server
+                        pageNumber++;
+                    } else {
+                        throw new Exception("API error: " + response.message());
+                    }
+                }
+
+                int total = db.productDao().getAll().size();
+                callback.onProgress("✅ All tables synced successfully! Total : " + total + " data.");
             } catch (Exception e) {
                 callback.onProgress("❌ Sync failed: " + e.getMessage());
             }
@@ -55,7 +80,7 @@ public class DataRepository {
                 result.productCategory = entity.itemGroup;
                 result.eANNumber = entity.aliasNumber;
                 result.wasPrice = entity.wasPrice;
-                result.currentPrice = entity.salesPrice;
+                result.currentPrice = entity.nowPrice;
 
                 result.name = entity.name;
                 result.aliasNumber = entity.aliasNumber;

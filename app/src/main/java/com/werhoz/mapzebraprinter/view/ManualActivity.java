@@ -170,7 +170,9 @@ public class ManualActivity extends AppCompatActivity {
             cpcl = cpcl.replace("{CONTENT}", content);
             cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
 //            cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
-            printer.sendCommand(cpcl);  // Sending CPCL command
+
+            for (int i = 0; i < qty; i++)
+                printer.sendCommand(cpcl);  // Sending CPCL command
 
             Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
 
@@ -224,7 +226,7 @@ public class ManualActivity extends AppCompatActivity {
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 0 %d %d %s\n", priceX, priceTextOffsetY, price));
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
 
             // Vertical "SALE"
             content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, y + (boxHeight - 30)));
@@ -259,7 +261,7 @@ public class ManualActivity extends AppCompatActivity {
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 0 %d %d %s\n", priceX, priceTextOffsetY, price));
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
         }
         return content.toString();
     }

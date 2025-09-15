@@ -88,8 +88,8 @@ public class MainActivity extends AppCompatActivity {
             if (message.startsWith("✅")) {
                 Hawk.put("last_sync", DateTimeUtil.getCurrentDateTime());
                 String[] parts = message.split(":");
-                String sizePart = parts[1].trim(); // "1234 data."
-                String counter = sizePart.split(" ")[0]; // "1234"
+                String sizePart = parts[1].trim();
+                String counter = sizePart.split(" ")[0];
                 Hawk.put("counter", counter);
             }
             updateLastSync();
