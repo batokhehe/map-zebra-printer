@@ -151,12 +151,9 @@ public class ManualActivity extends AppCompatActivity {
             connection = new BluetoothConnection(macAddress);
             connection.open();
 
-            String cpclCommand = "! U1 setvar \"media.type\" \"gap\"\n" +   // set media type
-                    "! U1 setvar \"media.clear\" \"\"\n" +     // clear buffer
-                    "! U1 setvar \"media.calibrate\" \"\"\n" +     // clear buffer
-                    "! U1 do \"feed\"\n";                      // feed one label
+//            String cpclCommand =  "! U1 setvar \"media.clear\" \"\"\n";    // clear buffer
 
-            connection.write(cpclCommand.getBytes());
+//            connection.write(cpclCommand.getBytes());
 
             Log.d("Zebra", "Buffer cleared.");
 
