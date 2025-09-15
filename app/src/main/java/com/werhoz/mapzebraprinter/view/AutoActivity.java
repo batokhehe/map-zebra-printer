@@ -13,7 +13,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -279,6 +278,8 @@ public class AutoActivity extends AppCompatActivity {
 
         StringBuilder content = new StringBuilder();
 
+        String header = etHeader.getText().toString();
+
         for (int i = 0; i < qty; i++) {
             int col = i % 2;        // kolom kiri/kanan
             int row = i / 2;        // baris ke-
@@ -305,7 +306,8 @@ public class AutoActivity extends AppCompatActivity {
             content.append(wrapText(itemResponse.description, 55, 15, startX, y1, offsetX, 15)).append("\n");
 
             // Category
-            int categoryX = x1 + ((boxWidth - (itemResponse.productCategory.length() * 12)) / 2);
+            String category = itemResponse.productCategory + " - " + header;
+            int categoryX = x1 + ((boxWidth - (category.length() * 12)) / 2);
             content.append(String.format("T 7 0 %d %d %s\n", categoryX, y1 + 156, itemResponse.productCategory));
 
             // WAS price
@@ -315,11 +317,11 @@ public class AutoActivity extends AppCompatActivity {
             content.append(String.format("T 0 2 %d %d NOW :  %s %s\n", x1 + 19, y1 + 381, itemResponse.currency, formatNumber(itemResponse.currentPrice)));
 
             // Barcode
-            int barcodeX = x1 + ((boxWidth - 150) / 2);
+            int barcodeX = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 18)) / 2);
             content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, y1 + 200, itemResponse.eANNumber));
 
             // Barcode Text
-            int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 10)) / 2);
+            int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 12)) / 2);
             content.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 310, itemResponse.eANNumber));
         }
 
@@ -368,10 +370,10 @@ public class AutoActivity extends AppCompatActivity {
             // Price
             String priceWas = "WAS: " + itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
             int priceXWAs = x1 + ((boxWidth - (priceWas.length() * 20)) / 2);
-            content.append(String.format("T 5 0 %d %d %s %s\n", priceXWAs, y1 + 310, priceWas));
+            content.append(String.format("T 5 0 %d %d %s\n", priceXWAs, y1 + 310, priceWas));
             String priceNow = "NOW: " + itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
             int priceXNow = x1 + ((boxWidth - (priceNow.length() * 20)) / 2);
-            content.append(String.format("T 5 0 %d %d %s %s\n", priceXNow, y1 + 330, priceNow));
+            content.append(String.format("T 5 0 %d %d %s\n", priceXNow, y1 + 330, priceNow));
 
             // Barcode
             int barcodeX = x1 + ((boxWidth - 150) / 2);
