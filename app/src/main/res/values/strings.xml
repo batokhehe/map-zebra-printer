@@ -16,4 +16,5 @@
     <string name="last_sync">Last Download</string>
     <string name="save">Save</string>
     <string name="input_ip_address">Input IP Address</string>
+    <string name="input_header">Input Header</string>
 </resources>

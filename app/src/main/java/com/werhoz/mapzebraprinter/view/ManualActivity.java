@@ -1,13 +1,13 @@
 package com.werhoz.mapzebraprinter.view;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,6 +17,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.R;
 import com.zebra.sdk.comm.BluetoothConnection;
@@ -38,8 +39,10 @@ public class ManualActivity extends AppCompatActivity {
     private TextView etTemplate;
     private EditText etQty;
     private EditText etPrice;
+    private EditText etHeader;
     private Button btnPrint;
     private Button btnBack;
+    private TextInputLayout tilHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,13 +57,17 @@ public class ManualActivity extends AppCompatActivity {
         macAddress = Hawk.get("macAddress");
 
         etTemplate = findViewById(R.id.et_template);
+        tilHeader = findViewById(R.id.til_header);
         etQty = findViewById(R.id.et_qty);
         etPrice = findViewById(R.id.et_price);
+        etHeader = findViewById(R.id.et_header);
         btnPrint = findViewById(R.id.btn_print);
         btnBack = findViewById(R.id.btn_back);
 
         etTemplate.setText(name);
         etQty.requestFocus();
+
+        tilHeader.setVisibility(!fileName.contains("regular") ? GONE : VISIBLE);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -196,11 +203,11 @@ public class ManualActivity extends AppCompatActivity {
 
 
     public String generateContent(int qty, String price) {
-        if (fileName.contains("sale")) return generatePriceSale(qty, price);
-        return generatePriceRegular(qty, price);
+        if (fileName.contains("sale")) return generatePrice(qty, price);
+        return generatePriceHeader(qty, price);
     }
 
-    public String generatePriceSale(int qty, String price) {
+    public String generatePrice(int qty, String price) {
         StringBuilder content = new StringBuilder();
 
         int boxWidth = 264;
@@ -225,16 +232,16 @@ public class ManualActivity extends AppCompatActivity {
             content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
 
             // Vertical "SALE"
-            content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, y + (boxHeight - 30)));
+//            content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, y + (boxHeight - 30)));
 
             // Vertical line
-            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
+//            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
         }
 
         return content.toString();
     }
 
-    public String generatePriceRegular(int qty, String price) {
+    public String generatePriceHeader(int qty, String price) {
         StringBuilder content = new StringBuilder();
 
         int boxWidth = 264;
@@ -243,6 +250,8 @@ public class ManualActivity extends AppCompatActivity {
         int[] startX = {9, 305}; // kiri & kanan
 
         int fontWidthEstimate = price.length() * 12;
+
+        String header = etHeader.getText().toString();
 
         for (int i = 0; i < qty; i++) {
             int col = i % 2;       // kolom
@@ -253,11 +262,12 @@ public class ManualActivity extends AppCompatActivity {
             int y2 = y + boxHeight;                  // ✅ Y bawah
 
             // Text price offset
-            int priceTextOffsetY = y + 20;
+            int priceTextOffsetY = y + 15;
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, header));
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 20, price));
         }
         return content.toString();
     }
