@@ -477,12 +477,12 @@ public class AutoActivity extends AppCompatActivity {
             cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, y1 + 324, itemResponse.productCategory));
 
             // Harga
-            String price = formatNumber(itemResponse.currentPrice);
-            int priceX = xField + ((boxWidth - (price.length() * 20)) / 2);
-            cpcl.append(String.format("T 5 0 %d %d %s %s\n", priceX, y1 + 379, itemResponse.currency, price));
+            String price = itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
+            int priceX = xField + ((boxWidth - (price.length() * 16)) / 2);
+            cpcl.append(String.format("T 5 0 %d %d %s\n", priceX, y1 + 379, price));
 
             // BARCODE
-            int barcodeX = x1 + ((boxWidth - 150) / 2);
+            int barcodeX = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 12)) / 2);
             int barcodeY = y1 + 85;
             cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, barcodeY, itemResponse.eANNumber));
         }
