@@ -346,7 +346,7 @@ public class AutoActivity extends AppCompatActivity {
             if (wasPrice > nowPrice) {
                 String priceWas = itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
                 content.append(String.format("T 0 2 %d %d WAS :  %s\n", x1 + 19, y1 + 351, priceWas));
-                content.append(String.format("LINE %d %d %d %d 1\n", x1 + 50, y1 + 361, x1 + (priceWas.length() * 16), y1 + 361));
+                content.append(String.format("LINE %d %d %d %d 1\n", x1 + 19 + 50, y1 + 361, x1 + (priceWas.length() * 10), y1 + 361));
             }
             // NOW price
             content.append(String.format("T 0 2 %d %d NOW :  %s %s\n", x1 + 19, y1 + 381, itemResponse.currency, formatNumber(itemResponse.currentPrice)));
@@ -454,7 +454,7 @@ public class AutoActivity extends AppCompatActivity {
             int xColon = (col == 0) ? 100 : 395;
 
             // Print Title
-//            cpcl.append(String.format("T 5 2 %d %d alo\n", x1 + 105, y1 + 25));
+            cpcl.append(String.format("T 5 2 %d %d alo\n", x1 + 105, y1 + 25));
 
 //            cpcl.append("BITMAP ").append(x1 + 105).append(" ").append(y1 + 25).append(" ")
 //                    .append(widthBytes).append(" ").append(height).append(" ")
