@@ -35,6 +35,7 @@ import com.werhoz.mapzebraprinter.viewmodel.DataViewModel;
 import com.zebra.sdk.comm.BluetoothConnection;
 import com.zebra.sdk.comm.Connection;
 import com.zebra.sdk.graphics.internal.ZebraImageAndroid;
+import com.zebra.sdk.printer.PrinterLanguage;
 import com.zebra.sdk.printer.ZebraPrinter;
 import com.zebra.sdk.printer.ZebraPrinterFactory;
 
@@ -219,37 +220,54 @@ public class AutoActivity extends AppCompatActivity {
 //            Log.d("Zebra", "Buffer cleared.");
 
             // Create a ZebraPrinter instance
-            ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
+            ZebraPrinter printer = ZebraPrinterFactory.getInstance(PrinterLanguage.CPCL, connection);
 
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo_alo);
 
-            if (fileName.contains("alo")) {
-                // Load file PNG dari assets
-                InputStream is = getAssets().open("logo_alo.png");
-                Bitmap bitmap = BitmapFactory.decodeStream(is);
+            // scale biar muat di kertas
+            bitmap = Bitmap.createScaledBitmap(bitmap, 300, 150, false);
 
-                int width = bitmap.getWidth();
+            ZebraImageAndroid zebraImage = new ZebraImageAndroid(bitmap);
 
-                int xPos = (264 - width) / 2;
-                int yPos = 20;
+            // 1. Simpan logo ke printer (RAM)
+            printer.storeImage("R:LOGO.GRF", zebraImage, bitmap.getWidth(), bitmap.getHeight());
 
-                ZebraImageAndroid zebraImage = new ZebraImageAndroid(bitmap);
-                printer.printImage(zebraImage, xPos, yPos, width, bitmap.getHeight(), false);
-            }
+            // 2. Cetak via CPCL template
+            String cpcl = "! 0 200 200 400 1\n" +
+                    "EG R:LOGO.GRF\n" +
+                    "T 0 3 50 300 Hello World\n" +
+                    "PRINT\n";
 
-            // Send the CPCL data directly to the printer without setting language
-            String cpcl = loadZpl(this);
-            String content = generateContent(qty);
+            printer.sendCommand(cpcl);
 
-            cpcl = cpcl.replace("{CONTENT}", content);
-            if (fileName.contains("sale") || fileName.contains("regular"))
-                cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
-            else
-                cpcl = cpcl.replace("{height}", String.valueOf(480 * (int) Math.ceil(qty / 2.0)));
-//            cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
+//            if (fileName.contains("alo")) {
+//                InputStream is = getAssets().open("logo_alo.png");
+//                Bitmap bitmap = BitmapFactory.decodeStream(is);
+//
+//                bitmap = Bitmap.createScaledBitmap(bitmap, 300, 150, false);
+//
+//                int paperWidth = 576;
+//                int xPos = (paperWidth - bitmap.getWidth()) / 2;
+//                int yPos = 20;
+//
+//                ZebraImageAndroid zebraImage = new ZebraImageAndroid(bitmap);
+//                printer.printImage(zebraImage, xPos, yPos, bitmap.getWidth(), bitmap.getHeight(), false);
+//            }
+//
+//            // Send the CPCL data directly to the printer without setting language
+//            String cpcl = loadZpl(this);
+//            String content = generateContent(qty);
+//
+//            cpcl = cpcl.replace("{CONTENT}", content);
+//            if (fileName.contains("sale") || fileName.contains("regular"))
+//                cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
+//            else
+//                cpcl = cpcl.replace("{height}", String.valueOf(480 * (int) Math.ceil(qty / 2.0)));
+////            cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
+//
+//            printer.sendCommand(cpcl);  // Sending CPCL command
 
-            printer.sendCommand(cpcl);  // Sending CPCL command
-
-            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
 
         } catch (Exception e) {
             e.printStackTrace();
