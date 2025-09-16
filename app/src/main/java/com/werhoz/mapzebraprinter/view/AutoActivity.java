@@ -338,7 +338,8 @@ public class AutoActivity extends AppCompatActivity {
             content.append(wrapText(itemResponse.description, 55, 15, startX, y1, offsetX, 15)).append("\n");
 
             // Category
-            String category = itemResponse.productCategory + " - " + header;
+            String category = itemResponse.productCategory;
+            if (!header.isEmpty()) category = category + " - " + header;
             int categoryX = x1 + ((boxWidth - (category.length() * 12)) / 2);
             content.append(String.format("T 7 0 %d %d %s\n", categoryX, y1 + 156, category));
 
