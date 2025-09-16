@@ -7,8 +7,6 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,7 +32,6 @@ import com.werhoz.mapzebraprinter.data.model.ResultModel;
 import com.werhoz.mapzebraprinter.viewmodel.DataViewModel;
 import com.zebra.sdk.comm.BluetoothConnection;
 import com.zebra.sdk.comm.Connection;
-import com.zebra.sdk.graphics.internal.ZebraImageAndroid;
 import com.zebra.sdk.printer.PrinterLanguage;
 import com.zebra.sdk.printer.ZebraPrinter;
 import com.zebra.sdk.printer.ZebraPrinterFactory;
@@ -222,9 +219,6 @@ public class AutoActivity extends AppCompatActivity {
             // Create a ZebraPrinter instance
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(PrinterLanguage.CPCL, connection);
 
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo_alo);
-            printer.printImage(new ZebraImageAndroid(bitmap), 0, 0, 550, 412, false);
-
 //            if (fileName.contains("alo")) {
 //                InputStream is = getAssets().open("logo_alo.png");
 //                Bitmap bitmap = BitmapFactory.decodeStream(is);
@@ -239,20 +233,20 @@ public class AutoActivity extends AppCompatActivity {
 //                printer.printImage(zebraImage, xPos, yPos, bitmap.getWidth(), bitmap.getHeight(), false);
 //            }
 //
-//            // Send the CPCL data directly to the printer without setting language
-//            String cpcl = loadZpl(this);
-//            String content = generateContent(qty);
-//
-//            cpcl = cpcl.replace("{CONTENT}", content);
-//            if (fileName.contains("sale") || fileName.contains("regular"))
-//                cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
-//            else
-//                cpcl = cpcl.replace("{height}", String.valueOf(480 * (int) Math.ceil(qty / 2.0)));
-////            cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
-//
-//            printer.sendCommand(cpcl);  // Sending CPCL command
+            // Send the CPCL data directly to the printer without setting language
+            String cpcl = loadZpl(this);
+            String content = generateContent(qty);
 
-//            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
+            cpcl = cpcl.replace("{CONTENT}", content);
+            if (fileName.contains("sale") || fileName.contains("regular"))
+                cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
+            else
+                cpcl = cpcl.replace("{height}", String.valueOf(480 * (int) Math.ceil(qty / 2.0)));
+//            cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
+
+            printer.sendCommand(cpcl);  // Sending CPCL command
+
+            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
 
         } catch (Exception e) {
             e.printStackTrace();

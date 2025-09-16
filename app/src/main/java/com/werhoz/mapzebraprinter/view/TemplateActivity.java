@@ -70,7 +70,8 @@ public class TemplateActivity extends AppCompatActivity {
         if (type.equals("auto")) {
             dataList.add(new TemplateModel(R.drawable.active, "active.zpl", "Fashion"));
             dataList.add(new TemplateModel(R.drawable.mango, "mango.zpl", "Mango"));
-            dataList.add(new TemplateModel(R.drawable.alo, "alo.zpl", "Alo"));
+//            dataList.add(new TemplateModel(R.drawable.alo, "alo.zpl", "Alo"));
+            dataList.add(new TemplateModel(R.drawable.alo, "zmapfash_fashiontest.zpl", "Alo"));
         }
         adapter.notifyDataSetChanged();
     }
