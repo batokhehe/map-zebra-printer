@@ -217,7 +217,7 @@ public class AutoActivity extends AppCompatActivity {
 //            Log.d("Zebra", "Buffer cleared.");
 
             // Create a ZebraPrinter instance
-            ZebraPrinter printer = ZebraPrinterFactory.getInstance(PrinterLanguage.CPCL, connection);
+            ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
 
 //            InputStream is = getAssets().open("logo_alo.pcx");
 //            int size = is.available();
@@ -346,7 +346,7 @@ public class AutoActivity extends AppCompatActivity {
             if (wasPrice > nowPrice) {
                 String priceWas = itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
                 content.append(String.format("T 0 2 %d %d WAS :  %s\n", x1 + 19, y1 + 351, priceWas));
-                content.append(String.format("LINE %d %d %d %d 1\n", x1 + 50, y1 + 361, x1 + 18 + (priceWas.length() * 16), y1 + 361));
+                content.append(String.format("LINE %d %d %d %d 1\n", x1 + 50, y1 + 361, x1 + (priceWas.length() * 16), y1 + 361));
             }
             // NOW price
             content.append(String.format("T 0 2 %d %d NOW :  %s %s\n", x1 + 19, y1 + 381, itemResponse.currency, formatNumber(itemResponse.currentPrice)));
@@ -373,6 +373,9 @@ public class AutoActivity extends AppCompatActivity {
         int rowSpacing = 30;    // jarak antar baris
 
         StringBuilder content = new StringBuilder();
+
+        double wasPrice = parseDouble(itemResponse.wasPrice);
+        double nowPrice = parseDouble(itemResponse.currentPrice);
 
         for (int i = 0; i < qty; i++) {
             int col = i % 2;        // kolom kiri/kanan
@@ -403,9 +406,12 @@ public class AutoActivity extends AppCompatActivity {
             }
 
             // Price
-            String priceWas = "WAS: " + itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
-            int priceXWAs = x1 + ((boxWidth - (priceWas.length() * 20)) / 2);
-            content.append(String.format("T 0 2 %d %d %s\n", priceXWAs, y1 + 310, priceWas));
+            if (wasPrice > nowPrice) {
+                String priceWas = "WAS: " + itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
+                int priceXWAs = x1 + ((boxWidth - (priceWas.length() * 20)) / 2);
+                content.append(String.format("T 0 2 %d %d %s\n", priceXWAs, y1 + 310, priceWas));
+                content.append(String.format("LINE %d %d %d %d 1\n", priceXWAs + 50, y1 + 320, x1 + (priceWas.length() * 16), y1 + 320));
+            }
             String priceNow = "NOW: " + itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
             int priceXNow = x1 + ((boxWidth - (priceNow.length() * 20)) / 2);
             content.append(String.format("T 0 2 %d %d %s\n", priceXNow, y1 + 330, priceNow));
