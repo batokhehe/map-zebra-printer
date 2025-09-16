@@ -7,6 +7,8 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +34,7 @@ import com.werhoz.mapzebraprinter.data.model.ResultModel;
 import com.werhoz.mapzebraprinter.viewmodel.DataViewModel;
 import com.zebra.sdk.comm.BluetoothConnection;
 import com.zebra.sdk.comm.Connection;
+import com.zebra.sdk.graphics.internal.ZebraImageAndroid;
 import com.zebra.sdk.printer.ZebraPrinter;
 import com.zebra.sdk.printer.ZebraPrinterFactory;
 
@@ -218,6 +221,21 @@ public class AutoActivity extends AppCompatActivity {
             // Create a ZebraPrinter instance
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
 
+
+            if (fileName.contains("alo")) {
+                // Load file PNG dari assets
+                InputStream is = getAssets().open("logo_alo.png");
+                Bitmap bitmap = BitmapFactory.decodeStream(is);
+
+                int width = bitmap.getWidth();
+
+                int xPos = (264 - width) / 2;
+                int yPos = 20;
+
+                ZebraImageAndroid zebraImage = new ZebraImageAndroid(bitmap);
+                printer.printImage(zebraImage, xPos, yPos, width, bitmap.getHeight(), false);
+            }
+
             // Send the CPCL data directly to the printer without setting language
             String cpcl = loadZpl(this);
             String content = generateContent(qty);
@@ -398,16 +416,6 @@ public class AutoActivity extends AppCompatActivity {
         int boxHeight = 440;
         int columnSpacing = 32; // jarak antar kolom
         int rowSpacing = 30;    // jarak antar baris
-
-        // Load file PNG dari assets
-//        InputStream is = getAssets().open("logo_alo.png");
-//        Bitmap bitmap = BitmapFactory.decodeStream(is);
-//
-//        int width = bitmap.getWidth();
-//        int height = bitmap.getHeight();
-//
-//        int widthBytes = (width + 7) / 8;
-//        int dataLength = widthBytes * height;
 
 
         StringBuilder cpcl = new StringBuilder();
