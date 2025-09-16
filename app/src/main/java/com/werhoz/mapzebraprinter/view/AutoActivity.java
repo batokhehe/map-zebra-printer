@@ -478,8 +478,8 @@ public class AutoActivity extends AppCompatActivity {
 
             // Harga
             String price = itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
-            int priceX = xField + ((boxWidth - (price.length() * 15)) / 2);
-            cpcl.append(String.format("T 5 0 %d %d %s\n", priceX, y1 + 379, price));
+//            int priceX = xField + ((boxWidth - (price.length() * 15)) / 2);
+            cpcl.append(String.format("T 5 0 %d %d %s\n", x1 + 30, y1 + 379, price));
 
             // BARCODE
             int barcodeX = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 12)) / 2);
