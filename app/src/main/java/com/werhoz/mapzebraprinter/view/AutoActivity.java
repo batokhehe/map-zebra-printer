@@ -440,7 +440,7 @@ public class AutoActivity extends AppCompatActivity {
 
         for (int i = 0; i < qty; i++) {
             int col = i % 2;        // kiri/kanan
-            int row = (i / 2) % 2;  // baris ke-0/1 dalam 1 halaman
+            int row = i / 2;  // baris ke-0/1 dalam 1 halaman
 
             int offsetX = col * (boxWidth + columnSpacing);
             int offsetY = row * (boxHeight + rowSpacing);
@@ -482,7 +482,7 @@ public class AutoActivity extends AppCompatActivity {
             cpcl.append(String.format("T 5 0 %d %d %s\n", x1 + 30, y1 + 379, price));
 
             // BARCODE
-            int barcodeX = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 12)) / 2);
+            int barcodeX = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 18)) / 2);
             int barcodeY = y1 + 85;
             cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, barcodeY, itemResponse.eANNumber));
         }
