@@ -226,19 +226,7 @@ public class AutoActivity extends AppCompatActivity {
 
             // scale biar muat di kertas
             bitmap = Bitmap.createScaledBitmap(bitmap, 300, 150, false);
-
-            ZebraImageAndroid zebraImage = new ZebraImageAndroid(bitmap);
-
-            // 1. Simpan logo ke printer (RAM)
-            printer.storeImage("R:LOGO.GRF", zebraImage, bitmap.getWidth(), bitmap.getHeight());
-
-            // 2. Cetak via CPCL template
-            String cpcl = "! 0 200 200 400 1\n" +
-                    "EG R:LOGO.GRF\n" +
-                    "T 0 3 50 300 Hello World\n" +
-                    "PRINT\n";
-
-            printer.sendCommand(cpcl);
+            printer.printImage(new ZebraImageAndroid(bitmap), 0, 0, 550, 412, false);
 
 //            if (fileName.contains("alo")) {
 //                InputStream is = getAssets().open("logo_alo.png");
