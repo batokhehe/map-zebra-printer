@@ -34,7 +34,7 @@ public class DataRepository {
                 callback.onProgress("Cleaning Success.");
 
                 int pageNumber = 1;
-                int pageSize = 100;
+                int pageSize = 10000;
                 boolean isLastPage = false;
 
                 while (!isLastPage) {
@@ -52,7 +52,7 @@ public class DataRepository {
                             callback.onProgress("Saved " + products.size() + " products.");
                         }
 
-                        isLastPage = body.isLastPage() || pageNumber == 2;   // pakai flag dari server
+                        isLastPage = body.isLastPage();   // pakai flag dari server
                         pageNumber++;
                     } else {
                         throw new Exception("API error: " + response.message());
