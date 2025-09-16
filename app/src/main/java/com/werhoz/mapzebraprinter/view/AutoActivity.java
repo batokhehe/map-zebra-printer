@@ -223,9 +223,6 @@ public class AutoActivity extends AppCompatActivity {
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(PrinterLanguage.CPCL, connection);
 
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo_alo);
-
-            // scale biar muat di kertas
-            bitmap = Bitmap.createScaledBitmap(bitmap, 300, 150, false);
             printer.printImage(new ZebraImageAndroid(bitmap), 0, 0, 550, 412, false);
 
 //            if (fileName.contains("alo")) {
