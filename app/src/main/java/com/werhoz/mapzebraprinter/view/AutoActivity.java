@@ -343,10 +343,10 @@ public class AutoActivity extends AppCompatActivity {
             content.append(String.format("T 7 0 %d %d %s\n", categoryX, y1 + 156, itemResponse.productCategory));
 
             // WAS price
-            if (wasPrice != nowPrice) {
+            if (wasPrice > nowPrice) {
                 String priceWas = itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
                 content.append(String.format("T 0 2 %d %d WAS :  %s\n", x1 + 19, y1 + 351, priceWas));
-                content.append(String.format("LINE %d %d %d %d 1\n", x1 + 18, y1 + 361, x1 + 18 + (priceWas.length() * 16), y1 + 361));
+                content.append(String.format("LINE %d %d %d %d 1\n", x1 + 50, y1 + 361, x1 + 18 + (priceWas.length() * 16), y1 + 361));
             }
             // NOW price
             content.append(String.format("T 0 2 %d %d NOW :  %s %s\n", x1 + 19, y1 + 381, itemResponse.currency, formatNumber(itemResponse.currentPrice)));
@@ -452,15 +452,9 @@ public class AutoActivity extends AppCompatActivity {
             // Print Title
 //            cpcl.append(String.format("T 5 2 %d %d alo\n", x1 + 105, y1 + 25));
 
-            String logo = "PCX 110 28 \n" +
-                    "\u0005\u0001\u0001    K = K K    ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ \u0001\n" +
-                    " \u0012 x                                                         ÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÊÿÄÿÁúÅÿÄÿÁð\u007FÄÿÄÿÁø?ÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø?ÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø\u007FÄÿÄÿÁð\u007FÄÿÄÿÁø?ÄÿÁÿÁü\u0001ÁÕÁð\u007FÁü\u0001ÂÿÁÿÁè ÁàÁø\u007FÁø ÂÿÁÿÁÀ \u0001Áð\u007FÁÀ \u001FÁÿÁÿ€Â Áø\u007F€ \u000FÁÿÁÿ @\u0001Áð\u007F @ ÁÿÁþ\u0003Áü Áø\u007FƒÁþ\u0003ÁÿÁü Áÿ\u0001p~ Áÿ\u0001ÁÿÁü\u000FÁÿ€Áø>\u000FÁÿƒÁÿÁü\u001FÁÿ\u0081Áð|\u000FÁÿÁÁÁÿÁø?ÁÿÁÀÁø|\u001FÁÿÁàÁÿÁð?ÁÿÁÁÁð|\u001FÁÿÁÀÁÿÁø?ÁÿÁàÁøx?ÁÿÁàÁÿÁð\u007FÁÿÁÁÁðx\u001FÁÿÁàÁÿÁø\u007FÁÿÁàÁøx?ÁÿÁàÁÿÁð\u007FÁÿÁÁpx\u001FÁÿÁà\u007FÁø?ÁÿÁàÁø8?ÁÿÁàÁÿÁø\u001FÁÿÁÁÁð|\u001FÁÿÁÀÁÿÁø?ÁÿÁÀÁø|\u001FÁÿÁàÁÿÁô\u001FÁÿ\u0001Áð|\u0017ÁÿÁÁÁÿÁü\u000FÁÿ€Áø~\u000FÁÿƒÁÿÁü Áÿ\u0001Áð| Áÿ\u0001ÁÿÁþ\u0003Áþ Áø\u007FƒÁþ\u0003ÁÿÁÿ P\u0001p\u007F \u0010 ÁÿÁÿ€Â Áø?€ \u000FÁÿÁÿÁÀ \u0001Áð\u007FÁÀ \u001FÁÿÁÿÁà ÁàÁø\u007FÁø ?ÁÿÁÿÁð\u0001Âõ\u007FÁô\u0001\u007FÁÿÂÿ¿Äÿ¯Âÿ\n";
-
 //            cpcl.append("BITMAP ").append(x1 + 105).append(" ").append(y1 + 25).append(" ")
 //                    .append(widthBytes).append(" ").append(height).append(" ")
 //                    .append(dataLength).append("\n");
-
-            cpcl.append(logo).append("\n");
 
             // Print fields
             int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 10)) / 2);
