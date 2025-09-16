@@ -219,6 +219,22 @@ public class AutoActivity extends AppCompatActivity {
             // Create a ZebraPrinter instance
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(PrinterLanguage.CPCL, connection);
 
+//            InputStream is = getAssets().open("logo_alo.pcx");
+//            int size = is.available();
+//            byte[] buffer = new byte[size];
+//            is.read(buffer);
+//            is.close();
+//
+//            String header = "! 0 200 200 400 1\n" +
+//                    "PCX 100 50\n";
+//
+//            String footer = "PRINT\n";
+//
+//            connection.write(header.getBytes("US-ASCII"));
+//            connection.write(buffer);
+//            connection.write(footer.getBytes("US-ASCII"));
+//            return;
+
 //            if (fileName.contains("alo")) {
 //                InputStream is = getAssets().open("logo_alo.png");
 //                Bitmap bitmap = BitmapFactory.decodeStream(is);
