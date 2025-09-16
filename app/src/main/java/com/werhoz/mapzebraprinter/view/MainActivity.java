@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView connectedDevice;
     private Button btnDownload;
     private Sweetalert pDialog;
+    private DataViewModel viewModel;
+    private TextView tvCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
         Hawk.init(this).build();
         ApiClient.init(getApplicationContext());
+        tvCounter = findViewById(R.id.tv_counter_download);
+        viewModel = new ViewModelProvider(this).get(DataViewModel.class);
+
         updateLastSync();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -71,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
         connectedDevice = findViewById(R.id.tv_printer);
 
-        DataViewModel viewModel = new ViewModelProvider(this).get(DataViewModel.class);
-
         viewModel.getSyncStatus().observe(this, message -> {
             pDialog.setTitleText(message);
             pDialog.show();
@@ -93,6 +97,10 @@ public class MainActivity extends AppCompatActivity {
                 Hawk.put("counter", counter);
             }
             updateLastSync();
+        });
+
+        viewModel.getCounter().observe(this, count -> {
+            tvCounter.setText(count + " Data");
         });
 
 
@@ -129,9 +137,6 @@ public class MainActivity extends AppCompatActivity {
     private void updateLastSync() {
         TextView tvLastSync = findViewById(R.id.tv_last_download);
         tvLastSync.setText(String.format("Last Sync: %s", Hawk.get("last_sync", "-")));
-
-        TextView tvCounter = findViewById(R.id.tv_counter_download);
-        tvCounter.setText(String.format("%s Data", Hawk.get("counter", "0")));
     }
 
     private boolean isIpSet() {

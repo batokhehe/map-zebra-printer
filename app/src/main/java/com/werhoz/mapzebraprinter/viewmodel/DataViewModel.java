@@ -37,6 +37,10 @@ public class DataViewModel extends AndroidViewModel {
         repository.syncAllTables(syncStatus::postValue);
     }
 
+    public LiveData<Integer> getCounter() {
+        return repository.getCounter();
+    }
+
     public LiveData<ResultModel> getItemResponseLiveData() {
         return itemResponseLiveData;
     }

@@ -340,7 +340,7 @@ public class AutoActivity extends AppCompatActivity {
             // Category
             String category = itemResponse.productCategory + " - " + header;
             int categoryX = x1 + ((boxWidth - (category.length() * 12)) / 2);
-            content.append(String.format("T 7 0 %d %d %s\n", categoryX, y1 + 156, itemResponse.productCategory));
+            content.append(String.format("T 7 0 %d %d %s\n", categoryX, y1 + 156, category));
 
             // WAS price
             if (wasPrice > nowPrice) {

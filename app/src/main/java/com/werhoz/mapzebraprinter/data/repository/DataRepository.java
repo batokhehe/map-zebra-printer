@@ -1,7 +1,11 @@
 package com.werhoz.mapzebraprinter.data.repository;
 
+import android.util.Log;
+
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.data.AppDatabase;
 import com.werhoz.mapzebraprinter.data.entity.ProductEntity;
 import com.werhoz.mapzebraprinter.data.model.BaseResponse;
@@ -52,19 +56,25 @@ public class DataRepository {
                             callback.onProgress("Saved " + products.size() + " products.");
                         }
 
-                        isLastPage = body.isLastPage();   // pakai flag dari server
+                        isLastPage = body.isLastPage();
+                        if (pageNumber == 97)
+                            Log.d("tes", "syncAllTables: "); // pakai flag dari server
                         pageNumber++;
                     } else {
                         throw new Exception("API error: " + response.message());
                     }
                 }
 
-                int total = db.productDao().getAll().size();
+                LiveData<Integer> total = db.productDao().getAllCount();
                 callback.onProgress("✅ All tables synced successfully! Total : " + total + " data.");
             } catch (Exception e) {
                 callback.onProgress("❌ Sync failed: " + e.getMessage());
             }
         });
+    }
+
+    public LiveData<Integer> getCounter(){
+        return db.productDao().getAllCount();
     }
 
     public void getProduct(String barcode, MutableLiveData<ResultModel> itemResponseLiveData) {

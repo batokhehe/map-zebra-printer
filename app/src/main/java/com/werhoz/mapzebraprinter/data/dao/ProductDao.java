@@ -1,5 +1,6 @@
 package com.werhoz.mapzebraprinter.data.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -19,6 +20,9 @@ public interface ProductDao {
 
     @Query("SELECT * FROM Product")
     List<ProductEntity> getAll();
+
+    @Query("SELECT COUNT(*) FROM Product")
+    LiveData<Integer> getAllCount();
 
     @Query("SELECT * FROM Product WHERE itemNumber = :id")
     ProductEntity getById(String id);
