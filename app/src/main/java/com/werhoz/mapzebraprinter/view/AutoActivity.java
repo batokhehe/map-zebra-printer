@@ -408,13 +408,11 @@ public class AutoActivity extends AppCompatActivity {
             // Price
             if (wasPrice > nowPrice) {
                 String priceWas = "WAS: " + itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
-                int priceXWAs = x1 + ((boxWidth - (priceWas.length() * 20)) / 2);
-                content.append(String.format("T 0 2 %d %d %s\n", priceXWAs, y1 + 310, priceWas));
-                content.append(String.format("LINE %d %d %d %d 1\n", priceXWAs + 50, y1 + 320, x1 + (priceWas.length() * 16), y1 + 320));
+                content.append(String.format("T 0 2 %d %d %s\n", x1 + 10, y1 + 310, priceWas));
+                content.append(String.format("LINE %d %d %d %d 1\n", x1 + 10 + 50, y1 + 320, x1 + (priceWas.length() * 16), y1 + 320));
             }
             String priceNow = "NOW: " + itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
-            int priceXNow = x1 + ((boxWidth - (priceNow.length() * 20)) / 2);
-            content.append(String.format("T 0 2 %d %d %s\n", priceXNow, y1 + 330, priceNow));
+            content.append(String.format("T 0 2 %d %d %s\n", x1 + 10, y1 + 330, priceNow));
 
             // Barcode
             int barcodeX = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 18)) / 2);
