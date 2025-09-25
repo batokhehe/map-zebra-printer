@@ -6,7 +6,7 @@ public class ResultModel {
     public String name;
     public String aliasNumber;
     public String styleNo;
-    public String configurationCode;
+    public int configurationCode;
     public String qrCode;
     public String currency;
     public String itemGroup;

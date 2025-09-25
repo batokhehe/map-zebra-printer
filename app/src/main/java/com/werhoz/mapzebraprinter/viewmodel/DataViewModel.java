@@ -37,6 +37,9 @@ public class DataViewModel extends AndroidViewModel {
         repository.syncAllTables(syncStatus::postValue);
     }
 
+    public void startCounter(){
+        repository.startCounter();
+    }
     public LiveData<Integer> getCounter() {
         return repository.getCounter();
     }

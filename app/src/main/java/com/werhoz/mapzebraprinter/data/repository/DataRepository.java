@@ -5,21 +5,27 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.data.AppDatabase;
+import com.werhoz.mapzebraprinter.data.entity.PriceEntity;
 import com.werhoz.mapzebraprinter.data.entity.ProductEntity;
-import com.werhoz.mapzebraprinter.data.model.BaseResponse;
+import com.werhoz.mapzebraprinter.data.model.PriceResponse;
+import com.werhoz.mapzebraprinter.data.model.ProductResponse;
 import com.werhoz.mapzebraprinter.data.model.ResultModel;
 import com.werhoz.mapzebraprinter.network.ApiService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-import retrofit2.Response;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class DataRepository {
     private final ApiService apiService;
     private final AppDatabase db;
+    private final MutableLiveData<Integer> _counter = new MutableLiveData<>();
+    public LiveData<Integer> counter = _counter;
 
     public interface SyncCallback {
         void onProgress(String message);
@@ -31,74 +37,144 @@ public class DataRepository {
     }
 
     public void syncAllTables(SyncCallback callback) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                callback.onProgress("Cleaning Data...");
-                db.productDao().deleteAll();
-                callback.onProgress("Cleaning Success.");
+        int pageSize = 10000;
+        Single.zip(
+                        fetchAllProducts(apiService, pageSize, callback).subscribeOn(Schedulers.io()),
+                        fetchAllPrices(apiService, pageSize, callback).subscribeOn(Schedulers.io()),
+                        (products, prices) -> {
+                            int totalProducts = db.productDao().getAllCount();
+                            int totalPrices = db.priceDao().getAllCount();
+                            int counter = totalPrices + totalProducts;
+                            _counter.postValue(counter);
+                            return "✅ Sync success! Products: " + totalProducts + ", Prices: " + totalPrices;
+                        }
+                )
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        result -> callback.onProgress(result),
+                        error -> callback.onProgress("❌ Sync failed: " + error.getMessage())
+                );
+    }
 
+
+    private Single<List<ProductEntity>> fetchAllProducts(ApiService apiService, int pageSize, SyncCallback callback) {
+        return Single.create(emitter -> {
+            try {
+                callback.onProgress("Cleaning Products...");
+                db.productDao().deleteAll();
+
+                List<ProductEntity> allProducts = new ArrayList<>();
                 int pageNumber = 1;
-                int pageSize = 10000;
                 boolean isLastPage = false;
 
                 while (!isLastPage) {
-                    callback.onProgress("Syncing product page " + pageNumber + "...");
+                    callback.onProgress("Syncing products page " + pageNumber + "...");
+                    ProductResponse response = apiService.getProducts(pageNumber, pageSize).blockingGet();
 
-                    Response<BaseResponse<ProductEntity>> response =
-                            apiService.getProduct(pageNumber, pageSize).execute();
-
-                    if (response.isSuccessful() && response.body() != null) {
-                        BaseResponse<ProductEntity> body = response.body();
-
-                        List<ProductEntity> products = body.getData();
-                        if (products != null && !products.isEmpty()) {
-                            db.productDao().insertAll(products);
-                            callback.onProgress("Saved " + products.size() + " products.");
-                        }
-
-                        isLastPage = body.isLastPage();
-                        if (pageNumber == 97)
-                            Log.d("tes", "syncAllTables: "); // pakai flag dari server
-                        pageNumber++;
-                    } else {
-                        throw new Exception("API error: " + response.message());
+                    List<ProductEntity> products = response.getProducts();
+                    if (products != null && !products.isEmpty()) {
+                        db.productDao().insertAll(products);
+                        allProducts.addAll(products);
+                        callback.onProgress("Saved " + products.size() + " products.");
                     }
+
+                    isLastPage = response.isLastPage();
+                    pageNumber++;
                 }
 
-                LiveData<Integer> total = db.productDao().getAllCount();
-                callback.onProgress("✅ All tables synced successfully! Total : " + total + " data.");
+                emitter.onSuccess(allProducts);
             } catch (Exception e) {
-                callback.onProgress("❌ Sync failed: " + e.getMessage());
+                emitter.onError(e);
             }
         });
     }
 
-    public LiveData<Integer> getCounter(){
-        return db.productDao().getAllCount();
+    private Single<List<PriceEntity>> fetchAllPrices(ApiService apiService, int pageSize, SyncCallback callback) {
+        return Single.create(emitter -> {
+            try {
+                callback.onProgress("Cleaning Prices...");
+                db.priceDao().deleteAll();
+
+                List<PriceEntity> allPrices = new ArrayList<>();
+                int pageNumber = 1;
+                boolean isLastPage = false;
+
+                while (!isLastPage) {
+                    callback.onProgress("Syncing prices page " + pageNumber + "...");
+                    PriceResponse response = apiService.getPrices(pageNumber, pageSize).blockingGet();
+
+                    List<PriceEntity> prices = response.getProducts();
+                    if (prices != null && !prices.isEmpty()) {
+                        db.priceDao().insertAll(prices);
+                        allPrices.addAll(prices);
+                        callback.onProgress("Saved " + prices.size() + " prices.");
+                    }
+
+                    isLastPage = response.isLastPage();
+                    pageNumber++;
+                }
+
+                emitter.onSuccess(allPrices);
+            } catch (Exception e) {
+                emitter.onError(e);
+            }
+        });
     }
+
+
+    public LiveData<Integer> getCounter() {
+        return counter;
+    }
+
+    public void startCounter() {
+        Single.create(emitter -> {
+                    try {
+                        int totalProducts = db.productDao().getAllCount();
+                        int totalPrices = db.priceDao().getAllCount();
+                        int totalCounter = totalPrices + totalProducts;
+
+                        _counter.postValue(totalCounter);
+
+                        emitter.onSuccess(totalCounter); // jangan lupa sukses
+                    } catch (Exception e) {
+                        emitter.onError(e);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        result -> { /* opsional kalau mau handle result */ },
+                        error -> {
+                            Log.e("Counter", "Error: " + error.getMessage());
+                        }
+                );
+    }
+
 
     public void getProduct(String barcode, MutableLiveData<ResultModel> itemResponseLiveData) {
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                ProductEntity entity = db.productDao().getByAlias(barcode);
+                ProductEntity productEntity = db.productDao().getByAlias(barcode);
 
                 ResultModel result = new ResultModel();
-                result.itemNumber = entity.itemNumber;
-                result.description = entity.description;
-                result.size = entity.size;
-                result.color = entity.color;
-                result.productCategory = entity.itemGroup;
-                result.eANNumber = entity.aliasNumber;
-                result.wasPrice = entity.wasPrice;
-                result.currentPrice = entity.nowPrice;
+                result.itemNumber = productEntity.getItemNumber();
+                result.description = productEntity.getDescription();
+                result.size = productEntity.getSize();
+                result.color = productEntity.getColor();
+                result.productCategory = productEntity.getItemGroup();
+                result.eANNumber = productEntity.getAliasNumber();
+                result.name = productEntity.getName();
+                result.aliasNumber = productEntity.getAliasNumber();
+                result.styleNo = productEntity.getStyleNo();
+                result.configurationCode = productEntity.getConfigurationCode();
+                result.qrCode = productEntity.getQrCode();
+                result.currency = productEntity.getCurrency();
+                result.itemGroup = productEntity.getItemGroup();
 
-                result.name = entity.name;
-                result.aliasNumber = entity.aliasNumber;
-                result.styleNo = entity.styleNo;
-                result.configurationCode = entity.configurationCode;
-                result.qrCode = entity.qrCode;
-                result.currency = entity.currency;
-                result.itemGroup = entity.itemGroup;
+                PriceEntity first = db.priceDao().getFirstByItemNumber(productEntity.getItemNumber());
+                PriceEntity last = db.priceDao().getLastByItemNumber(productEntity.getItemNumber());
+                result.wasPrice = String.valueOf(first.getSalesPrice());
+                result.currentPrice = String.valueOf(last.getSalesPrice());
 
                 itemResponseLiveData.postValue(result);
             } catch (Exception e) {

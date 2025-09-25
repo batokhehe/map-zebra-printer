@@ -1,4 +1,5 @@
 [versions]
+adapterRxjava3 = "3.0.0"
 agp = "8.8.0"
 androidSweetalert2 = "2.0.2"
 hawk = "2.0.1"
@@ -13,8 +14,11 @@ activity = "1.10.0"
 constraintlayout = "2.2.1"
 retrofit = "2.9.0"
 roomRuntime = "2.7.1"
+rxandroid = "3.0.2"
+rxjava = "3.1.12"
 
 [libraries]
+adapter-rxjava3 = { module = "com.squareup.retrofit2:adapter-rxjava3", version.ref = "adapterRxjava3" }
 android-sweetalert2 = { module = "com.github.taimoorsultani:android-sweetalert2", version.ref = "androidSweetalert2" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 hawk = { module = "com.orhanobut:hawk", version.ref = "hawk" }
@@ -32,6 +36,8 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxandroid" }
+rxjava = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

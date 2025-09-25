@@ -18,19 +18,19 @@ public interface ProductDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<ProductEntity> entities);
 
-    @Query("SELECT * FROM Product")
+    @Query("SELECT * FROM products")
     List<ProductEntity> getAll();
 
-    @Query("SELECT COUNT(*) FROM Product")
-    LiveData<Integer> getAllCount();
+    @Query("SELECT COUNT(*) FROM products")
+    int getAllCount();
 
-    @Query("SELECT * FROM Product WHERE itemNumber = :id")
+    @Query("SELECT * FROM products WHERE itemNumber = :id")
     ProductEntity getById(String id);
 
-    @Query("SELECT * FROM Product WHERE aliasNumber = :alias")
+    @Query("SELECT * FROM products WHERE aliasNumber = :alias")
     ProductEntity getByAlias(String alias);
 
-    @Query("DELETE FROM Product")
+    @Query("DELETE FROM products")
     void deleteAll();
 }
 

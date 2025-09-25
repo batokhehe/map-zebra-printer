@@ -57,4 +57,9 @@ dependencies {
     //chuck
     debugImplementation(libs.library)
     releaseImplementation(libs.library.no.op)
+
+    //rxjava
+    implementation(libs.rxjava)
+    implementation(libs.rxandroid)
+    implementation(libs.adapter.rxjava3)
 }
