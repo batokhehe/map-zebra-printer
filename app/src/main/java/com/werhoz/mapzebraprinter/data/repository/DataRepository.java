@@ -173,8 +173,8 @@ public class DataRepository {
 
                 PriceEntity first = db.priceDao().getFirstByItemNumber(productEntity.getItemNumber());
                 PriceEntity last = db.priceDao().getLastByItemNumber(productEntity.getItemNumber());
-                result.wasPrice = String.valueOf(first.getSalesPrice());
-                result.currentPrice = String.valueOf(last.getSalesPrice());
+                result.wasPrice = String.valueOf(first != null ? first.getSalesPrice() : 0);
+                result.currentPrice = String.valueOf(last != null ? last.getSalesPrice() : 0);
 
                 itemResponseLiveData.postValue(result);
             } catch (Exception e) {
