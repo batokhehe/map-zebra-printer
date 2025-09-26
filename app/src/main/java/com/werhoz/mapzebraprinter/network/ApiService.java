@@ -5,6 +5,7 @@ import com.werhoz.mapzebraprinter.data.model.BaseResponse;
 import com.werhoz.mapzebraprinter.data.model.ItemResponse;
 import com.werhoz.mapzebraprinter.data.model.PriceResponse;
 import com.werhoz.mapzebraprinter.data.model.ProductResponse;
+import com.werhoz.mapzebraprinter.data.model.TestResponse;
 
 import io.reactivex.rxjava3.core.Single;
 import retrofit2.Call;
@@ -32,5 +33,8 @@ public interface ApiService {
             @Query("page") int page,
             @Query("pageSize") int pageSize
     );
+
+    @GET("api/test")
+    Call<TestResponse> testConnection();
 }
 

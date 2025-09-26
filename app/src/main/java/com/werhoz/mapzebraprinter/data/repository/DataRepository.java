@@ -11,6 +11,7 @@ import com.werhoz.mapzebraprinter.data.entity.ProductEntity;
 import com.werhoz.mapzebraprinter.data.model.PriceResponse;
 import com.werhoz.mapzebraprinter.data.model.ProductResponse;
 import com.werhoz.mapzebraprinter.data.model.ResultModel;
+import com.werhoz.mapzebraprinter.data.model.TestResponse;
 import com.werhoz.mapzebraprinter.network.ApiService;
 
 import java.util.ArrayList;
@@ -20,6 +21,9 @@ import java.util.concurrent.Executors;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DataRepository {
     private final ApiService apiService;
@@ -27,8 +31,15 @@ public class DataRepository {
     private final MutableLiveData<Integer> _counter = new MutableLiveData<>();
     public LiveData<Integer> counter = _counter;
 
+    private final MutableLiveData<String> _test = new MutableLiveData<>();
+    public LiveData<String> test = _test;
+
     public interface SyncCallback {
         void onProgress(String message);
+
+        void onProductProgress(int percent);
+
+        void onPriceProgress(int percent);
     }
 
     public DataRepository(ApiService apiService, AppDatabase db) {
@@ -60,22 +71,32 @@ public class DataRepository {
     private Single<List<ProductEntity>> fetchAllProducts(ApiService apiService, int pageSize, SyncCallback callback) {
         return Single.create(emitter -> {
             try {
-                callback.onProgress("Cleaning Products...");
+                callback.onProgress("Cleaning Data...");
                 db.productDao().deleteAll();
 
                 List<ProductEntity> allProducts = new ArrayList<>();
                 int pageNumber = 1;
                 boolean isLastPage = false;
 
+                int totalCount = apiService.getProducts(1, 1).blockingGet().getTotalRecords();
+                int currentCount = 0;
+
+                callback.onProgress("Downloading Data...");
                 while (!isLastPage) {
-                    callback.onProgress("Syncing products page " + pageNumber + "...");
+//                    callback.onProgress("Syncing products page " + pageNumber + "...");
                     ProductResponse response = apiService.getProducts(pageNumber, pageSize).blockingGet();
 
                     List<ProductEntity> products = response.getProducts();
                     if (products != null && !products.isEmpty()) {
                         db.productDao().insertAll(products);
                         allProducts.addAll(products);
-                        callback.onProgress("Saved " + products.size() + " products.");
+
+                        // Progress
+                        currentCount += products.size();
+                        int percent = (int) (((double) currentCount / totalCount) * 100);
+                        callback.onProductProgress(percent);
+
+//                        callback.onProgress("Saved " + products.size() + " products.");
                     }
 
                     isLastPage = response.isLastPage();
@@ -92,22 +113,31 @@ public class DataRepository {
     private Single<List<PriceEntity>> fetchAllPrices(ApiService apiService, int pageSize, SyncCallback callback) {
         return Single.create(emitter -> {
             try {
-                callback.onProgress("Cleaning Prices...");
+//                callback.onProgress("Cleaning Data...");
                 db.priceDao().deleteAll();
 
                 List<PriceEntity> allPrices = new ArrayList<>();
                 int pageNumber = 1;
                 boolean isLastPage = false;
 
+                int totalCount = apiService.getPrices(1, 1).blockingGet().getTotalRecords();
+                int currentCount = 0;
+
                 while (!isLastPage) {
-                    callback.onProgress("Syncing prices page " + pageNumber + "...");
+//                    callback.onProgress("Syncing prices page " + pageNumber + "...");
                     PriceResponse response = apiService.getPrices(pageNumber, pageSize).blockingGet();
 
                     List<PriceEntity> prices = response.getProducts();
                     if (prices != null && !prices.isEmpty()) {
                         db.priceDao().insertAll(prices);
                         allPrices.addAll(prices);
-                        callback.onProgress("Saved " + prices.size() + " prices.");
+
+                        // Progress
+                        currentCount += prices.size();
+                        int percent = (int) (((double) currentCount / totalCount) * 100);
+                        callback.onPriceProgress(percent);
+
+//                        callback.onProgress("Saved " + prices.size() + " prices.");
                     }
 
                     isLastPage = response.isLastPage();
@@ -120,7 +150,6 @@ public class DataRepository {
             }
         });
     }
-
 
     public LiveData<Integer> getCounter() {
         return counter;
@@ -179,6 +208,24 @@ public class DataRepository {
                 itemResponseLiveData.postValue(result);
             } catch (Exception e) {
                 itemResponseLiveData.postValue(null);
+            }
+        });
+    }
+
+    public void testConnection() {
+        apiService.testConnection().enqueue(new Callback<TestResponse>() {
+            @Override
+            public void onResponse(Call<TestResponse> call, Response<TestResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    _test.postValue("✅ " + response.body().getMessage());
+                } else {
+                    _test.postValue("❌ Failed: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TestResponse> call, Throwable t) {
+                _test.postValue("❌ Error: " + t.getMessage());
             }
         });
     }

@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.room.Room;
 
 import com.werhoz.mapzebraprinter.data.AppDatabase;
-import com.werhoz.mapzebraprinter.data.model.ItemResponse;
 import com.werhoz.mapzebraprinter.data.model.ResultModel;
 import com.werhoz.mapzebraprinter.data.repository.DataRepository;
 import com.werhoz.mapzebraprinter.network.ApiClient;
@@ -24,6 +23,17 @@ public class DataViewModel extends AndroidViewModel {
         return syncStatus;
     }
 
+    private final MutableLiveData<Integer> _productProgress = new MutableLiveData<>();
+    private final MutableLiveData<Integer> _priceProgress = new MutableLiveData<>();
+
+    public LiveData<Integer> getProductProgress() {
+        return _productProgress;
+    }
+
+    public LiveData<Integer> getPriceProgress() {
+        return _priceProgress;
+    }
+
     public DataViewModel(@NonNull Application application) {
         super(application);
 
@@ -34,14 +44,38 @@ public class DataViewModel extends AndroidViewModel {
     }
 
     public void startSync() {
-        repository.syncAllTables(syncStatus::postValue);
+        repository.syncAllTables(new DataRepository.SyncCallback() {
+            @Override
+            public void onProgress(String message) {
+                syncStatus.postValue(message);
+            }
+
+            @Override
+            public void onProductProgress(int percent) {
+                _productProgress.postValue(percent);
+            }
+
+            @Override
+            public void onPriceProgress(int percent) {
+                _priceProgress.postValue(percent);
+            }
+        });
     }
 
-    public void startCounter(){
+    public void startCounter() {
         repository.startCounter();
     }
+
     public LiveData<Integer> getCounter() {
         return repository.getCounter();
+    }
+
+    public void startTest() {
+        repository.testConnection();
+    }
+
+    public LiveData<String> test() {
+        return repository.test;
     }
 
     public LiveData<ResultModel> getItemResponseLiveData() {

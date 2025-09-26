@@ -62,4 +62,6 @@ dependencies {
     implementation(libs.rxjava)
     implementation(libs.rxandroid)
     implementation(libs.adapter.rxjava3)
+
+    implementation(libs.pleasewait)
 }

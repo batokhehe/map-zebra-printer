@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,9 +29,11 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView connectedDevice;
     private Button btnDownload;
-    private Sweetalert pDialog;
+    //    private Sweetalert pDialog;
     private DataViewModel viewModel;
     private TextView tvCounter;
+    private DownloadProgressDialog pDialog;
+    private Sweetalert pDialog2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +62,9 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnAuto = findViewById(R.id.btn_auto);
         btnAuto.setOnClickListener(view -> {
-//            if (!isBluetoothSet() || !isLastSyncSet()) {
-//                return;
-//            }
+            if (!isBluetoothSet() || !isLastSyncSet()) {
+                return;
+            }
             goToTemplateActivity("auto");
         }); //printToZebra());
 
@@ -78,14 +79,16 @@ public class MainActivity extends AppCompatActivity {
         connectedDevice = findViewById(R.id.tv_printer);
 
         viewModel.getSyncStatus().observe(this, message -> {
-            pDialog.setTitleText(message);
-            pDialog.show();
+            pDialog.setTitle(message);
+//            pDialog.setTitleText(message);
+//            pDialog.show();
 
             if (message.startsWith("✅") || message.startsWith("❌")) {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        pDialog.dismissWithAnimation();
+                        pDialog.dismiss();
+//                        pDialog.dismissWithAnimation();
                     }
                 }, 2000); // 2000 ms = 2 detik
             }
@@ -99,6 +102,15 @@ public class MainActivity extends AppCompatActivity {
             updateLastSync();
         });
 
+        viewModel.getProductProgress().observe(this, percent -> {
+            pDialog.setProductProgress(percent);
+        });
+
+        viewModel.getPriceProgress().observe(this, percent -> {
+            pDialog.setPriceProgress(percent);
+        });
+
+
         viewModel.getCounter().observe(this, count -> {
             tvCounter.setText(count + " Data");
         });
@@ -110,12 +122,36 @@ public class MainActivity extends AppCompatActivity {
             if (!isIpSet()) {
                 return;
             }
-            pDialog = new Sweetalert(MainActivity.this, Sweetalert.PROGRESS_TYPE);
-            pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
-            pDialog.setTitleText("Starting...");
+            pDialog = new DownloadProgressDialog();
             pDialog.setCancelable(false);
+            pDialog.show(getSupportFragmentManager(), "syncDialog");
+//            pDialog = new Sweetalert(MainActivity.this, Sweetalert.PROGRESS_TYPE);
+//            pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+//            pDialog.setTitleText("Starting...");
+//            pDialog.setCancelable(false);
 
             viewModel.startSync();
+        });
+
+        Button btnTest = findViewById(R.id.btn_test);
+        btnTest.setOnClickListener(view -> {
+            pDialog2 = new Sweetalert(MainActivity.this, Sweetalert.PROGRESS_TYPE);
+            pDialog2.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+            pDialog2.setTitleText("Test...");
+            pDialog2.setCancelable(false);
+            pDialog2.show();
+            viewModel.startTest();
+        });
+        viewModel.test().observe(this, message -> {
+            pDialog2.setTitleText(message);
+            if (message.startsWith("✅") || message.startsWith("❌")) {
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        pDialog2.dismissWithAnimation();
+                    }
+                }, 1000);
+            }
         });
     }
 

@@ -12,6 +12,7 @@ loggingInterceptor = "4.12.0"
 material = "1.12.0"
 activity = "1.10.0"
 constraintlayout = "2.2.1"
+pleasewait = "0.6.5"
 retrofit = "2.9.0"
 roomRuntime = "2.7.1"
 rxandroid = "3.0.2"
@@ -32,6 +33,7 @@ logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", ver
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+pleasewait = { module = "com.github.tashilapathum:PleaseWait", version.ref = "pleasewait" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
