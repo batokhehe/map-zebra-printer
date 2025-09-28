@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,11 +22,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.R;
 import com.werhoz.mapzebraprinter.adapter.SettingAdapter;
+import com.werhoz.mapzebraprinter.viewmodel.DataViewModel;
 import com.zebra.sdk.comm.BluetoothConnection;
 import com.zebra.sdk.comm.Connection;
 
@@ -44,6 +48,8 @@ public class SettingActivity extends AppCompatActivity {
     private SettingAdapter adapter;
     private List<BluetoothDevice> dataList = new ArrayList<>();
     private Sweetalert pDialog;
+    private Sweetalert pDialog2;
+    private DataViewModel viewModel;
 
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -71,8 +77,10 @@ public class SettingActivity extends AppCompatActivity {
 
         rvItems = findViewById(R.id.rv_devices);
         btnSave = findViewById(R.id.btn_save);
+        btnSave.setEnabled(false);
         etIp = findViewById(R.id.et_ip_address);
         etIp.setText(Hawk.get("ip_address", "http://10.3.25.166:7255"));
+        viewModel = new ViewModelProvider(this).get(DataViewModel.class);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -162,6 +170,33 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
+        Button btnTest = findViewById(R.id.btn_test);
+        btnTest.setOnClickListener(view -> {
+            String url = etIp.getText().toString();
+            if (url.isEmpty()) {
+                Toast.makeText(this, "Please Input URL..", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            pDialog2 = new Sweetalert(SettingActivity.this, Sweetalert.PROGRESS_TYPE);
+            pDialog2.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+            pDialog2.setTitleText("Test...");
+            pDialog2.setCancelable(false);
+            pDialog2.setTitleText("Testing Connection..");
+            pDialog2.show();
+            viewModel.startTest(url);
+        });
+        viewModel.test().observe(this, message -> {
+            pDialog2.setTitleText(message.getMessage());
+            if (!message.getMessage().isEmpty()) {
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        pDialog2.dismissWithAnimation();
+                    }
+                }, 1000);
+            }
+            btnSave.setEnabled(message.isStatus());
+        });
     }
 
     private void restartApps() {

@@ -5,6 +5,8 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import com.werhoz.mapzebraprinter.data.AppDatabase;
 import com.werhoz.mapzebraprinter.data.entity.PriceEntity;
 import com.werhoz.mapzebraprinter.data.entity.ProductEntity;
@@ -14,16 +16,28 @@ import com.werhoz.mapzebraprinter.data.model.ResultModel;
 import com.werhoz.mapzebraprinter.data.model.TestResponse;
 import com.werhoz.mapzebraprinter.network.ApiService;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.zip.GZIPInputStream;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DataRepository {
     private final ApiService apiService;
@@ -31,8 +45,8 @@ public class DataRepository {
     private final MutableLiveData<Integer> _counter = new MutableLiveData<>();
     public LiveData<Integer> counter = _counter;
 
-    private final MutableLiveData<String> _test = new MutableLiveData<>();
-    public LiveData<String> test = _test;
+    private final MutableLiveData<TestResponse> _test = new MutableLiveData<>();
+    public LiveData<TestResponse> test = _test;
 
     public interface SyncCallback {
         void onProgress(String message);
@@ -48,18 +62,31 @@ public class DataRepository {
     }
 
     public void syncAllTables(SyncCallback callback) {
-        int pageSize = 10000;
-        Single.zip(
-                        fetchAllProducts(apiService, pageSize, callback).subscribeOn(Schedulers.io()),
-                        fetchAllPrices(apiService, pageSize, callback).subscribeOn(Schedulers.io()),
-                        (products, prices) -> {
-                            int totalProducts = db.productDao().getAllCount();
-                            int totalPrices = db.priceDao().getAllCount();
-                            int counter = totalPrices + totalProducts;
-                            _counter.postValue(counter);
-                            return "✅ Sync success! Products: " + totalProducts + ", Prices: " + totalPrices;
-                        }
-                )
+//        int pageSize = 10000;
+//        Single.zip(
+//                        fetchAllProducts(apiService, pageSize, callback).subscribeOn(Schedulers.io()),
+//                        fetchAllPrices(apiService, pageSize, callback).subscribeOn(Schedulers.io()),
+//                        (products, prices) -> {
+//                            int totalProducts = db.productDao().getAllCount();
+//                            int totalPrices = db.priceDao().getAllCount();
+//                            int counter = totalPrices + totalProducts;
+//                            _counter.postValue(counter);
+//                            return "✅ Sync success! Products: " + totalProducts + ", Prices: " + totalPrices;
+//                        }
+//                )
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(
+//                        result -> callback.onProgress(result),
+//                        error -> callback.onProgress("❌ Sync failed: " + error.getMessage())
+//                );
+
+        fetchAllProductsFromFile(apiService, callback)
+                .subscribeOn(Schedulers.io())
+                .map(products -> {
+                    int totalProducts = db.productDao().getAllCount();
+                    _counter.postValue(totalProducts);
+                    return "✅ Sync success! Products: " + totalProducts;
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         result -> callback.onProgress(result),
@@ -200,10 +227,13 @@ public class DataRepository {
                 result.currency = productEntity.getCurrency();
                 result.itemGroup = productEntity.getItemGroup();
 
-                PriceEntity first = db.priceDao().getFirstByItemNumber(productEntity.getItemNumber());
-                PriceEntity last = db.priceDao().getLastByItemNumber(productEntity.getItemNumber());
-                result.wasPrice = String.valueOf(first != null ? first.getSalesPrice() : 0);
-                result.currentPrice = String.valueOf(last != null ? last.getSalesPrice() : 0);
+//                PriceEntity first = db.priceDao().getFirstByItemNumber(productEntity.getItemNumber());
+//                PriceEntity last = db.priceDao().getLastByItemNumber(productEntity.getItemNumber());
+//                result.wasPrice = String.valueOf(first != null ? first.getSalesPrice() : 0);
+//                result.currentPrice = String.valueOf(last != null ? last.getSalesPrice() : 0);
+
+                result.wasPrice = productEntity.getWasPrice() != null ? productEntity.getWasPrice() : "0";
+                result.currentPrice = productEntity.getSalesPrice() != null ? productEntity.getSalesPrice() : "0";
 
                 itemResponseLiveData.postValue(result);
             } catch (Exception e) {
@@ -212,22 +242,115 @@ public class DataRepository {
         });
     }
 
-    public void testConnection() {
-        apiService.testConnection().enqueue(new Callback<TestResponse>() {
+    public void testConnection(String url) {
+        // Create and configure the logging interceptor
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY); // Can be BASIC, HEADERS, BODY
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(loggingInterceptor)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(url)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
+                .build();
+
+        Call<TestResponse> call = retrofit
+                .create(ApiService.class)
+                .testConnection();
+
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<TestResponse> call, Response<TestResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    _test.postValue("✅ " + response.body().getMessage());
+                    TestResponse result = response.body();
+                    _test.postValue(result);
                 } else {
-                    _test.postValue("❌ Failed: " + response.code());
+                    _test.postValue(new TestResponse(false, String.valueOf(response.code())));
                 }
             }
 
             @Override
             public void onFailure(Call<TestResponse> call, Throwable t) {
-                _test.postValue("❌ Error: " + t.getMessage());
+                _test.postValue(new TestResponse(false, t.getMessage()));
             }
         });
     }
+
+    private Single<Integer> fetchAllProductsFromFile(ApiService apiService, SyncCallback callback) {
+        return Single.create(emitter -> {
+            try {
+                callback.onProgress("Downloading Data...");
+                ResponseBody body = apiService.downloadProductSales().blockingGet();
+
+                callback.onProgress("Clearing Data...");
+                db.productDao().deleteAll();
+
+                callback.onProgress("Counting Data...");
+                File tempFile = File.createTempFile("products", ".json.gz");
+                try (InputStream is = body.byteStream();
+                     OutputStream os = new FileOutputStream(tempFile)) {
+                    byte[] buffer = new byte[8192];
+                    int len;
+                    while ((len = is.read(buffer)) != -1) {
+                        os.write(buffer, 0, len);
+                    }
+                }
+                int totalRecords = 0;
+                try (InputStream fis = new FileInputStream(tempFile);
+                     GZIPInputStream gis = new GZIPInputStream(fis);
+                     JsonReader countReader = new JsonReader(new InputStreamReader(gis))) {
+
+                    countReader.beginArray();
+                    while (countReader.hasNext()) {
+                        countReader.skipValue();
+                        totalRecords++;
+                    }
+                    countReader.endArray();
+                }
+
+                // 2nd pass: parse & insert
+                int count = 0;
+                try (InputStream fis = new FileInputStream(tempFile);
+                     GZIPInputStream gis = new GZIPInputStream(fis);
+                     JsonReader reader = new JsonReader(new InputStreamReader(gis))) {
+
+                    Gson gson = new Gson();
+
+                    List<ProductEntity> batch = new ArrayList<>();
+
+                    callback.onProgress("Inserting Data...");
+
+                    reader.beginArray();
+                    while (reader.hasNext()) {
+                        ProductEntity product = gson.fromJson(reader, ProductEntity.class);
+                        batch.add(product);
+
+                        count++;
+
+                        if (batch.size() >= 1000) {
+                            db.productDao().insertAll(batch);
+                            batch.clear();
+                        }
+                        int percent = (int) (((double) count / totalRecords) * 100);
+                        callback.onProductProgress(percent);
+                    }
+                    reader.endArray();
+                    if (!batch.isEmpty()) {
+                        db.productDao().insertAll(batch);
+                    }
+                }
+
+                callback.onProgress("✅ Done! Total products: " + count);
+                emitter.onSuccess(count);
+
+            } catch (Exception e) {
+                emitter.onError(e);
+            }
+        });
+    }
+
 }
 

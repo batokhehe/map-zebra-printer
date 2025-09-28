@@ -10,6 +10,7 @@ import androidx.room.Room;
 
 import com.werhoz.mapzebraprinter.data.AppDatabase;
 import com.werhoz.mapzebraprinter.data.model.ResultModel;
+import com.werhoz.mapzebraprinter.data.model.TestResponse;
 import com.werhoz.mapzebraprinter.data.repository.DataRepository;
 import com.werhoz.mapzebraprinter.network.ApiClient;
 import com.werhoz.mapzebraprinter.network.ApiService;
@@ -70,11 +71,11 @@ public class DataViewModel extends AndroidViewModel {
         return repository.getCounter();
     }
 
-    public void startTest() {
-        repository.testConnection();
+    public void startTest(String url) {
+        repository.testConnection(url);
     }
 
-    public LiveData<String> test() {
+    public LiveData<TestResponse> test() {
         return repository.test;
     }
 

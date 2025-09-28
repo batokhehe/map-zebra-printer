@@ -13,8 +13,8 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.werhoz.mapzebraprinter.R;
 
 public class DownloadProgressDialog extends DialogFragment {
-    private LinearProgressIndicator progressProducts, progressPrices;
-    private TextView tvTitle, tvProduct, tvPrice;
+    private LinearProgressIndicator progressProducts;
+    private TextView tvTitle, tvProduct;
 
     @NonNull
     @Override
@@ -25,9 +25,9 @@ public class DownloadProgressDialog extends DialogFragment {
 
         tvTitle = view.findViewById(R.id.tvTitle);
         progressProducts = view.findViewById(R.id.progressProducts);
-        progressPrices = view.findViewById(R.id.progressPrices);
+//        progressPrices = view.findViewById(R.id.progressPrices);
         tvProduct = view.findViewById(R.id.tvProductPercent);
-        tvPrice = view.findViewById(R.id.tvPricePercent);
+//        tvPrice = view.findViewById(R.id.tvPricePercent);
 
         builder.setView(view);
         builder.setCancelable(false);
@@ -45,10 +45,10 @@ public class DownloadProgressDialog extends DialogFragment {
         }
     }
 
-    public void setPriceProgress(int percent) {
-        if (progressPrices != null) {
-            progressPrices.setProgressCompat(percent, true);
-            tvPrice.setText(String.format("%d%%", percent));
-        }
-    }
+//    public void setPriceProgress(int percent) {
+//        if (progressPrices != null) {
+//            progressPrices.setProgressCompat(percent, true);
+//            tvPrice.setText(String.format("%d%%", percent));
+//        }
+//    }
 }

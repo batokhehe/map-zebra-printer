@@ -43,6 +43,12 @@ public class ProductEntity {
     @SerializedName("Color")
     private String color;
 
+    @SerializedName("WasPrice")
+    private String wasPrice;
+
+    @SerializedName("SalesPrice")
+    private String salesPrice;
+
     @NonNull
     public String getItemNumber() {
         return itemNumber;
@@ -130,5 +136,21 @@ public class ProductEntity {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public String getWasPrice() {
+        return wasPrice;
+    }
+
+    public void setWasPrice(String wasPrice) {
+        this.wasPrice = wasPrice;
+    }
+
+    public String getSalesPrice() {
+        return salesPrice;
+    }
+
+    public void setSalesPrice(String salesPrice) {
+        this.salesPrice = salesPrice;
     }
 }

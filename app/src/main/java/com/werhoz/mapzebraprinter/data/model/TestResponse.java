@@ -11,4 +11,9 @@ public class TestResponse {
     public String getMessage() {
         return message;
     }
+
+    public TestResponse(boolean status, String message) {
+        this.status = status;
+        this.message = message;
+    }
 }

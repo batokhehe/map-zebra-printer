@@ -8,10 +8,12 @@ import com.werhoz.mapzebraprinter.data.model.ProductResponse;
 import com.werhoz.mapzebraprinter.data.model.TestResponse;
 
 import io.reactivex.rxjava3.core.Single;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Streaming;
 
 public interface ApiService {
     @GET("{code}")
@@ -36,5 +38,9 @@ public interface ApiService {
 
     @GET("api/test")
     Call<TestResponse> testConnection();
+
+    @GET("ProductSales.json.gz")
+    @Streaming
+    Single<ResponseBody> downloadProductSales();
 }
 

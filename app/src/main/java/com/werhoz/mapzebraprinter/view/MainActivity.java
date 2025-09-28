@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private DataViewModel viewModel;
     private TextView tvCounter;
     private DownloadProgressDialog pDialog;
-    private Sweetalert pDialog2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,9 +105,9 @@ public class MainActivity extends AppCompatActivity {
             pDialog.setProductProgress(percent);
         });
 
-        viewModel.getPriceProgress().observe(this, percent -> {
-            pDialog.setPriceProgress(percent);
-        });
+//        viewModel.getPriceProgress().observe(this, percent -> {
+//            pDialog.setPriceProgress(percent);
+//        });
 
 
         viewModel.getCounter().observe(this, count -> {
@@ -131,27 +130,6 @@ public class MainActivity extends AppCompatActivity {
 //            pDialog.setCancelable(false);
 
             viewModel.startSync();
-        });
-
-        Button btnTest = findViewById(R.id.btn_test);
-        btnTest.setOnClickListener(view -> {
-            pDialog2 = new Sweetalert(MainActivity.this, Sweetalert.PROGRESS_TYPE);
-            pDialog2.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
-            pDialog2.setTitleText("Test...");
-            pDialog2.setCancelable(false);
-            pDialog2.show();
-            viewModel.startTest();
-        });
-        viewModel.test().observe(this, message -> {
-            pDialog2.setTitleText(message);
-            if (message.startsWith("✅") || message.startsWith("❌")) {
-                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        pDialog2.dismissWithAnimation();
-                    }
-                }, 1000);
-            }
         });
     }
 
