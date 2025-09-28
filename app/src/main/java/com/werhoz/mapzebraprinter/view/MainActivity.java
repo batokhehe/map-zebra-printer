@@ -25,6 +25,9 @@ import com.werhoz.mapzebraprinter.network.ApiClient;
 import com.werhoz.mapzebraprinter.utils.DateTimeUtil;
 import com.werhoz.mapzebraprinter.viewmodel.DataViewModel;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+
 import taimoor.sultani.sweetalert2.Sweetalert;
 
 
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         ApiClient.init(getApplicationContext());
         tvCounter = findViewById(R.id.tv_counter_download);
         viewModel = new ViewModelProvider(this).get(DataViewModel.class);
-       TextView tvVersion = findViewById(R.id.tv_version);
+        TextView tvVersion = findViewById(R.id.tv_version);
         try {
             String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             tvVersion.setText("v." + versionName);
@@ -127,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         viewModel.getCounter().observe(this, count -> {
-            tvCounter.setText(count + " Data");
+            tvCounter.setText(formatNumber(count) + " Data");
         });
         viewModel.startCounter();
 
@@ -209,5 +212,18 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Please download data first.", Toast.LENGTH_SHORT).show();
         }
         return !result;
+    }
+
+    public String formatNumber(Integer number) {
+        double value = Double.parseDouble(String.valueOf(number));  // Ubah string ke double
+        // Atur simbol pemisah ribuan
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator('.');
+
+        // Buat format angka dengan pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###", symbols);
+        String formattedNumber = formatter.format(value);
+
+        return formattedNumber; // Output: 1.234.567
     }
 }
