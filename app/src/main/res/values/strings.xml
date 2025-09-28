@@ -18,4 +18,5 @@
     <string name="input_ip_address">Input IP Address</string>
     <string name="input_header">Input Header</string>
     <string name="test">Test</string>
+    <string name="version">Version</string>
 </resources>

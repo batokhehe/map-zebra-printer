@@ -1,6 +1,8 @@
 package com.werhoz.mapzebraprinter.view;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +18,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.orhanobut.hawk.BuildConfig;
 import com.orhanobut.hawk.Hawk;
 import com.werhoz.mapzebraprinter.R;
 import com.werhoz.mapzebraprinter.network.ApiClient;
@@ -45,6 +48,14 @@ public class MainActivity extends AppCompatActivity {
         ApiClient.init(getApplicationContext());
         tvCounter = findViewById(R.id.tv_counter_download);
         viewModel = new ViewModelProvider(this).get(DataViewModel.class);
+       TextView tvVersion = findViewById(R.id.tv_version);
+        try {
+            String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            tvVersion.setText("v." + versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            tvVersion.setText("-");
+            throw new RuntimeException(e);
+        }
 
         updateLastSync();
 
