@@ -44,6 +44,14 @@ public class DataViewModel extends AndroidViewModel {
         repository = new DataRepository(api, db);
     }
 
+    public void startGenerate() {
+        repository.syncGenerate();
+    }
+
+    public LiveData<TestResponse> generate() {
+        return repository.generate;
+    }
+
     public void startSync() {
         repository.syncAllTables(new DataRepository.SyncCallback() {
             @Override

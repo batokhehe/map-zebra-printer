@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private DataViewModel viewModel;
     private TextView tvCounter;
     private DownloadProgressDialog pDialog;
+    private Sweetalert pDialog2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,15 +122,24 @@ public class MainActivity extends AppCompatActivity {
             if (!isIpSet()) {
                 return;
             }
-            pDialog = new DownloadProgressDialog();
-            pDialog.setCancelable(false);
-            pDialog.show(getSupportFragmentManager(), "syncDialog");
-//            pDialog = new Sweetalert(MainActivity.this, Sweetalert.PROGRESS_TYPE);
-//            pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
-//            pDialog.setTitleText("Starting...");
-//            pDialog.setCancelable(false);
 
-            viewModel.startSync();
+            pDialog2 = new Sweetalert(MainActivity.this, Sweetalert.PROGRESS_TYPE);
+            pDialog2.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+            pDialog2.setTitleText("Generating Data...");
+            pDialog2.setCancelable(false);
+            pDialog2.show();
+            viewModel.startGenerate();
+        });
+
+        viewModel.generate().observe(this, data -> {
+            if (pDialog2.isShowing()) pDialog2.dismissWithAnimation();
+            if (data != null && data.isStatus()) {
+                pDialog = new DownloadProgressDialog();
+                pDialog.setCancelable(false);
+                pDialog.show(getSupportFragmentManager(), "syncDialog");
+
+                viewModel.startSync();
+            }
         });
     }
 

@@ -42,5 +42,8 @@ public interface ApiService {
     @GET("ProductSales.json.gz")
     @Streaming
     Single<ResponseBody> downloadProductSales();
+
+    @GET("api/productsales")
+    Single<TestResponse> generate();
 }
 

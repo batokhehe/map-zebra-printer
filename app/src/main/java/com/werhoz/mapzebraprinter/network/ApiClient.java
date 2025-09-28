@@ -34,9 +34,9 @@ public class ApiClient {
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
                     .addInterceptor(loggingInterceptor)
                     .addInterceptor(new ChuckerInterceptor(appContext))
-                    .connectTimeout(30, TimeUnit.SECONDS) // default 10s
-                    .readTimeout(30, TimeUnit.SECONDS)    // default 10s
-                    .writeTimeout(30, TimeUnit.SECONDS)   // default 10s
+                    .connectTimeout(600, TimeUnit.SECONDS) // default 10s
+                    .readTimeout(600, TimeUnit.SECONDS)    // default 10s
+                    .writeTimeout(600, TimeUnit.SECONDS)   // default 10s
                     .build();
 
             retrofit = new Retrofit.Builder()

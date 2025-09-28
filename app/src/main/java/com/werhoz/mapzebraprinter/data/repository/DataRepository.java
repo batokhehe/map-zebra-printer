@@ -48,6 +48,9 @@ public class DataRepository {
     private final MutableLiveData<TestResponse> _test = new MutableLiveData<>();
     public LiveData<TestResponse> test = _test;
 
+    private final MutableLiveData<TestResponse> _generate = new MutableLiveData<>();
+    public LiveData<TestResponse> generate = _generate;
+
     public interface SyncCallback {
         void onProgress(String message);
 
@@ -59,6 +62,20 @@ public class DataRepository {
     public DataRepository(ApiService apiService, AppDatabase db) {
         this.apiService = apiService;
         this.db = db;
+    }
+
+    public void syncGenerate() {
+        apiService.generate()
+                .subscribeOn(Schedulers.io())               // jalanin di background
+                .observeOn(AndroidSchedulers.mainThread())  // hasil ke UI thread
+                .subscribe(
+                        response -> {
+                            _generate.postValue(response);
+                        },
+                        error -> {
+                            _generate.postValue(new TestResponse(false, error.getMessage()));
+                        }
+                );
     }
 
     public void syncAllTables(SyncCallback callback) {

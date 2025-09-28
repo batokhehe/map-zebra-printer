@@ -183,6 +183,7 @@ public class SettingActivity extends AppCompatActivity {
             pDialog2.setCancelable(false);
             pDialog2.setTitleText("Testing Connection..");
             pDialog2.show();
+            url += "/";
             viewModel.startTest(url);
         });
         viewModel.test().observe(this, message -> {
