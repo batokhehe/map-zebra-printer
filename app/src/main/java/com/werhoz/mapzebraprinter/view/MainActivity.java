@@ -79,9 +79,13 @@ public class MainActivity extends AppCompatActivity {
         connectedDevice = findViewById(R.id.tv_printer);
 
         viewModel.getSyncStatus().observe(this, message -> {
-            pDialog.setTitle(message);
-//            pDialog.setTitleText(message);
-//            pDialog.show();
+            if (pDialog2.isShowing()) pDialog2.setTitleText(message);
+
+            if (!pDialog.isVisible() && message.contains("Inserting")) {
+                pDialog2.dismissWithAnimation();
+                pDialog.show(getSupportFragmentManager(), "syncDialog");
+                pDialog.setTitle("Inserting Data..");
+            }
 
             if (message.startsWith("✅") || message.startsWith("❌")) {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
@@ -128,15 +132,20 @@ public class MainActivity extends AppCompatActivity {
             pDialog2.setTitleText("Generating Data...");
             pDialog2.setCancelable(false);
             pDialog2.show();
+
+            pDialog = new DownloadProgressDialog();
+            pDialog.setCancelable(false);
+
             viewModel.startGenerate();
         });
 
         viewModel.generate().observe(this, data -> {
             if (pDialog2.isShowing()) pDialog2.dismissWithAnimation();
             if (data != null && data.isStatus()) {
-                pDialog = new DownloadProgressDialog();
-                pDialog.setCancelable(false);
-                pDialog.show(getSupportFragmentManager(), "syncDialog");
+                pDialog2 = new Sweetalert(MainActivity.this, Sweetalert.PROGRESS_TYPE);
+                pDialog2.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+                pDialog2.setCancelable(false);
+                pDialog2.show();
 
                 viewModel.startSync();
             }
