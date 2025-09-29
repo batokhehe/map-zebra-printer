@@ -204,22 +204,26 @@ public class ManualActivity extends AppCompatActivity {
 
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        } finally {
-            btnPrint.setEnabled(true);
             runOnUiThread(() -> {
+                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            });
+        } finally {
+            runOnUiThread(() -> {
+                btnPrint.setEnabled(true);
                 pDialog.dismiss();
                 btnPrint.setEnabled(true);
                 Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
+                resetForm();
             });
-            resetForm();
             try {
                 if (connection != null && connection.isConnected()) {
                     connection.close(); // Close the connection after printing
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Error closing connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Error closing connection: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
             }
         }
     }
