@@ -32,7 +32,6 @@ import com.werhoz.mapzebraprinter.data.model.ResultModel;
 import com.werhoz.mapzebraprinter.viewmodel.DataViewModel;
 import com.zebra.sdk.comm.BluetoothConnection;
 import com.zebra.sdk.comm.Connection;
-import com.zebra.sdk.printer.PrinterLanguage;
 import com.zebra.sdk.printer.ZebraPrinter;
 import com.zebra.sdk.printer.ZebraPrinterFactory;
 
@@ -40,6 +39,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+
+import taimoor.sultani.sweetalert2.Sweetalert;
 
 public class AutoActivity extends AppCompatActivity {
 
@@ -68,6 +69,7 @@ public class AutoActivity extends AppCompatActivity {
 
     private EditText etHeader;
     private TextInputLayout tilHeader;
+    private Sweetalert pDialog;
 
 
     @Override
@@ -96,8 +98,27 @@ public class AutoActivity extends AppCompatActivity {
         etTemplate.setText(name);
         btnPrint.setOnClickListener(v -> {
             btnPrint.setEnabled(false);
-            Toast.makeText(this, "Printing, please wait...", Toast.LENGTH_SHORT).show();
-            printToZebra();
+//            Toast.makeText(this, "Printing, please wait...", Toast.LENGTH_SHORT).show();
+//            printToZebra();
+
+            pDialog = new Sweetalert(AutoActivity.this, Sweetalert.PROGRESS_TYPE);
+            pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+            pDialog.setTitleText("Generating Data...");
+            pDialog.setCancelable(false);
+            pDialog.show();
+
+            new Thread(() -> {
+                try {
+                    // Jalankan proses berat di background
+                    printToZebra();
+                } catch (Exception e) {
+                    runOnUiThread(() -> {
+                        pDialog.dismiss();
+                        btnPrint.setEnabled(true);
+                        Toast.makeText(this, "Print gagal: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    });
+                }
+            }).start();
 //            new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
         });
 
@@ -262,7 +283,15 @@ public class AutoActivity extends AppCompatActivity {
 
             printer.sendCommand(cpcl);  // Sending CPCL command
 
-            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
+
+
+            // Setelah selesai, update UI di main thread
+            runOnUiThread(() -> {
+                pDialog.dismiss();
+                btnPrint.setEnabled(true);
+                Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
+            });
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -5,6 +5,7 @@ import static android.view.View.VISIBLE;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -30,6 +31,8 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 
+import taimoor.sultani.sweetalert2.Sweetalert;
+
 public class ManualActivity extends AppCompatActivity {
 
     private int image;
@@ -43,6 +46,7 @@ public class ManualActivity extends AppCompatActivity {
     private Button btnPrint;
     private Button btnBack;
     private TextInputLayout tilHeader;
+    private Sweetalert pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +83,25 @@ public class ManualActivity extends AppCompatActivity {
             if (!etPrice.getText().toString().isEmpty() || !etQty.getText().toString().isEmpty()) {
                 btnPrint.setEnabled(false);
                 Toast.makeText(this, "Printing, please wait...", Toast.LENGTH_LONG).show();
-                printToZebra();
+//                printToZebra();
+                pDialog = new Sweetalert(ManualActivity.this, Sweetalert.PROGRESS_TYPE);
+                pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
+                pDialog.setTitleText("Generating Data...");
+                pDialog.setCancelable(false);
+                pDialog.show();
+
+                new Thread(() -> {
+                    try {
+                        // Jalankan proses berat di background
+                        printToZebra();
+                    } catch (Exception e) {
+                        runOnUiThread(() -> {
+                            pDialog.dismiss();
+                            btnPrint.setEnabled(true);
+                            Toast.makeText(this, "Print gagal: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        });
+                    }
+                }).start();
 //                new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
             } else {
                 Toast.makeText(this, "Please Input Qty and Price", Toast.LENGTH_SHORT).show();
@@ -178,7 +200,12 @@ public class ManualActivity extends AppCompatActivity {
 //            for (int i = 0; i < qty; i++)
             printer.sendCommand(cpcl);  // Sending CPCL command
 
-            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
+            runOnUiThread(() -> {
+                pDialog.dismiss();
+                btnPrint.setEnabled(true);
+                Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
