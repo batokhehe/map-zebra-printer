@@ -8,8 +8,12 @@ import com.google.gson.annotations.SerializedName;
 
 @Entity(tableName = "products")
 public class ProductEntity {
+
     @PrimaryKey
     @NonNull
+    @SerializedName("AliasNumber")
+    private String aliasNumber;
+
     @SerializedName("ItemNumber")
     private String itemNumber;
 
@@ -18,9 +22,6 @@ public class ProductEntity {
 
     @SerializedName("Name")
     private String name;
-
-    @SerializedName("AliasNumber")
-    private String aliasNumber;
 
     @SerializedName("StyleNo")
     private String styleNo;
