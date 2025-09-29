@@ -201,17 +201,17 @@ public class ManualActivity extends AppCompatActivity {
             printer.sendCommand(cpcl);  // Sending CPCL command
 
 //            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
-            runOnUiThread(() -> {
-                pDialog.dismiss();
-                btnPrint.setEnabled(true);
-                Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
-            });
 
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         } finally {
             btnPrint.setEnabled(true);
+            runOnUiThread(() -> {
+                pDialog.dismiss();
+                btnPrint.setEnabled(true);
+                Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
+            });
             resetForm();
             try {
                 if (connection != null && connection.isConnected()) {

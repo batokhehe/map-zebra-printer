@@ -287,18 +287,17 @@ public class AutoActivity extends AppCompatActivity {
 
 
             // Setelah selesai, update UI di main thread
-            runOnUiThread(() -> {
-                pDialog.dismiss();
-                btnPrint.setEnabled(true);
-                Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
-            });
-
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         } finally {
             btnPrint.setEnabled(true);
             resetForm();
+            runOnUiThread(() -> {
+                pDialog.dismiss();
+                btnPrint.setEnabled(true);
+                Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
+            });
             try {
                 if (connection != null && connection.isConnected()) {
                     connection.close(); // Close the connection after printing
