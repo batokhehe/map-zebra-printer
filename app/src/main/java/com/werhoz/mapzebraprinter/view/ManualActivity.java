@@ -223,7 +223,7 @@ public class ManualActivity extends AppCompatActivity {
             int row = i / 2;       // baris
             int x1 = startX[col];
             int x2 = x1 + boxWidth;
-            int y = 14 + row * (boxHeight + gapY);   // ✅ fix perhitungan y
+            int y = row * (boxHeight + gapY);   // ✅ fix perhitungan y
 
             // Text price offset
             int priceTextOffsetY = y + 25;
@@ -259,7 +259,7 @@ public class ManualActivity extends AppCompatActivity {
             int row = i / 2;       // baris
             int x1 = startX[col];
             int x2 = x1 + boxWidth;
-            int y = 14 + row * (boxHeight + gapY);   // ✅ perhitungan Y atas
+            int y = row * (boxHeight + gapY);   // ✅ perhitungan Y atas
             int y2 = y + boxHeight;                  // ✅ Y bawah
 
             // Text price offset
