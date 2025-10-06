@@ -69,10 +69,10 @@ public class ManualActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btn_back);
 
         etTemplate.setText(name);
-        tilHeader.setVisibility(!fileName.contains("regular") ? GONE : VISIBLE);
-        if (!fileName.contains("regular"))
-            etQty.requestFocus();
-        else etHeader.requestFocus();
+        tilHeader.setVisibility(!fileName.contains("price_sale.zpl") ? VISIBLE : GONE);
+        if (!fileName.contains("price_sale.zpl"))
+            etHeader.requestFocus();
+        else etQty.requestFocus();
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -86,7 +86,7 @@ public class ManualActivity extends AppCompatActivity {
 //                printToZebra();
                 pDialog = new Sweetalert(ManualActivity.this, Sweetalert.PROGRESS_TYPE);
                 pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
-                pDialog.setTitleText("Generating Data...");
+                pDialog.setTitleText("Printing...");
                 pDialog.setCancelable(false);
                 pDialog.show();
 
@@ -235,6 +235,8 @@ public class ManualActivity extends AppCompatActivity {
 
 
     public String generateContent(int qty, String price) {
+        if (fileName.contains("price_v")) return generatePriceVertical(qty, price);
+        if (fileName.contains("price_sale_v")) return generatePriceSaleVertical(qty, price);
         if (fileName.contains("sale")) return generatePrice(qty, price);
         return generatePriceHeader(qty, price);
     }
@@ -301,6 +303,78 @@ public class ManualActivity extends AppCompatActivity {
             content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, header));
             content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 40, price));
         }
+        return content.toString();
+    }
+
+    public String generatePriceVertical(int qty, String price) {
+        StringBuilder content = new StringBuilder();
+
+        int boxWidth = 264;
+        int boxHeight = 120;
+        int gapY = 24;
+        int[] startX = {9, 305}; // kiri & kanan
+
+        int fontWidthEstimate = price.length() * 12;
+
+        String header = etHeader.getText().toString();
+
+        for (int i = 0; i < qty; i++) {
+            int col = i % 2;
+            int row = i / 2;
+            int x1 = startX[col];
+            int x2 = x1 + boxWidth;
+            int y = row * (boxHeight + gapY);
+
+            // Text price offset
+            int priceTextOffsetY = y + 25;
+
+            // PRICE text
+            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
+
+            // Vertical "SALE"
+            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 30), header));
+
+            // Vertical line
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
+        }
+
+        return content.toString();
+    }
+
+    public String generatePriceSaleVertical(int qty, String price) {
+        StringBuilder content = new StringBuilder();
+
+        int boxWidth = 264;
+        int boxHeight = 120;
+        int gapY = 24;
+        int[] startX = {29, 325}; // kiri & kanan
+
+        int fontWidthEstimate = price.length() * 12;
+
+        String header = etHeader.getText().toString();
+
+        for (int i = 0; i < qty; i++) {
+            int col = i % 2;
+            int row = i / 2;
+            int x1 = startX[col];
+            int x2 = x1 + boxWidth;
+            int y = row * (boxHeight + gapY);
+
+            // Text price offset
+            int priceTextOffsetY = y + 25;
+
+            // PRICE text
+            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
+
+            // Vertical "SALE"
+            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 30), header));
+
+            // Vertical line
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
+        }
+
         return content.toString();
     }
 }

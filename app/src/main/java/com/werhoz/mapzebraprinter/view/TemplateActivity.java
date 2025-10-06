@@ -3,7 +3,6 @@ package com.werhoz.mapzebraprinter.view;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.ActionBar;
@@ -67,6 +66,8 @@ public class TemplateActivity extends AppCompatActivity {
         dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale.zpl", "Price"));
 //        dataList.add(new TemplateModel(R.drawable.price_sale, "label_template.zpl", "Price"));
         dataList.add(new TemplateModel(R.drawable.price_regular, "price_regular.zpl", "Header"));
+        dataList.add(new TemplateModel(R.drawable.price_regular, "price_v.zpl", "Vertical"));
+        dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale_v.zpl", "Vertical Sale"));
         if (type.equals("auto")) {
             dataList.add(new TemplateModel(R.drawable.active, "active.zpl", "Fashion"));
             dataList.add(new TemplateModel(R.drawable.mango, "mango.zpl", "Mango"));
