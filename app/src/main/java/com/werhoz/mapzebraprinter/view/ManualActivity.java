@@ -330,7 +330,7 @@ public class ManualActivity extends AppCompatActivity {
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 25, price));
 
             // Vertical "SALE"
             content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 30), header));
@@ -345,10 +345,10 @@ public class ManualActivity extends AppCompatActivity {
     public String generatePriceSaleVertical(int qty, String price) {
         StringBuilder content = new StringBuilder();
 
-        int boxWidth = 264;
+        int boxWidth = 244;
         int boxHeight = 120;
         int gapY = 24;
-        int[] startX = {29, 325}; // kiri & kanan
+        int[] startX = {40, 336}; // kiri & kanan
 
         int fontWidthEstimate = price.length() * 12;
 
@@ -366,7 +366,7 @@ public class ManualActivity extends AppCompatActivity {
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 25, price));
 
             // Vertical "SALE"
             content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 30), header));

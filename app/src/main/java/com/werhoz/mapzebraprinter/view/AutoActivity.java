@@ -93,7 +93,8 @@ public class AutoActivity extends AppCompatActivity {
 
         tilHeader = findViewById(R.id.til_header);
         etHeader = findViewById(R.id.et_header);
-        tilHeader.setVisibility(!fileName.contains("regular") && !fileName.contains("active") ? GONE : VISIBLE);
+        tilHeader.setVisibility(!fileName.contains("price_sale.zpl") && !fileName.contains("mango") &&
+                !fileName.contains("alo") ? VISIBLE : GONE);
 
         etTemplate.setText(name);
         btnPrint.setOnClickListener(v -> {
@@ -103,7 +104,7 @@ public class AutoActivity extends AppCompatActivity {
 
             pDialog = new Sweetalert(AutoActivity.this, Sweetalert.PROGRESS_TYPE);
             pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
-            pDialog.setTitleText("Generating Data...");
+            pDialog.setTitleText("Printing...");
             pDialog.setCancelable(false);
             pDialog.show();
 
@@ -176,8 +177,8 @@ public class AutoActivity extends AppCompatActivity {
                 etWasPrice.setText(item.currency + " " + formatNumber(item.wasPrice));
                 etCurrentPrice.setText(item.currency + " " + formatNumber(item.currentPrice));
                 clContent.setVisibility(VISIBLE);
-                if (!fileName.contains("regular"))
-                    etQty.requestFocus();
+                if (!fileName.contains("price_sale.zpl"))
+                    etHeader.requestFocus();
                 else etHeader.requestFocus();
             } else {
                 showResult(false);
@@ -322,6 +323,8 @@ public class AutoActivity extends AppCompatActivity {
 
 
     public String generateContent(int qty) throws IOException {
+        if (fileName.contains("price_v")) return generatePriceVertical(qty);
+        if (fileName.contains("price_sale_v")) return generatePriceSaleVertical(qty);
         if (fileName.contains("active")) return generateActive(qty);
         if (fileName.contains("alo")) return generateAlo(qty);
         if (fileName.contains("sale")) return generatePrice(qty);
@@ -586,6 +589,78 @@ public class AutoActivity extends AppCompatActivity {
             content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, header));
             content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 40, price));
         }
+        return content.toString();
+    }
+
+    public String generatePriceVertical(int qty) {
+        StringBuilder content = new StringBuilder();
+
+        int boxWidth = 264;
+        int boxHeight = 120;
+        int gapY = 24;
+        int[] startX = {9, 305}; // kiri & kanan
+        String price = itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
+        int fontWidthEstimate = price.length() * 12;
+
+        String header = etHeader.getText().toString();
+
+        for (int i = 0; i < qty; i++) {
+            int col = i % 2;
+            int row = i / 2;
+            int x1 = startX[col];
+            int x2 = x1 + boxWidth;
+            int y = row * (boxHeight + gapY);
+
+            // Text price offset
+            int priceTextOffsetY = y + 25;
+
+            // PRICE text
+            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 25, price));
+
+            // Vertical "SALE"
+            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 30), header));
+
+            // Vertical line
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
+        }
+
+        return content.toString();
+    }
+
+    public String generatePriceSaleVertical(int qty) {
+        StringBuilder content = new StringBuilder();
+
+        int boxWidth = 244;
+        int boxHeight = 120;
+        int gapY = 24;
+        int[] startX = {40, 336}; // kiri & kanan
+        String price = itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
+        int fontWidthEstimate = price.length() * 12;
+
+        String header = etHeader.getText().toString();
+
+        for (int i = 0; i < qty; i++) {
+            int col = i % 2;
+            int row = i / 2;
+            int x1 = startX[col];
+            int x2 = x1 + boxWidth;
+            int y = row * (boxHeight + gapY);
+
+            // Text price offset
+            int priceTextOffsetY = y + 25;
+
+            // PRICE text
+            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 25, price));
+
+            // Vertical "SALE"
+            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 30), header));
+
+            // Vertical line
+            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
+        }
+
         return content.toString();
     }
 
