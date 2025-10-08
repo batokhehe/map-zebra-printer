@@ -619,7 +619,7 @@ public class AutoActivity extends AppCompatActivity {
             content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
 
             // Vertical "SALE"
-            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 25), header));
+            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 20), header));
 
             // Vertical line
             content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
@@ -655,7 +655,7 @@ public class AutoActivity extends AppCompatActivity {
             content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
 
             // Vertical "SALE"
-            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 30), header));
+            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 20), header));
 
             // Vertical line
             content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
