@@ -276,7 +276,7 @@ public class AutoActivity extends AppCompatActivity {
             String content = generateContent(qty);
 
             cpcl = cpcl.replace("{CONTENT}", content);
-            if (fileName.contains("sale") || fileName.contains("regular"))
+            if (fileName.contains("sale") || fileName.contains("regular") || fileName.contains("_v"))
                 cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
             else
                 cpcl = cpcl.replace("{height}", String.valueOf(480 * (int) Math.ceil(qty / 2.0)));
@@ -338,7 +338,7 @@ public class AutoActivity extends AppCompatActivity {
         int boxWidth = 264;
         int boxHeight = 440;
         int columnSpacing = 32; // jarak antar kolom
-        int rowSpacing = 30;    // jarak antar baris
+        int rowSpacing = 27;    // jarak antar baris
 
         StringBuilder content = new StringBuilder();
 
@@ -406,7 +406,7 @@ public class AutoActivity extends AppCompatActivity {
         int boxWidth = 264;
         int boxHeight = 440;
         int columnSpacing = 32; // jarak antar kolom
-        int rowSpacing = 30;    // jarak antar baris
+        int rowSpacing = 27;    // jarak antar baris
 
         StringBuilder content = new StringBuilder();
 
@@ -468,7 +468,7 @@ public class AutoActivity extends AppCompatActivity {
         int boxWidth = 264;
         int boxHeight = 440;
         int columnSpacing = 32; // jarak antar kolom
-        int rowSpacing = 30;    // jarak antar baris
+        int rowSpacing = 27;    // jarak antar baris
 
 
         StringBuilder cpcl = new StringBuilder();
@@ -616,10 +616,10 @@ public class AutoActivity extends AppCompatActivity {
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 25, price));
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
 
             // Vertical "SALE"
-            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 30), header));
+            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 25), header));
 
             // Vertical line
             content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
@@ -652,7 +652,7 @@ public class AutoActivity extends AppCompatActivity {
 
             // PRICE text
             int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 25, price));
+            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
 
             // Vertical "SALE"
             content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 30), header));
