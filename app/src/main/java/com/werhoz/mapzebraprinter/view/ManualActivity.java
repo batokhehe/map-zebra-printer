@@ -112,48 +112,48 @@ public class ManualActivity extends AppCompatActivity {
             finish();
         });
 
-        etPrice.addTextChangedListener(new TextWatcher() {
-            private String current = "";
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (!s.toString().equals(current)) {
-                    etPrice.removeTextChangedListener(this);
-
-                    // Hapus semua titik agar bisa parsing ulang
-                    String cleanString = s.toString().replace(".", "");
-
-                    try {
-                        // Ubah ke long
-                        long parsed = Long.parseLong(cleanString);
-
-                        // Format dengan tanda titik
-                        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-                        symbols.setGroupingSeparator('.');
-                        DecimalFormat formatter = new DecimalFormat("#,###", symbols);
-                        String formatted = formatter.format(parsed);
-
-                        current = formatted;
-                        etPrice.setText(formatted);
-                        etPrice.setSelection(formatted.length());
-                    } catch (NumberFormatException e) {
-                        // Handle jika input kosong atau bukan angka
-                        current = "";
-                        etPrice.setText("");
-                    }
-
-                    etPrice.addTextChangedListener(this);
-                }
-            }
-        });
+//        etPrice.addTextChangedListener(new TextWatcher() {
+//            private String current = "";
+//
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                if (!s.toString().equals(current)) {
+//                    etPrice.removeTextChangedListener(this);
+//
+//                    // Hapus semua titik agar bisa parsing ulang
+//                    String cleanString = s.toString().replace(".", "");
+//
+//                    try {
+//                        // Ubah ke long
+//                        long parsed = Long.parseLong(cleanString);
+//
+//                        // Format dengan tanda titik
+//                        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+//                        symbols.setGroupingSeparator('.');
+//                        DecimalFormat formatter = new DecimalFormat("#,###", symbols);
+//                        String formatted = formatter.format(parsed);
+//
+//                        current = formatted;
+//                        etPrice.setText(formatted);
+//                        etPrice.setSelection(formatted.length());
+//                    } catch (NumberFormatException e) {
+//                        // Handle jika input kosong atau bukan angka
+//                        current = "";
+//                        etPrice.setText("");
+//                    }
+//
+//                    etPrice.addTextChangedListener(this);
+//                }
+//            }
+//        });
     }
 
     // Load the CPCL template from assets
