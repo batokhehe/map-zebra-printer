@@ -3,6 +3,11 @@ package com.werhoz.mapzebraprinter.view;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePrice;
+import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePriceHeader;
+import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePriceSaleVertical;
+import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePriceVertical;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -191,14 +196,16 @@ public class ManualActivity extends AppCompatActivity {
 
             // Send the CPCL data directly to the printer without setting language
             String cpcl = loadZpl(this);
-            String content = generateContent(qty, price);
+            int row = (int) Math.ceil(qty / 2.0);
+            cpcl = cpcl.replace("{qty}", String.valueOf(row));
 
-            cpcl = cpcl.replace("{CONTENT}", content);
-            cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
-//            cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
+            String content = generateContent(cpcl, qty, price);
 
-//            for (int i = 0; i < qty; i++)
-            printer.sendCommand(cpcl);  // Sending CPCL command
+//            cpcl = cpcl.replace("{CONTENT}", content);
+//            cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
+
+//            for (int i = 0; i < row; i++)
+            printer.sendCommand(content);  // Sending CPCL command
 
 //            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
 
@@ -233,148 +240,13 @@ public class ManualActivity extends AppCompatActivity {
         etPrice.setText("");
     }
 
-
-    public String generateContent(int qty, String price) {
-        if (fileName.contains("price_v")) return generatePriceVertical(qty, price);
-        if (fileName.contains("price_sale_v")) return generatePriceSaleVertical(qty, price);
+    public String generateContent(String content, int qty, String price) {
+        String header = etHeader.getText().toString();
+        if (fileName.contains("price_v")) return generatePriceVertical(qty, price, header);
+        if (fileName.contains("price_sale_v"))
+            return generatePriceSaleVertical(content, price, header);
         if (fileName.contains("sale")) return generatePrice(qty, price);
-        return generatePriceHeader(qty, price);
+        return generatePriceHeader(qty, price, header);
     }
 
-    public String generatePrice(int qty, String price) {
-        StringBuilder content = new StringBuilder();
-
-        int boxWidth = 264;
-        int boxHeight = 120;
-        int gapY = 24;
-        int[] startX = {9, 305}; // kiri & kanan
-
-        int fontWidthEstimate = price.length() * 12;
-
-        for (int i = 0; i < qty; i++) {
-            int col = i % 2;       // kolom
-            int row = i / 2;       // baris
-            int x1 = startX[col];
-            int x2 = x1 + boxWidth;
-            int y = row * (boxHeight + gapY);   // ✅ fix perhitungan y
-
-            // Text price offset
-            int priceTextOffsetY = y + 25;
-
-            // PRICE text
-            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
-
-            // Vertical "SALE"
-//            content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, y + (boxHeight - 30)));
-
-            // Vertical line
-//            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
-        }
-
-        return content.toString();
-    }
-
-    public String generatePriceHeader(int qty, String price) {
-        StringBuilder content = new StringBuilder();
-
-        int boxWidth = 264;
-        int boxHeight = 120;
-        int gapY = 24;
-        int[] startX = {9, 305}; // kiri & kanan
-
-        int fontWidthEstimate = price.length() * 12;
-
-        String header = etHeader.getText().toString();
-
-        for (int i = 0; i < qty; i++) {
-            int col = i % 2;       // kolom
-            int row = i / 2;       // baris
-            int x1 = startX[col];
-            int x2 = x1 + boxWidth;
-            int y = row * (boxHeight + gapY);   // ✅ perhitungan Y atas
-            int y2 = y + boxHeight;                  // ✅ Y bawah
-
-            // Text price offset
-            int priceTextOffsetY = y + 5;
-
-            // PRICE text
-            int priceX = x1 + ((boxWidth - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, header));
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 40, price));
-        }
-        return content.toString();
-    }
-
-    public String generatePriceVertical(int qty, String price) {
-        StringBuilder content = new StringBuilder();
-
-        int boxWidth = 264;
-        int boxHeight = 120;
-        int gapY = 24;
-        int[] startX = {9, 305}; // kiri & kanan
-
-        int fontWidthEstimate = price.length() * 12;
-
-        String header = etHeader.getText().toString();
-
-        for (int i = 0; i < qty; i++) {
-            int col = i % 2;
-            int row = i / 2;
-            int x1 = startX[col];
-            int x2 = x1 + boxWidth;
-            int y = row * (boxHeight + gapY);
-
-            // Text price offset
-            int priceTextOffsetY = y + 30;
-
-            // PRICE text
-            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
-
-            // Vertical "SALE"
-            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 40), header));
-
-            // Vertical line
-            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
-        }
-
-        return content.toString();
-    }
-
-    public String generatePriceSaleVertical(int qty, String price) {
-        StringBuilder content = new StringBuilder();
-
-        int boxWidth = 244;
-        int boxHeight = 120;
-        int gapY = 24;
-        int[] startX = {40, 336}; // kiri & kanan
-
-        int fontWidthEstimate = price.length() * 12;
-
-        String header = etHeader.getText().toString();
-
-        for (int i = 0; i < qty; i++) {
-            int col = i % 2;
-            int row = i / 2;
-            int x1 = startX[col];
-            int x2 = x1 + boxWidth;
-            int y = row * (boxHeight + gapY);
-
-            // Text price offset
-            int priceTextOffsetY = y + 30;
-
-            // PRICE text
-            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
-
-            // Vertical "SALE"
-            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 40), header));
-
-            // Vertical line
-            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
-        }
-
-        return content.toString();
-    }
 }
