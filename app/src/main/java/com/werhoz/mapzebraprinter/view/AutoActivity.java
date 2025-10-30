@@ -7,7 +7,7 @@ import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.formatNumber;
 import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generateActive;
 import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generateAlo;
 import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generateMango;
-import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePrice;
+import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePriceSale;
 import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePriceHeader;
 import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePriceSaleVertical;
 import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePriceVertical;
@@ -46,8 +46,6 @@ import com.zebra.sdk.printer.ZebraPrinterFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 
 import taimoor.sultani.sweetalert2.Sweetalert;
 
@@ -101,15 +99,12 @@ public class AutoActivity extends AppCompatActivity {
 
         tilHeader = findViewById(R.id.til_header);
         etHeader = findViewById(R.id.et_header);
-        tilHeader.setVisibility(!fileName.contains("price_sale.zpl") && !fileName.contains("mango") &&
+        tilHeader.setVisibility(!fileName.contains("price_sale_even.zpl") && !fileName.contains("mango") &&
                 !fileName.contains("alo") ? VISIBLE : GONE);
 
         etTemplate.setText(name);
         btnPrint.setOnClickListener(v -> {
             btnPrint.setEnabled(false);
-//            Toast.makeText(this, "Printing, please wait...", Toast.LENGTH_SHORT).show();
-//            printToZebra();
-
             pDialog = new Sweetalert(AutoActivity.this, Sweetalert.PROGRESS_TYPE);
             pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
             pDialog.setTitleText("Printing...");
@@ -118,7 +113,6 @@ public class AutoActivity extends AppCompatActivity {
 
             new Thread(() -> {
                 try {
-                    // Jalankan proses berat di background
                     printToZebra();
                 } catch (Exception e) {
                     runOnUiThread(() -> {
@@ -128,7 +122,6 @@ public class AutoActivity extends AppCompatActivity {
                     });
                 }
             }).start();
-//            new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
         });
 
         btnBack.setOnClickListener(v -> {
@@ -185,7 +178,7 @@ public class AutoActivity extends AppCompatActivity {
                 etWasPrice.setText(item.currency + " " + formatNumber(item.wasPrice));
                 etCurrentPrice.setText(item.currency + " " + formatNumber(item.currentPrice));
                 clContent.setVisibility(VISIBLE);
-                if (!fileName.contains("price_sale.zpl"))
+                if (!fileName.contains("price_sale_even.zpl"))
                     etHeader.requestFocus();
                 else etHeader.requestFocus();
             } else {
@@ -334,12 +327,12 @@ public class AutoActivity extends AppCompatActivity {
         String price = itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
         String header = etHeader.getText().toString();
 
-        if (fileName.contains("price_v")) return generatePriceVertical(qty, price, header);
+        if (fileName.contains("price_v")) return generatePriceVertical(content, price, header);
         if (fileName.contains("price_sale_v")) return generatePriceSaleVertical(content, price, header);
         if (fileName.contains("active")) return generateActive(qty, itemResponse, header);
         if (fileName.contains("alo")) return generateAlo(qty, itemResponse);
-        if (fileName.contains("sale")) return generatePrice(qty, price);
-        if (fileName.contains("regular")) return generatePriceHeader(qty, price, header);
+        if (fileName.contains("sale")) return generatePriceSale(content, price);
+        if (fileName.contains("regular")) return generatePriceHeader(content, price, header);
         return generateMango(qty, itemResponse);
     }
 

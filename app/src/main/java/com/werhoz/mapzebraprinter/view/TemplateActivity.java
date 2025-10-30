@@ -63,16 +63,14 @@ public class TemplateActivity extends AppCompatActivity {
     private void loadImages() {
         // Add drawable images here
         dataList.clear();
-        dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale.zpl", "Price"));
-//        dataList.add(new TemplateModel(R.drawable.price_sale, "label_template.zpl", "Price"));
-        dataList.add(new TemplateModel(R.drawable.price_regular, "price_regular.zpl", "Header"));
-        dataList.add(new TemplateModel(R.drawable.price_regular, "price_v.zpl", "Vertical"));
+        dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale_even.zpl", "Price"));
+        dataList.add(new TemplateModel(R.drawable.price_regular, "price_regular_even.zpl", "Header"));
+        dataList.add(new TemplateModel(R.drawable.price_regular, "price_v_even.zpl", "Vertical"));
         dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale_v_even.zpl", "Vertical Sale"));
         if (type.equals("auto")) {
             dataList.add(new TemplateModel(R.drawable.active, "active.zpl", "Fashion"));
             dataList.add(new TemplateModel(R.drawable.mango, "mango.zpl", "Mango"));
             dataList.add(new TemplateModel(R.drawable.alo, "alo.zpl", "Alo"));
-//            dataList.add(new TemplateModel(R.drawable.alo, "zmapfash_fashiontest.zpl", "Alo"));
         }
         adapter.notifyDataSetChanged();
     }

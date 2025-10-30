@@ -10,67 +10,62 @@ public class TemplateGenerator {
 
     private static int MAX_CHARS_PER_LINE = 21;
 
-    public static String generatePriceHeader(int qty, String price, String header) {
-        StringBuilder content = new StringBuilder();
-
+    public static String generatePriceHeader(String content, String price, String header) {
         int boxWidth = 264;
-        int boxHeight = 120;
-        int gapY = 24;
-        int[] startX = {9, 305}; // kiri & kanan
-
         int fontWidthEstimate = price.length() * 12;
+        int x1 = 10;
+        int gap = 300;
 
-        for (int i = 0; i < qty; i++) {
-            int col = i % 2;       // kolom
-            int row = i / 2;       // baris
-            int x1 = startX[col];
-            int x2 = x1 + boxWidth;
-            int y = row * (boxHeight + gapY);   // ✅ perhitungan Y atas
-            int y2 = y + boxHeight;                  // ✅ Y bawah
+        //section 1
+        int x1_1 = x1 + ((boxWidth - fontWidthEstimate) / 2);
+        int y1_1 = 5;
+        content = content.replace("{x1_1}", String.valueOf(x1_1));
+        content = content.replace("{y1_1}", String.valueOf(y1_1));
+        content = content.replace("{header_1}", header);
 
-            // Text price offset
-            int priceTextOffsetY = y + 5;
+        int x2_1 = x1_1;
+        int y2_1 = y1_1 + 40;
+        content = content.replace("{x2_1}", String.valueOf(x2_1));
+        content = content.replace("{y2_1}", String.valueOf(y2_1));
+        content = content.replace("{price_1}", price);
 
-            // PRICE text
-            int priceX = x1 + ((boxWidth - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, header));
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY + 40, price));
-        }
-        return content.toString();
+        // section 2
+        int x1_2 = x1_1 + gap;
+        int y1_2 = y1_1;
+        content = content.replace("{x1_2}", String.valueOf(x1_2));
+        content = content.replace("{y1_2}", String.valueOf(y1_2));
+        content = content.replace("{header_2}", header);
+
+        int x2_2 = x1_2;
+        int y2_2 = y2_1;
+        content = content.replace("{x2_2}", String.valueOf(x2_2));
+        content = content.replace("{y2_2}", String.valueOf(y2_2));
+        content = content.replace("{price_2}", price);
+
+        return content;
     }
 
-    public static String generatePrice(int qty, String price) {
-        StringBuilder content = new StringBuilder();
-
-        int boxWidth = 264;
-        int boxHeight = 120;
-        int gapY = 24;
-        int[] startX = {9, 305}; // kiri & kanan
-
+    public static String generatePriceSale(String content, String price) {
+        int boxWidth = 244;
         int fontWidthEstimate = price.length() * 12;
+        int x1 = 40;
+        int gap = 300;
 
-        for (int i = 0; i < qty; i++) {
-            int col = i % 2;       // kolom
-            int row = i / 2;       // baris
-            int x1 = startX[col];
-            int x2 = x1 + boxWidth;
-            int y = row * (boxHeight + gapY);   // ✅ fix perhitungan y
+        //section 1
+        int x1_1 = x1 + ((boxWidth - fontWidthEstimate) / 2);
+        int y1_1 = 30;
+        content = content.replace("{x1_1}", String.valueOf(x1_1));
+        content = content.replace("{y1_1}", String.valueOf(y1_1));
+        content = content.replace("{price_1}", price);
 
-            // Text price offset
-            int priceTextOffsetY = y + 25;
+        // section 2
+        int x2_1 = x1_1 + gap;
+        int y2_1 = 30;
+        content = content.replace("{x2_1}", String.valueOf(x2_1));
+        content = content.replace("{y2_1}", String.valueOf(y2_1));
+        content = content.replace("{price_2}", price);
 
-            // PRICE text
-            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
-
-            // Vertical "SALE"
-//            content.append(String.format("T90 7 0 %d %d SALE\n", x1 + 8, y + (boxHeight - 30)));
-
-            // Vertical line
-//            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
-        }
-
-        return content.toString();
+        return content;
     }
 
     public static String generatePriceSaleVertical(String content, String price, String header) {
@@ -80,26 +75,22 @@ public class TemplateGenerator {
         int gap = 300;
 
         //section 1
-        int x1_1 = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
+        int x1_1 = x1 + ((boxWidth + 20 - fontWidthEstimate) / 2);
         int y1_1 = 30;
         content = content.replace("{x1_1}", String.valueOf(x1_1));
         content = content.replace("{y1_1}", String.valueOf(y1_1));
         content = content.replace("{price_1}", price);
 
         int x2_1 = 55;
-        int y2_1 = 80;
+        int y2_1 = 85;
         content = content.replace("{x2_1}", String.valueOf(x2_1));
         content = content.replace("{y2_1}", String.valueOf(y2_1));
         content = content.replace("{header_1}", header);
 
-        int x3_1 = x1 + 35;
-        int x4_1 = x1 + 35;
-        int y3_1 = 0;
-        int y4_1 = 120;
+        int x3_1 = x1 + 40;
+        int x4_1 = x1 + 40;
         content = content.replace("{x3_1}", String.valueOf(x3_1));
-        content = content.replace("{y3_1}", String.valueOf(y3_1));
         content = content.replace("{x4_1}", String.valueOf(x4_1));
-        content = content.replace("{x4_1}", String.valueOf(y4_1));
 
         // section 2
         int x1_2 = x1_1 + gap;
@@ -116,48 +107,55 @@ public class TemplateGenerator {
 
         int x3_2 = x3_1 + gap;
         int x4_2 = x4_1 + gap;
-        int y3_2 = y3_1;
-        int y4_2 = y4_1;
         content = content.replace("{x3_2}", String.valueOf(x3_2));
-        content = content.replace("{y3_2}", String.valueOf(y3_2));
         content = content.replace("{x4_2}", String.valueOf(x4_2));
-        content = content.replace("{x4_2}", String.valueOf(y4_2));
 
         return content;
     }
 
-    public static String generatePriceVertical(int qty, String price, String header) {
-        StringBuilder content = new StringBuilder();
-
-        int boxWidth = 264;
-        int boxHeight = 120;
-        int gapY = 24;
-        int[] startX = {9, 305}; // kiri & kanan
-
+    public static String generatePriceVertical(String content, String price, String header) {
+        int boxWidth = 244;
         int fontWidthEstimate = price.length() * 12;
+        int x1 = 10;
+        int gap = 300;
 
-        for (int i = 0; i < qty; i++) {
-            int col = i % 2;
-            int row = i / 2;
-            int x1 = startX[col];
-            int x2 = x1 + boxWidth;
-            int y = row * (boxHeight + gapY);
+        //section 1
+        int x1_1 = x1 + ((boxWidth + 20 - fontWidthEstimate) / 2);
+        int y1_1 = 30;
+        content = content.replace("{x1_1}", String.valueOf(x1_1));
+        content = content.replace("{y1_1}", String.valueOf(y1_1));
+        content = content.replace("{price_1}", price);
 
-            // Text price offset
-            int priceTextOffsetY = y + 30;
+        int x2_1 = x1 + 5;
+        int y2_1 = 85;
+        content = content.replace("{x2_1}", String.valueOf(x2_1));
+        content = content.replace("{y2_1}", String.valueOf(y2_1));
+        content = content.replace("{header_1}", header);
 
-            // PRICE text
-            int priceX = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
-            content.append(String.format("T 5 1 %d %d %s\n", priceX, priceTextOffsetY, price));
+        int x3_1 = x1 + 35;
+        int x4_1 = x1 + 35;
+        content = content.replace("{x3_1}", String.valueOf(x3_1));
+        content = content.replace("{x4_1}", String.valueOf(x4_1));
 
-            // Vertical "SALE"
-            content.append(String.format("T90 7 0 %d %d %s\n", x1 + 8, y + (boxHeight - 40), header));
+        // section 2
+        int x1_2 = x1_1 + gap;
+        int y1_2 = 30;
+        content = content.replace("{x1_2}", String.valueOf(x1_2));
+        content = content.replace("{y1_2}", String.valueOf(y1_2));
+        content = content.replace("{price_2}", price);
 
-            // Vertical line
-            content.append(String.format("L %d %d %d %d 1\n", x1 + 35, y, x1 + 35, y + boxHeight));
-        }
+        int x2_2 = x2_1 + gap;
+        int y2_2 = y2_1;
+        content = content.replace("{x2_2}", String.valueOf(x2_2));
+        content = content.replace("{y2_2}", String.valueOf(y2_2));
+        content = content.replace("{header_2}", header);
 
-        return content.toString();
+        int x3_2 = x3_1 + gap;
+        int x4_2 = x4_1 + gap;
+        content = content.replace("{x3_2}", String.valueOf(x3_2));
+        content = content.replace("{x4_2}", String.valueOf(x4_2));
+
+        return content;
     }
 
     public static String generateActive(int qty, ResultModel itemResponse, String header) {

@@ -2,9 +2,8 @@ package com.werhoz.mapzebraprinter.view;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-
-import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePrice;
 import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePriceHeader;
+import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePriceSale;
 import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePriceSaleVertical;
 import static com.werhoz.mapzebraprinter.utils.TemplateGenerator.generatePriceVertical;
 
@@ -12,8 +11,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -33,8 +30,6 @@ import com.zebra.sdk.printer.ZebraPrinterFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 
 import taimoor.sultani.sweetalert2.Sweetalert;
 
@@ -74,8 +69,8 @@ public class ManualActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btn_back);
 
         etTemplate.setText(name);
-        tilHeader.setVisibility(!fileName.contains("price_sale.zpl") ? VISIBLE : GONE);
-        if (!fileName.contains("price_sale.zpl"))
+        tilHeader.setVisibility(!fileName.contains("price_sale_even.zpl") ? VISIBLE : GONE);
+        if (!fileName.contains("price_sale_even.zpl"))
             etHeader.requestFocus();
         else etQty.requestFocus();
 
@@ -88,7 +83,6 @@ public class ManualActivity extends AppCompatActivity {
             if (!etPrice.getText().toString().isEmpty() || !etQty.getText().toString().isEmpty()) {
                 btnPrint.setEnabled(false);
                 Toast.makeText(this, "Printing, please wait...", Toast.LENGTH_LONG).show();
-//                printToZebra();
                 pDialog = new Sweetalert(ManualActivity.this, Sweetalert.PROGRESS_TYPE);
                 pDialog.getProgressHelper().setBarColor(Color.parseColor("#9A0009"));
                 pDialog.setTitleText("Printing...");
@@ -97,7 +91,6 @@ public class ManualActivity extends AppCompatActivity {
 
                 new Thread(() -> {
                     try {
-                        // Jalankan proses berat di background
                         printToZebra();
                     } catch (Exception e) {
                         runOnUiThread(() -> {
@@ -107,7 +100,6 @@ public class ManualActivity extends AppCompatActivity {
                         });
                     }
                 }).start();
-//                new Handler(Looper.getMainLooper()).postDelayed(this::printToZebra, 1000);
             } else {
                 Toast.makeText(this, "Please Input Qty and Price", Toast.LENGTH_SHORT).show();
             }
@@ -162,7 +154,7 @@ public class ManualActivity extends AppCompatActivity {
     }
 
     // Load the CPCL template from assets
-    public String loadZpl(Context context) {
+    public String loadZpl(Context context, String fileName) {
         String cpclTemplate = "";
 
         try (InputStream is = context.getAssets().open(fileName)) {
@@ -187,28 +179,24 @@ public class ManualActivity extends AppCompatActivity {
             connection = new BluetoothConnection(macAddress);
             connection.open();
 
-//            String cpclCommand =  "! U1 setvar \"media.clear\" \"\"\n";    // clear buffer
-
-//            connection.write(cpclCommand.getBytes());
-
             // Create a ZebraPrinter instance
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
 
             // Send the CPCL data directly to the printer without setting language
-            String cpcl = loadZpl(this);
-            int row = (int) Math.ceil(qty / 2.0);
-            cpcl = cpcl.replace("{qty}", String.valueOf(row));
+            int row = qty / 2;
+            if (row > 0) {
+                String cpcl = loadZpl(this, fileName);
 
-            String content = generateContent(cpcl, qty, price);
+                cpcl = cpcl.replace("{qty}", String.valueOf(row));
+                String content = generateContent(cpcl, qty, price);
+                printer.sendCommand(content);
+            }
 
-//            cpcl = cpcl.replace("{CONTENT}", content);
-//            cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
-
-//            for (int i = 0; i < row; i++)
-            printer.sendCommand(content);  // Sending CPCL command
-
-//            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
-
+            if (qty % 2 > 0) {
+                String cpcl = loadZpl(this, fileName.replace("even", "odd"));
+                String content = generateContent(cpcl, qty, price);
+                printer.sendCommand(content);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             runOnUiThread(() -> {
@@ -242,11 +230,11 @@ public class ManualActivity extends AppCompatActivity {
 
     public String generateContent(String content, int qty, String price) {
         String header = etHeader.getText().toString();
-        if (fileName.contains("price_v")) return generatePriceVertical(qty, price, header);
+        if (fileName.contains("price_v")) return generatePriceVertical(content, price, header);
         if (fileName.contains("price_sale_v"))
             return generatePriceSaleVertical(content, price, header);
-        if (fileName.contains("sale")) return generatePrice(qty, price);
-        return generatePriceHeader(qty, price, header);
+        if (fileName.contains("sale")) return generatePriceSale(content, price);
+        return generatePriceHeader(content, price, header);
     }
 
 }
