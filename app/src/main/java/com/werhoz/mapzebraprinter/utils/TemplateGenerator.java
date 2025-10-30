@@ -77,6 +77,7 @@ public class TemplateGenerator {
         int boxWidth = 244;
         int fontWidthEstimate = price.length() * 12;
         int x1 = 40;
+        int gap = 300;
 
         //section 1
         int x1_1 = x1 + ((boxWidth + 50 - fontWidthEstimate) / 2);
@@ -101,20 +102,20 @@ public class TemplateGenerator {
         content = content.replace("{x4_1}", String.valueOf(y4_1));
 
         // section 2
-        int x1_2 = x1_1 + 305;
+        int x1_2 = x1_1 + gap;
         int y1_2 = 30;
         content = content.replace("{x1_2}", String.valueOf(x1_2));
         content = content.replace("{y1_2}", String.valueOf(y1_2));
         content = content.replace("{price_2}", price);
 
-        int x2_2 = x2_1 + 305;
+        int x2_2 = x2_1 + gap;
         int y2_2 = y2_1;
         content = content.replace("{x2_2}", String.valueOf(x2_2));
         content = content.replace("{y2_2}", String.valueOf(y2_2));
         content = content.replace("{header_2}", header);
 
-        int x3_2 = x3_1 + 305;
-        int x4_2 = x4_1 + 305;
+        int x3_2 = x3_1 + gap;
+        int x4_2 = x4_1 + gap;
         int y3_2 = y3_1;
         int y4_2 = y4_1;
         content = content.replace("{x3_2}", String.valueOf(x3_2));
