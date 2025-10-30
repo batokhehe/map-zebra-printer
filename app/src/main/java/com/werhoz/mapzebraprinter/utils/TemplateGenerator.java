@@ -82,7 +82,7 @@ public class TemplateGenerator {
         content = content.replace("{price_1}", price);
 
         int x2_1 = 55;
-        int y2_1 = 85;
+        int y2_1 = 80;
         content = content.replace("{x2_1}", String.valueOf(x2_1));
         content = content.replace("{y2_1}", String.valueOf(y2_1));
         content = content.replace("{header_1}", header);
@@ -127,7 +127,7 @@ public class TemplateGenerator {
         content = content.replace("{price_1}", price);
 
         int x2_1 = x1 + 5;
-        int y2_1 = 85;
+        int y2_1 = 80;
         content = content.replace("{x2_1}", String.valueOf(x2_1));
         content = content.replace("{y2_1}", String.valueOf(y2_1));
         content = content.replace("{header_1}", header);

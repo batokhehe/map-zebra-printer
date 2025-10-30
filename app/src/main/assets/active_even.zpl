@@ -1,4 +1,4 @@
-! 0 200 200 {height} 1
+! 0 200 200 560 {qty}
 PW 640
 {CONTENT}
 PRINT

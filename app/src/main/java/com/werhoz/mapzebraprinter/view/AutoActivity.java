@@ -206,7 +206,7 @@ public class AutoActivity extends AppCompatActivity {
     }
 
     // Load the CPCL template from assets
-    public String loadZpl(Context context) {
+    public String loadZpl(Context context, String fileName) {
         String cpclTemplate = "";
 
         try (InputStream is = context.getAssets().open(fileName)) {
@@ -230,65 +230,22 @@ public class AutoActivity extends AppCompatActivity {
             connection = new BluetoothConnection(macAddress);
             connection.open();
 
-//            String cpclCommand = "! U1 setvar \"media.type\" \"gap\"\n" +   // set media type
-//                    "! U1 setvar \"media.clear\" \"\"\n" +     // clear buffer
-//                    "! U1 setvar \"media.calibrate\" \"\"\n" +     // clear buffer
-//                    "! U1 do \"feed\"\n";                      // feed one label
-
-//            connection.write(cpclCommand.getBytes());
-
-//            Log.d("Zebra", "Buffer cleared.");
-
-            // Create a ZebraPrinter instance
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
-
-//            InputStream is = getAssets().open("logo_alo.pcx");
-//            int size = is.available();
-//            byte[] buffer = new byte[size];
-//            is.read(buffer);
-//            is.close();
-//
-//            String header = "! 0 200 200 400 1\n" +
-//                    "PCX 100 50\n";
-//
-//            String footer = "PRINT\n";
-//
-//            connection.write(header.getBytes("US-ASCII"));
-//            connection.write(buffer);
-//            connection.write(footer.getBytes("US-ASCII"));
-//            return;
-
-//            if (fileName.contains("alo")) {
-//                InputStream is = getAssets().open("logo_alo.png");
-//                Bitmap bitmap = BitmapFactory.decodeStream(is);
-//
-//                bitmap = Bitmap.createScaledBitmap(bitmap, 300, 150, false);
-//
-//                int paperWidth = 576;
-//                int xPos = (paperWidth - bitmap.getWidth()) / 2;
-//                int yPos = 20;
-//
-//                ZebraImageAndroid zebraImage = new ZebraImageAndroid(bitmap);
-//                printer.printImage(zebraImage, xPos, yPos, bitmap.getWidth(), bitmap.getHeight(), false);
-//            }
-//
             // Send the CPCL data directly to the printer without setting language
-            String cpcl = loadZpl(this);
-            String content = generateContent(cpcl, qty);
+            int row = qty / 2;
+            if (row > 0) {
+                String cpcl = loadZpl(this, fileName);
 
-            cpcl = cpcl.replace("{CONTENT}", content);
-            if (fileName.contains("sale") || fileName.contains("regular") || fileName.contains("_v"))
-                cpcl = cpcl.replace("{height}", String.valueOf(150 * (int) Math.ceil(qty / 2.0)));
-            else
-                cpcl = cpcl.replace("{height}", String.valueOf(480 * (int) Math.ceil(qty / 2.0)));
-//            cpcl = cpcl.replace("{qty}", String.valueOf((int) Math.ceil(qty / 2.0)));
+                cpcl = cpcl.replace("{qty}", String.valueOf(row));
+                String content = generateContent(cpcl, qty);
+                printer.sendCommand(content);
+            }
 
-            printer.sendCommand(cpcl);  // Sending CPCL command
-
-//            Toast.makeText(this, "Print job sent.", Toast.LENGTH_SHORT).show();
-
-
-            // Setelah selesai, update UI di main thread
+            if (qty % 2 > 0) {
+                String cpcl = loadZpl(this, fileName.replace("even", "odd"));
+                String content = generateContent(cpcl, qty);
+                printer.sendCommand(content);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             runOnUiThread(() -> {
@@ -328,7 +285,8 @@ public class AutoActivity extends AppCompatActivity {
         String header = etHeader.getText().toString();
 
         if (fileName.contains("price_v")) return generatePriceVertical(content, price, header);
-        if (fileName.contains("price_sale_v")) return generatePriceSaleVertical(content, price, header);
+        if (fileName.contains("price_sale_v"))
+            return generatePriceSaleVertical(content, price, header);
         if (fileName.contains("active")) return generateActive(qty, itemResponse, header);
         if (fileName.contains("alo")) return generateAlo(qty, itemResponse);
         if (fileName.contains("sale")) return generatePriceSale(content, price);
