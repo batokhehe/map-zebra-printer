@@ -253,7 +253,6 @@ public class AutoActivity extends AppCompatActivity {
             });
         } finally {
             runOnUiThread(() -> {
-                btnPrint.setEnabled(true);
                 resetForm();
                 pDialog.dismiss();
                 btnPrint.setEnabled(true);
