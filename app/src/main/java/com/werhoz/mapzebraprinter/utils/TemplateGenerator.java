@@ -71,7 +71,7 @@ public class TemplateGenerator {
     public static String generatePriceSaleVertical(String content, String price, String header) {
         int boxWidth = 244;
         int fontWidthEstimate = price.length() * 12;
-        int x1 = 40;
+        int x1 = 43;
         int gap = 300;
 
         //section 1
