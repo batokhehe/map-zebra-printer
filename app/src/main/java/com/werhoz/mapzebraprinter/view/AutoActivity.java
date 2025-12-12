@@ -231,22 +231,31 @@ public class AutoActivity extends AppCompatActivity {
             connection.open();
 
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
-            // Send the CPCL data directly to the printer without setting language
-            int row = qty / 2;
-            if (row > 0) {
+
+            if (fileName.contains("sale") || fileName.contains("regular") || fileName.contains("_v")) {
+                int row = qty / 2;
+                if (row > 0) {
+                    String cpcl = loadZpl(this, fileName);
+
+                    cpcl = cpcl.replace("{qty}", String.valueOf(row));
+                    String content = generateContent(cpcl, qty);
+                    printer.sendCommand(content);
+                }
+
+                if (qty % 2 > 0) {
+                    String cpcl = loadZpl(this, fileName.replace("even", "odd"));
+                    String content = generateContent(cpcl, qty);
+                    printer.sendCommand(content);
+                }
+            } else {
                 String cpcl = loadZpl(this, fileName);
-
-                cpcl = cpcl.replace("{qty}", String.valueOf(row));
                 String content = generateContent(cpcl, qty);
-                printer.sendCommand(content);
+                cpcl = cpcl.replace("{CONTENT}", content);
+                cpcl = cpcl.replace("{height}", String.valueOf(480 * (int) Math.ceil(qty / 2.0)));
+                printer.sendCommand(cpcl);  // Sending CPCL command
             }
-
-            if (qty % 2 > 0) {
-                String cpcl = loadZpl(this, fileName.replace("even", "odd"));
-                String content = generateContent(cpcl, qty);
-                printer.sendCommand(content);
-            }
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             e.printStackTrace();
             runOnUiThread(() -> {
                 Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
