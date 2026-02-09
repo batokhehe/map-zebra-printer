@@ -10,8 +10,8 @@ android {
         applicationId = "com.werhoz.mapzebraprinter"
         minSdk = 24
         targetSdk = 35
-        versionCode = 8
-        versionName = "1.12"
+        versionCode = 9
+        versionName = "1.13"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
