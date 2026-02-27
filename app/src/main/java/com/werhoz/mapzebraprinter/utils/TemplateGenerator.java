@@ -269,67 +269,58 @@ public class TemplateGenerator {
         return content.replace("{CONTENT}", stringBuilder.toString());
     }
 
-    public static String generateAlo(int qty, ResultModel itemResponse) throws IOException {
+    public static String generateAlo(String content, int qty, ResultModel itemResponse) throws IOException {
         int startX = 7;
-        int startY = 0;
         int boxWidth = 264;
-        int boxHeight = 440;
-        int columnSpacing = 32; // jarak antar kolom
-        int rowSpacing = 27;    // jarak antar baris
+        int gap = 300;
 
 
         StringBuilder cpcl = new StringBuilder();
 
-        for (int i = 0; i < qty; i++) {
-            int col = i % 2;        // kiri/kanan
-            int row = i / 2;  // baris ke-0/1 dalam 1 halaman
+        int counter = (qty > 1) ? 2 : 1;
 
-            int offsetX = col * (boxWidth + columnSpacing);
-            int offsetY = row * (boxHeight + rowSpacing);
-
-            int x1 = startX + offsetX;
-            int y1 = startY + offsetY;
-            int x2 = x1 + boxWidth;
-            int y2 = y1 + boxHeight;
+        for (int i = 0; i < counter; i++) {
+            int col = i % 2;        // kolom kiri/kanan
+            int x1 = startX + (col == 0 ? 0 : gap);
 
             // Titik acuan teks
             int xField = (col == 0) ? 10 : 305;
             int xColon = (col == 0) ? 100 : 395;
 
             // Print Title
-            cpcl.append(String.format("T 5 2 %d %d alo\n", x1 + 105, y1 + 25));
+            cpcl.append(String.format("T 5 2 %d %d alo\n", x1 + 105, 25));
 
 //            cpcl.append("BITMAP ").append(x1 + 105).append(" ").append(y1 + 25).append(" ")
 //                    .append(widthBytes).append(" ").append(height).append(" ")
 //                    .append(dataLength).append("\n");
 
             // Print fields
-            int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 10)) / 2);
-            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 205, itemResponse.eANNumber));
-            cpcl.append(String.format("T 0 0 %d %d No. ARTIKEL\n", xField, y1 + 264));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, y1 + 264, itemResponse.itemNumber));
+            int xText = Math.max(8, (x1 + ((boxWidth - (itemResponse.eANNumber.length() * 15)) / 2)));
+            cpcl.append(String.format("T 5 0 %d %d %s\n", xText, 205, itemResponse.eANNumber));
+            cpcl.append(String.format("T 0 0 %d %d No. ARTIKEL\n", xField, 264));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, 264, itemResponse.itemNumber));
 
-            cpcl.append(String.format("T 0 0 %d %d UKURAN\n", xField, y1 + 285));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, y1 + 285, itemResponse.size));
+            cpcl.append(String.format("T 0 0 %d %d UKURAN\n", xField, 285));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, 285, itemResponse.size));
 
-            cpcl.append(String.format("T 0 0 %d %d WARNA\n", xField, y1 + 304));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, y1 + 304, itemResponse.color));
+            cpcl.append(String.format("T 0 0 %d %d WARNA\n", xField, 304));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, 304, itemResponse.color));
 
-            cpcl.append(String.format("T 0 0 %d %d KATEGORI\n", xField, y1 + 324));
-            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, y1 + 324, itemResponse.productCategory));
+            cpcl.append(String.format("T 0 0 %d %d KATEGORI\n", xField, 324));
+            cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, 324, itemResponse.productCategory));
 
             // Harga
             String price = itemResponse.currency + " " + formatNumber(itemResponse.currentPrice, itemResponse.currency);
 //            int priceX = xField + ((boxWidth - (price.length() * 15)) / 2);
-            cpcl.append(String.format("T 5 0 %d %d %s\n", x1 + 30, y1 + 379, price));
+            cpcl.append(String.format("T 5 0 %d %d %s\n", x1 + 30, 379, price));
 
             // BARCODE
             int barcodeX = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 18)) / 2);
-            int barcodeY = y1 + 85;
+            int barcodeY = 85;
             cpcl.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, barcodeY, itemResponse.eANNumber));
         }
 
-        return cpcl.toString();
+        return content.replace("{CONTENT}", cpcl.toString());
     }
 
     public static Double parseDouble(String number) {

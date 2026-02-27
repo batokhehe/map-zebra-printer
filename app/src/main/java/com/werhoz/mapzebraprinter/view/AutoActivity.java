@@ -296,7 +296,7 @@ public class AutoActivity extends AppCompatActivity {
         if (fileName.contains("price_sale_v"))
             return generatePriceSaleVertical(content, price, header);
         if (fileName.contains("active")) return generateActive(content, qty, itemResponse, header);
-        if (fileName.contains("alo")) return generateAlo(qty, itemResponse);
+        if (fileName.contains("alo")) return generateAlo(content, qty, itemResponse);
         if (fileName.contains("sale")) return generatePriceSale(content, price);
         if (fileName.contains("regular")) return generatePriceHeader(content, price, header);
         return generateMango(content, qty, itemResponse);
