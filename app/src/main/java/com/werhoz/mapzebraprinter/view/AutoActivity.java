@@ -175,8 +175,8 @@ public class AutoActivity extends AppCompatActivity {
                 etDescription.setText(item.description);
                 etCategory.setText(item.productCategory);
                 etEan.setText(item.eANNumber);
-                etWasPrice.setText(item.currency + " " + formatNumber(item.wasPrice));
-                etCurrentPrice.setText(item.currency + " " + formatNumber(item.currentPrice));
+                etWasPrice.setText(item.currency + " " + formatNumber(item.wasPrice, itemResponse.currency));
+                etCurrentPrice.setText(item.currency + " " + formatNumber(item.currentPrice, itemResponse.currency));
                 clContent.setVisibility(VISIBLE);
                 if (!fileName.contains("price_sale_even.zpl"))
                     etHeader.requestFocus();
@@ -232,28 +232,28 @@ public class AutoActivity extends AppCompatActivity {
 
             ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
 
-            if (fileName.contains("sale") || fileName.contains("regular") || fileName.contains("_v")) {
-                int row = qty / 2;
-                if (row > 0) {
-                    String cpcl = loadZpl(this, fileName);
-
-                    cpcl = cpcl.replace("{qty}", String.valueOf(row));
-                    String content = generateContent(cpcl, qty);
-                    printer.sendCommand(content);
-                }
-
-                if (qty % 2 > 0) {
-                    String cpcl = loadZpl(this, fileName.replace("even", "odd"));
-                    String content = generateContent(cpcl, qty);
-                    printer.sendCommand(content);
-                }
-            } else {
+//            if (fileName.contains("sale") || fileName.contains("regular") || fileName.contains("_v")) {
+            int row = qty / 2;
+            if (row > 0) {
                 String cpcl = loadZpl(this, fileName);
+
+                cpcl = cpcl.replace("{qty}", String.valueOf(row));
                 String content = generateContent(cpcl, qty);
-                cpcl = cpcl.replace("{CONTENT}", content);
-                cpcl = cpcl.replace("{height}", String.valueOf(480 * (int) Math.ceil(qty / 2.0)));
-                printer.sendCommand(cpcl);  // Sending CPCL command
+                printer.sendCommand(content);
             }
+
+            if (qty % 2 > 0) {
+                String cpcl = loadZpl(this, fileName.replace("even", "odd"));
+                String content = generateContent(cpcl, 1);
+                printer.sendCommand(content);
+            }
+//            } else {
+//                String cpcl = loadZpl(this, fileName);
+//                String content = generateContent(cpcl, qty);
+//                cpcl = cpcl.replace("{CONTENT}", content);
+//                cpcl = cpcl.replace("{height}", String.valueOf(480 * (int) Math.ceil(qty / 2.0)));
+//                printer.sendCommand(cpcl);  // Sending CPCL command
+//            }
         } catch (
                 Exception e) {
             e.printStackTrace();
@@ -289,17 +289,17 @@ public class AutoActivity extends AppCompatActivity {
 
 
     public String generateContent(String content, int qty) throws IOException {
-        String price = itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
+        String price = itemResponse.currency + " " + formatNumber(itemResponse.currentPrice, itemResponse.currency);
         String header = etHeader.getText().toString();
 
         if (fileName.contains("price_v")) return generatePriceVertical(content, price, header);
         if (fileName.contains("price_sale_v"))
             return generatePriceSaleVertical(content, price, header);
-        if (fileName.contains("active")) return generateActive(qty, itemResponse, header);
+        if (fileName.contains("active")) return generateActive(content, qty, itemResponse, header);
         if (fileName.contains("alo")) return generateAlo(qty, itemResponse);
         if (fileName.contains("sale")) return generatePriceSale(content, price);
         if (fileName.contains("regular")) return generatePriceHeader(content, price, header);
-        return generateMango(qty, itemResponse);
+        return generateMango(content, qty, itemResponse);
     }
 
     private void animateBackground(int toColor) {

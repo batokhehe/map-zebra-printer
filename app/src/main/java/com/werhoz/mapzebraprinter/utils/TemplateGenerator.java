@@ -158,131 +158,115 @@ public class TemplateGenerator {
         return content;
     }
 
-    public static String generateActive(int qty, ResultModel itemResponse, String header) {
+    public static String generateActive(String content, int qty, ResultModel itemResponse, String header) {
         int startX = 7;
-        int startY = 10;
         int boxWidth = 264;
-        int boxHeight = 440;
-        int columnSpacing = 32; // jarak antar kolom
-        int rowSpacing = 27;    // jarak antar baris
+        int gap = 300;
 
-        StringBuilder content = new StringBuilder();
+        StringBuilder text = new StringBuilder();
 
         double wasPrice = parseDouble(itemResponse.wasPrice);
         double nowPrice = parseDouble(itemResponse.currentPrice);
 
-        for (int i = 0; i < qty; i++) {
-            int col = i % 2;        // kolom kiri/kanan
-            int row = i / 2;        // baris ke-
-            int offsetX = col * (columnSpacing + boxWidth);
-            int offsetY = row * (boxHeight + rowSpacing);
+        int counter = (qty > 1) ? 2 : 1;
 
-            int x1 = startX + offsetX;
-            int y1 = startY + offsetY;
-            int x2 = x1 + boxWidth;
-            int y2 = y1 + boxHeight;
+        for (int i = 0; i < counter; i++) {
+            int col = i % 2;        // kolom kiri/kanan
+            int x1 = startX + (col == 0 ? 0 : gap);
 
             // Garis dalam box
-            content.append(String.format("L %d %d %d %d 1\n", x1 + 15, y1 + 46, x1 + 248, y1 + 46));
-            content.append(String.format("L %d %d %d %d 1\n", x1 + 33, y1 + 146, x1 + 236, y1 + 146));
-            content.append(String.format("L %d %d %d %d 1\n", x1 + 15, y1 + 190, x1 + 248, y1 + 190));
-            content.append(String.format("L %d %d %d %d 1\n", x1 + 19, y1 + 340, x1 + 245, y1 + 340));
-            content.append(String.format("L %d %d %d %d 1\n", x1 + 15, y1 + 435, x1 + 245, y1 + 435));
+            text.append(String.format("L %d %d %d %d 1\n", x1 + 15, 46, x1 + 248, 46));
+            text.append(String.format("L %d %d %d %d 1\n", x1 + 33, 146, x1 + 236, 146));
+            text.append(String.format("L %d %d %d %d 1\n", x1 + 15, 190, x1 + 248, 190));
+            text.append(String.format("L %d %d %d %d 1\n", x1 + 19, 340, x1 + 245, 340));
+            text.append(String.format("L %d %d %d %d 1\n", x1 + 15, 435, x1 + 245, 435));
 
             // Variant/Single Article
             int variantX = x1 + ((boxWidth - (itemResponse.itemNumber.length() * 12)) / 2);
-            content.append(String.format("T 7 0 %d %d %s\n", variantX, y1 + 6, itemResponse.itemNumber));
+            text.append(String.format("T 7 0 %d %d %s\n", variantX, 6, itemResponse.itemNumber));
 
             // Description (wrap text)
-            content.append(wrapText(itemResponse.description, 55, 15, startX, y1, offsetX, 15)).append("\n");
+            text.append(wrapText(itemResponse.description, 55, 15, startX, 0, x1, 15)).append("\n");
 
             // Category
             String category = itemResponse.productCategory;
             if (!header.isEmpty()) category = category + " - " + header;
-            int categoryX = x1 + ((boxWidth - (category.length() * 12)) / 2);
-            content.append(String.format("T 7 0 %d %d %s\n", categoryX, y1 + 156, category));
+            int categoryX = Math.max(1, (x1 + ((boxWidth - (category.length() * 12)) / 2)));
+            text.append(String.format("T 7 0 %d %d %s\n", categoryX, 156, category));
 
             // WAS price
             if (wasPrice > nowPrice) {
-                String priceWas = itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
-                content.append(String.format("T 0 2 %d %d WAS :  %s\n", x1 + 19, y1 + 351, priceWas));
-                content.append(String.format("LINE %d %d %d %d 1\n", x1 + 19 + 50, y1 + 361, x1 + 19 + 50 + (priceWas.length() * 10), y1 + 361));
+                String priceWas = itemResponse.currency + " " + formatNumber(itemResponse.wasPrice, itemResponse.currency);
+                text.append(String.format("T 0 2 %d %d WAS :  %s\n", x1 + 19, 351, priceWas));
+                text.append(String.format("LINE %d %d %d %d 1\n", x1 + 19 + 50, 361, x1 + 19 + 50 + (priceWas.length() * 10), 361));
             }
             // NOW price
-            content.append(String.format("T 0 2 %d %d NOW :  %s %s\n", x1 + 19, y1 + 381, itemResponse.currency, formatNumber(itemResponse.currentPrice)));
+            text.append(String.format("T 0 2 %d %d NOW :  %s %s\n", x1 + 19, 381, itemResponse.currency, formatNumber(itemResponse.currentPrice, itemResponse.currency)));
 
             // Barcode
             int barcodeX = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 18)) / 2);
-            content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, y1 + 200, itemResponse.eANNumber));
+            text.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, 200, itemResponse.eANNumber));
 
             // Barcode Text
             int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 12)) / 2);
-            content.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 310, itemResponse.eANNumber));
+            text.append(String.format("T 5 0 %d %d %s\n", xText, 310, itemResponse.eANNumber));
         }
 
-        return content.toString();
+        return content.replace("{CONTENT}", text.toString());
     }
 
-    public static String generateMango(int qty, ResultModel itemResponse) {
+    public static String generateMango(String content, int qty, ResultModel itemResponse) {
         int startX = 7;
-        int startY = 0;
         int boxWidth = 264;
-        int boxHeight = 440;
-        int columnSpacing = 32; // jarak antar kolom
-        int rowSpacing = 27;    // jarak antar baris
+        int gap = 300;
 
-        StringBuilder content = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
 
         double wasPrice = parseDouble(itemResponse.wasPrice);
         double nowPrice = parseDouble(itemResponse.currentPrice);
 
-        for (int i = 0; i < qty; i++) {
-            int col = i % 2;        // kolom kiri/kanan
-            int row = i / 2;        // baris ke-
-            int offsetX = col * (columnSpacing + boxWidth);
-            int offsetY = row * (boxHeight + rowSpacing);
+        int counter = (qty > 1) ? 2 : 1;
 
-            int x1 = startX + offsetX;
-            int y1 = startY + offsetY;
-            int x2 = x1 + boxWidth;
-            int y2 = y1 + boxHeight;
+        for (int i = 0; i < counter; i++) {
+            int col = i % 2;        // kolom kiri/kanan
+            int x1 = startX + (col == 0 ? 0 : gap);
 
             // Variant/Article (item number)
             int variantX = x1 + ((boxWidth - (itemResponse.itemNumber.length() * 12)) / 2);
-            content.append(String.format("T 7 0 %d %d %s\n", variantX, y1 + 36, itemResponse.itemNumber));
+            stringBuilder.append(String.format("T 7 0 %d %d %s\n", variantX, 36, itemResponse.itemNumber));
 
             // Description (wrap text)
             int descX = x1 + 7;
             int index = 0;
             String text = itemResponse.description;
-            int yText = y1 + 75;
+            int yText = 75;
             while (index < text.length()) {
                 int end = Math.min(index + MAX_CHARS_PER_LINE, text.length());
                 String line = text.substring(index, end);
-                content.append(String.format("T 7 0 %d %d %s\n", descX, yText, line));
+                stringBuilder.append(String.format("T 7 0 %d %d %s\n", descX, yText, line));
                 yText += 30;
                 index += MAX_CHARS_PER_LINE;
             }
 
             // Price
             if (wasPrice > nowPrice) {
-                String priceWas = "WAS: " + itemResponse.currency + " " + formatNumber(itemResponse.wasPrice);
-                content.append(String.format("T 0 2 %d %d %s\n", x1 + 19, y1 + 310, priceWas));
-                content.append(String.format("LINE %d %d %d %d 1\n", x1 + 19 + 50, y1 + 320, x1 + (priceWas.length() * 10), y1 + 320));
+                String priceWas = "WAS: " + itemResponse.currency + " " + formatNumber(itemResponse.wasPrice, itemResponse.currency);
+                stringBuilder.append(String.format("T 0 2 %d %d %s\n", x1 + 19, 310, priceWas));
+                stringBuilder.append(String.format("LINE %d %d %d %d 1\n", x1 + 19 + 50, 320, x1 + (priceWas.length() * 10), 320));
             }
-            String priceNow = "NOW: " + itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
-            content.append(String.format("T 0 2 %d %d %s\n", x1 + 19, y1 + 345, priceNow));
+            String priceNow = "NOW: " + itemResponse.currency + " " + formatNumber(itemResponse.currentPrice, itemResponse.currency);
+            stringBuilder.append(String.format("T 0 2 %d %d %s\n", x1 + 19, 345, priceNow));
 
             // Barcode
             int barcodeX = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 18)) / 2);
-            content.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, y1 + 150, itemResponse.eANNumber));
+            stringBuilder.append(String.format("BARCODE 128 1 1 100 %d %d %s\n", barcodeX, 150, itemResponse.eANNumber));
 
             // Barcode Text
             int xText = x1 + ((boxWidth - (itemResponse.eANNumber.length() * 12)) / 2);
-            content.append(String.format("T 5 0 %d %d %s\n", xText, y1 + 260, itemResponse.eANNumber));
+            stringBuilder.append(String.format("T 5 0 %d %d %s\n", xText, 260, itemResponse.eANNumber));
         }
 
-        return content.toString();
+        return content.replace("{CONTENT}", stringBuilder.toString());
     }
 
     public static String generateAlo(int qty, ResultModel itemResponse) throws IOException {
@@ -335,7 +319,7 @@ public class TemplateGenerator {
             cpcl.append(String.format("T 0 0 %d %d :%s\n", xColon, y1 + 324, itemResponse.productCategory));
 
             // Harga
-            String price = itemResponse.currency + " " + formatNumber(itemResponse.currentPrice);
+            String price = itemResponse.currency + " " + formatNumber(itemResponse.currentPrice, itemResponse.currency);
 //            int priceX = xField + ((boxWidth - (price.length() * 15)) / 2);
             cpcl.append(String.format("T 5 0 %d %d %s\n", x1 + 30, y1 + 379, price));
 
@@ -371,16 +355,24 @@ public class TemplateGenerator {
         return wrapped.toString();
     }
 
-    public static String formatNumber(String number) {
-        double value = Double.parseDouble(number.replace(",", "."));  // Ubah string ke double
-        // Atur simbol pemisah ribuan
+    public static String formatNumber(String number, String currency) {
+
+        double value = Double.parseDouble(number.replace(",", "."));
+
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setGroupingSeparator('.');
+        symbols.setDecimalSeparator(',');
 
-        // Buat format angka dengan pemisah ribuan
-        DecimalFormat formatter = new DecimalFormat("#,###", symbols);
-        String formattedNumber = formatter.format(value);
+        DecimalFormat formatter;
 
-        return formattedNumber; // Output: 1.234.567
+        if ("IDR".equalsIgnoreCase(currency)) {
+            // Tanpa desimal
+            formatter = new DecimalFormat("#,###", symbols);
+        } else {
+            // Dengan 2 angka desimal
+            formatter = new DecimalFormat("#,##0.00", symbols);
+        }
+
+        return formatter.format(value);
     }
 }

@@ -69,8 +69,8 @@ public class TemplateActivity extends AppCompatActivity {
         dataList.add(new TemplateModel(R.drawable.price_sale, "price_sale_v_even.zpl", "Vertical Sale"));
         if (type.equals("auto")) {
             dataList.add(new TemplateModel(R.drawable.active, "active_even.zpl", "Fashion"));
-            dataList.add(new TemplateModel(R.drawable.mango, "mango.zpl", "Mango"));
-            dataList.add(new TemplateModel(R.drawable.alo, "alo.zpl", "Alo"));
+            dataList.add(new TemplateModel(R.drawable.mango, "mango_even.zpl", "Mango"));
+            dataList.add(new TemplateModel(R.drawable.alo, "alo_even.zpl", "Alo"));
         }
         adapter.notifyDataSetChanged();
     }
